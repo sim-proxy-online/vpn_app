@@ -1,6 +1,6 @@
 <div align="center">
 
-# SimProxy
+# Sim Proxy
 
 **Быстрый VPN/прокси-клиент на ядре Xray. Обходит белые списки и DPI в один тап.**
 

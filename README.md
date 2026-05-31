@@ -4,7 +4,7 @@
 
 **Быстрый VPN/прокси-клиент на ядре Xray. Обходит белые списки и DPI в один тап.**
 
-[![Скачать APK](https://img.shields.io/badge/Скачать-APK-00f0ff?style=for-the-badge&logo=android)](../../releases/latest)
+[![Скачать APK](https://img.shields.io/badge/Скачать-APK-00f0ff?style=for-the-badge&logo=android)](https://github.com/sim-proxy-online/vpn_app/releases/download/SimProxyv2.0.6/SimProxy-v2.0.6.apk)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=for-the-badge&logo=android&logoColor=white)
 ![Xray](https://img.shields.io/badge/core-Xray-555?style=for-the-badge)
 

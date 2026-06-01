@@ -8,7 +8,7 @@
 | Платформа | Файл | Требования |
 |---|---|---|
 | 🤖 **Android** | [SimProxy-v2.0.8.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-v2.0.8.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
-| 🪟 **Windows** | [SimProxy-2.0.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-2.0.0-portable.exe) | Windows 10/11 x64, портативный (установка не требуется) |
+| 🪟 **Windows** | [SimProxy-2.0.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-Setup-2.0.0.exe) | Windows 10/11 x64 |
 
 ---
 
@@ -52,7 +52,7 @@
 3. Добавьте подписку (ссылка / QR / буфер) и нажмите подключение.
 
 **Windows:**
-1. Скачайте [SimProxy-2.0.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-2.0.0-portable.exe).
+1. Скачайте [SimProxy-2.0.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-Setup-2.0.0.exe).
 2. Запустите двойным кликом — установка не нужна.
 3. Профили → добавьте подписку → выберите сервер → подключитесь.
 
@@ -125,8 +125,8 @@ Now on **Windows** too — with the same neon interface.
 3. Add a subscription (link / QR / clipboard) and tap connect.
 
 **Windows:**
-1. Download [SimProxy-2.0.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-2.0.0-portable.exe).
-2. Run it by double-click — no installation needed.
+1. Download [SimProxy-2.0.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-Setup-2.0.0.exe).
+2. Run it by double-click.
 3. Profiles → add a subscription → pick a server → connect.
 
 > ⚠️ **Windows SmartScreen:** the exe is unsigned, so Windows may warn on first launch — click "More info → Run anyway".

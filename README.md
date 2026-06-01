@@ -23,7 +23,7 @@
 - Системное контекстное меню и горячие клавиши (копировать/вставить), авто-очистка системного прокси при выходе.
 
 ### 🤖 Android
-- Стабильный пинг и подключение через Proxy GET (как в Happ) даже на белых списках операторов.
+- Стабильный пинг и подключение через Proxy GET даже на белых списках операторов.
 
 ---
 
@@ -96,7 +96,7 @@ Now on **Windows** too — with the same neon interface.
 - Native context menu and shortcuts (copy/paste), automatic system-proxy cleanup on exit.
 
 ### 🤖 Android
-- Reliable ping and connection via Proxy GET (Happ-style), even on carrier whitelists.
+- Reliable ping and connection via Proxy GET, even on carrier whitelists.
 
 ---
 

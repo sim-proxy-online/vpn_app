@@ -1,58 +1,138 @@
-<div align="center">
-
-# SimProxy
+# SimProxy — Android + Windows
 
 **Быстрый VPN/прокси-клиент на ядре Xray. Обходит белые списки и DPI в один тап.**
+Теперь не только на Android, но и на **Windows** — с тем же неоновым интерфейсом.
 
-[![Скачать APK](https://img.shields.io/badge/Скачать-APK-00f0ff?style=for-the-badge&logo=android)](https://github.com/sim-proxy-online/vpn_app/releases/download/SimProxyv2.0.6/SimProxy-v2.0.6.apk)
-![Android](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=for-the-badge&logo=android&logoColor=white)
-![Xray](https://img.shields.io/badge/core-Xray-555?style=for-the-badge)
+## 📦 Загрузки
 
-</div>
+| Платформа | Файл | Требования |
+|---|---|---|
+| 🤖 **Android** | `SimProxy-v2.0.8-pingfix.apk` | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
+| 🪟 **Windows** | `SimProxy-2.0.0-portable.exe` | Windows 10/11 x64, портативный (установка не требуется) |
 
 ---
 
-## О приложении
+## 🆕 Что нового
 
-SimProxy — Android-клиент на базе **Xray-core** с неоновым интерфейсом, ориентированный на работу в условиях DPI и белых списков мобильных операторов. Реальная проверка серверов через Proxy GET (как в Happ) и фрагментация TLS позволяют подключаться там, где обычные клиенты «не пингуются и не работают».
+### 🪟 Windows-версия (десктоп)
+- Полноценный клиент на **Xray-core** в портативном `.exe` — запуск без установки.
+- **Профиль и список серверов прямо на главной**: слева активная подписка с трафиком и серверами, справа — большая кнопка подключения.
+- **Авто-пинг всех серверов при запуске** — сразу видно лучшие узлы.
+- Закреплённый интерфейс: карточка профиля и кнопка подключения зафиксированы, прокручивается только список серверов.
+- Широкое окно по умолчанию — десктоп-раскладка сразу, без подгонки размеров.
+- Системное контекстное меню и горячие клавиши (копировать/вставить), авто-очистка системного прокси при выходе.
 
-## Возможности
+### 🤖 Android
+- Стабильный пинг и подключение через Proxy GET (как в Happ) даже на белых списках операторов.
+
+---
+
+## ✨ Возможности (обе платформы)
 
 - **17+ протоколов:** VLESS, VMess, Trojan, Shadowsocks, Hysteria/Hysteria2, TUIC, WireGuard, REALITY, ShadowTLS, AnyTLS и др.
-- **Импорт подписок:** по ссылке, QR-коду (камера **и из галереи**), из буфера обмена, **массовой вставкой списка**, **из файла** (.txt/.json/.yaml) и по deep link `sim://` прямо из браузера.
+- **Импорт подписок:** по ссылке, QR-коду, из буфера, массовой вставкой, из файла (.txt/.json/.yaml), deep link `sim://`.
 - **Автоопределение панелей:** Remnawave, Marzban/Marzneshin, 3x-ui, Hiddify.
-- **Авто-выбор лучшего сервера:** «Подключить быстрейший» — пинг всех узлов и выбор минимальной задержки; **избранные** серверы ⭐.
+- **Авто-выбор лучшего сервера** + избранные ⭐, реальная проверка пинга всех узлов.
 - **Обход блокировок:** фрагментация TLS, шумовой трафик, пресет «YouTube Fix».
-- **Профили-сценарии:** Сбалансированный · Стриминг · Игры · Макс. приватность — пресеты DPI/DNS/маршрутизации в один тап.
-- **Умная маршрутизация:** глобально / обход RU / только заблокированное / split-tunnel по приложениям (поиск, иконки, фильтр польз./систем., массовые действия) + свои правила.
+- **Профили-сценарии:** Сбалансированный · Стриминг · Игры · Макс. приватность.
+- **Умная маршрутизация:** глобально / обход RU / только заблокированное / split-tunnel + свои правила.
 - **DNS:** DoH (Cloudflare, Google, AdGuard, Quad9), Fake DNS, защита от утечек.
-- **Стабильность:** **авто-реконнект** при смене сети (Wi-Fi ↔ моб.), Kill Switch, виджет **скорости ↑/↓ в шторке уведомлений**.
-- **Безопасность и диагностика:** **авто-тест IP/DNS-утечек** при подключении, Speed Test, мониторинг качества и трафика.
-- **Резервные копии:** экспорт/импорт всех профилей и настроек одним файлом, опционально с шифрованием паролем (AES-256).
-- **Локализация:** русский и английский интерфейс.
-- **Авто-обновление:** проверка новых версий через GitHub Releases.
-- **Кастомизация:** выбор цвета акцента (перекрашивает весь интерфейс) + онбординг для новичков.
+- **Стабильность:** авто-реконнект при смене сети, Kill Switch, виджет скорости в шторке (Android).
+- **Безопасность:** авто-тест IP/DNS-утечек, Speed Test, мониторинг качества и трафика.
+- **Резервные копии:** экспорт/импорт профилей и настроек (опц. AES-256).
+- **Локализация:** русский и английский.
 
-## Установка
+---
 
-1. Скачайте `SimProxy-vX.Y.Z.apk` со страницы [**Releases**](../../releases/latest).
-2. Откройте файл на Android → разрешите установку из неизвестных источников.
-3. Добавьте подписку (ссылка / QR / буфер) и нажмите кнопку подключения.
+## 🚀 Установка
 
-> Android 7.0+ (API 24), arm64-v8a и armeabi-v7a.
+**Android:**
+1. Скачайте `SimProxy-v2.0.8-pingfix.apk`.
+2. Откройте на устройстве → разрешите установку из неизвестных источников.
+3. Добавьте подписку (ссылка / QR / буфер) и нажмите подключение.
 
-## Deep links
+**Windows:**
+1. Скачайте `SimProxy-2.0.0-portable.exe`.
+2. Запустите двойным кликом — установка не нужна.
+3. Профили → добавьте подписку → выберите сервер → подключитесь.
 
-Открываются прямо из браузера (схемы `sim://` и `happ://`):
+> ⚠️ **Windows SmartScreen:** exe без цифровой подписи, при первом запуске Windows может показать предупреждение — нажмите «Подробнее → Выполнить в любом случае».
 
-| Ссылка | Действие |
-|---|---|
-| `sim://import/<ссылка>` | импорт подписки или одиночного сервера |
-| `sim://add/<url>` · `sim://subscribe/<url>` | импорт подписки |
-| `sim://routing/add/<base64>` | импорт профиля маршрутизации |
+---
 
-Протокольные ссылки (`vless://`, `vmess://`, `trojan://`, `ss://`, `hysteria2://`, `tuic://`, `wireguard://`) импортируются вставкой из буфера обмена.
-
-## Дисклеймер
+## ⚖️ Дисклеймер
 
 Приложение предназначено для законного использования: приватность, доступ к сервисам и обход цензуры там, где это разрешено. Подписку на прокси-серверы пользователь предоставляет сам.
+
+<br>
+
+---
+---
+
+<br>
+
+# SimProxy — Android + Windows (English)
+
+**Fast VPN/proxy client powered by Xray. Bypasses operator whitelists and DPI in one tap.**
+Now on **Windows** too — with the same neon interface.
+
+## 📦 Downloads
+
+| Platform | File | Requirements |
+|---|---|---|
+| 🤖 **Android** | `SimProxy-v2.0.8-pingfix.apk` | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
+| 🪟 **Windows** | `SimProxy-2.0.0-portable.exe` | Windows 10/11 x64, portable (no install required) |
+
+---
+
+## 🆕 What's new
+
+### 🪟 Windows build (desktop)
+- Full **Xray-core** client in a portable `.exe` — runs without installation.
+- **Profile and server list right on the Home screen**: active subscription with traffic and servers on the left, the big connect button on the right.
+- **Auto-ping of all servers on launch** — best nodes are visible immediately.
+- Pinned interface: the profile card and the connect button stay fixed; only the server list scrolls.
+- Wide default window — desktop layout right away, no manual resizing.
+- Native context menu and shortcuts (copy/paste), automatic system-proxy cleanup on exit.
+
+### 🤖 Android
+- Reliable ping and connection via Proxy GET (Happ-style), even on carrier whitelists.
+
+---
+
+## ✨ Features (both platforms)
+
+- **17+ protocols:** VLESS, VMess, Trojan, Shadowsocks, Hysteria/Hysteria2, TUIC, WireGuard, REALITY, ShadowTLS, AnyTLS and more.
+- **Subscription import:** by link, QR code, clipboard, bulk paste, from file (.txt/.json/.yaml), `sim://` deep links.
+- **Panel auto-detection:** Remnawave, Marzban/Marzneshin, 3x-ui, Hiddify.
+- **Best-server auto-pick** + favorites ⭐, real ping test of every node.
+- **Censorship bypass:** TLS fragmentation, noise traffic, "YouTube Fix" preset.
+- **Scenario profiles:** Balanced · Streaming · Gaming · Max privacy.
+- **Smart routing:** global / bypass RU / blocked-only / per-app split tunnel + custom rules.
+- **DNS:** DoH (Cloudflare, Google, AdGuard, Quad9), Fake DNS, leak protection.
+- **Stability:** auto-reconnect on network change, Kill Switch, speed widget in the notification shade (Android).
+- **Security:** automatic IP/DNS leak test, Speed Test, quality & traffic monitoring.
+- **Backups:** export/import of all profiles and settings (optional AES-256).
+- **Localization:** Russian and English.
+
+---
+
+## 🚀 Installation
+
+**Android:**
+1. Download `SimProxy-v2.0.8-pingfix.apk`.
+2. Open it on your device → allow installation from unknown sources.
+3. Add a subscription (link / QR / clipboard) and tap connect.
+
+**Windows:**
+1. Download `SimProxy-2.0.0-portable.exe`.
+2. Run it by double-click — no installation needed.
+3. Profiles → add a subscription → pick a server → connect.
+
+> ⚠️ **Windows SmartScreen:** the exe is unsigned, so Windows may warn on first launch — click "More info → Run anyway".
+
+---
+
+## ⚖️ Disclaimer
+
+This app is intended for lawful use: privacy, access to services, and circumventing censorship where permitted. Proxy server subscriptions are provided by the user.

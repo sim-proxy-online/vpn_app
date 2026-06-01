@@ -8,7 +8,7 @@
 | Платформа | Файл | Требования |
 |---|---|---|
 | 🤖 **Android** | [SimProxy-v2.0.8.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-v2.0.8.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
-| 🪟 **Windows** | [SimProxy-2.0.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-Setup-2.0.0.exe) | Windows 10/11 x64 |
+| 🪟 **Windows** | [SimProxy-2.0.0.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/simproxyexe/SimProxy-Setup-2.0.0.exe) | Windows 10/11 x64 |
 
 ---
 

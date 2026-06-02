@@ -1,3 +1,5 @@
+<img width="1260" height="803" alt="Снимок экрана 2026-06-02 224725" src="https://github.com/user-attachments/assets/a428227b-ffe4-4b2e-b4b5-7c6ef7ee34e6" />
+
 # SimProxy v2.2.2 — Android + Windows
 
 **Быстрый VPN/прокси-клиент на ядре Xray. Обходит белые списки и DPI в один тап.**

@@ -7,7 +7,7 @@
 
 | Платформа | Файл | Требования |
 |---|---|---|
-| 🤖 **Android** | [SimProxy-v2.1.0.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.1.0/sim-proxy-2.1.0.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
+| 🤖 **Android** | [SimProxy-v2.2.0.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.0/SimProxy-v2.2.0.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
 | 🪟 **Windows** |  [SimProxy-2.1.0.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.1.0/SimProxy-Setup-2.1.0.exe) | Windows 10/11 x64.
 
 ---
@@ -23,8 +23,9 @@
 - Системное контекстное меню и горячие клавиши (копировать/вставить), авто-очистка системного прокси при выходе.
 
 ### 🤖 Android
-- **Авто-обновление приложения** — теперь APK скачивается и ставится прямо в приложении: при выходе новой версии появляется окно «Доступно обновление» с прогрессом загрузки и запуском установки в один тап (разрешение «Установка неизвестных приложений» запрашивается один раз).
-- Стабильный пинг и подключение через Proxy GET (как в Happ) даже на белых списках операторов.
+- **Второе ядро mihomo (Clash.Meta)** — поддержка Hysteria, Hysteria2, TUIC, AnyTLS (то, что не умеет Xray). Выбор ядра автоматический по протоколу
+- **Полная поддержка транспортов Xray**: tcp (+http header), ws, grpc, h2, xhttp, splithttp, httpupgrade, kcp, quic. Добавлен WireGuard и socks/http аутбаунды.
+- **HWID-заголовки для подписок** (X-HWID + device-заголовки как у Happ) — подписки с device-lock (3X-UI/Remnawave) теперь отдают реальные сервера, а не заглушки.
 
 ---
 
@@ -48,7 +49,7 @@
 ## 🚀 Установка
 
 **Android:**
-1. Скачайте [SimProxy-v2.1.0.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.1.0/sim-proxy-2.1.0.apk).
+1. Скачайте [SimProxy-v2.2.0.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.0/SimProxy-v2.2.0.apk).
 2. Откройте на устройстве → разрешите установку из неизвестных источников.
 3. Добавьте подписку (ссылка / QR / буфер) и нажмите подключение.
 
@@ -81,7 +82,7 @@ Now on **Windows** too — with the same neon interface.
 
 | Platform | File | Requirements |
 |---|---|---|
-| 🤖 **Android** | [SimProxy-v2.1.0.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.1.0/sim-proxy-2.1.0.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
+| 🤖 **Android** | [SimProxy-v2.2.0.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.0/SimProxy-v2.2.0.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
 | 🪟 **Windows** | [SimProxy-2.1.0.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.1.0/SimProxy-Setup-2.1.0.exe) | Windows 10/11 x64, portable (no install required) |
 
 ---
@@ -122,7 +123,7 @@ Now on **Windows** too — with the same neon interface.
 ## 🚀 Installation
 
 **Android:**
-1. Download [SimProxy-v2.1.0.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.1.0/sim-proxy-2.1.0.apk).
+1. Download [SimProxy-v2.2.0.apk](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.0/SimProxy-v2.2.0.apk).
 2. Open it on your device → allow installation from unknown sources.
 3. Add a subscription (link / QR / clipboard) and tap connect.
 

@@ -1,5 +1,11 @@
 <img width="1260" height="803" alt="Снимок экрана 2026-06-02 224725" src="https://github.com/user-attachments/assets/a428227b-ffe4-4b2e-b4b5-7c6ef7ee34e6" />
 
+## 📦 Загрузки
+
+| Платформа | Файл | Требования |
+|---|---|---|
+| 🤖 **Android** | [`SimProxy-v2.2.3.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.3/SimProxy-v2.2.3.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
+| 🪟 **Windows** | [`SimProxy-2.2.3.exe`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.3/SimProxy-Setup-2.2.3.exe) | Windows 10/11 x64. |
 
 # SimProxy v2.2.3 — Android + Windows
 
@@ -23,13 +29,6 @@
 - **Рамка карточки сервера повторяет цвет большой кнопки** на главном экране.
 
 > Windows также доступен установщиком [`SimProxy-Setup-2.2.3.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.3/SimProxy-Setup-2.2.3.exe)` (помимо портативной версии).
-
-## 📦 Загрузки
-
-| Платформа | Файл | Требования |
-|---|---|---|
-| 🤖 **Android** | [`SimProxy-v2.2.3.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.3/SimProxy-v2.2.3.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
-| 🪟 **Windows** | [`SimProxy-2.2.3.exe`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.3/SimProxy-Setup-2.2.3.exe) | Windows 10/11 x64. |
 
 ---
 

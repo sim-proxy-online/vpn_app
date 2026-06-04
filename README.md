@@ -4,10 +4,10 @@
 
 | Платформа | Файл | Требования |
 |---|---|---|
-| 🤖 **Android** | [`SimProxy-v2.2.4.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.4/app-release.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
+| 🤖 **Android** | [`SimProxy-v2.2.6.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.6/SimProxy-v2.2.6.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
 | 🪟 **Windows** | [`SimProxy-2.2.4.exe`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.4/SimProxy-Setup-2.2.4.exe) | Windows 10/11 x64. |
 
-# SimProxy v2.2.4 — Android + Windows
+# SimProxy v2.2.6 — Android + Windows
 
 **Быстрый VPN/прокси-клиент на ядре Xray. Обходит белые списки и DPI в один тап.**
 Теперь не только на Android, но и на **Windows** — с тем же неоновым интерфейсом.
@@ -66,7 +66,7 @@
 ## 🚀 Установка
 
 **Android:**
-1. Скачайте [`SimProxy-v2.2.4.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.4/app-release.apk).
+1. Скачайте [`SimProxy-v2.2.6.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.6/SimProxy-v2.2.6.apk).
 2. Откройте на устройстве → разрешите установку из неизвестных источников.
 3. Добавьте подписку (ссылка / QR / буфер) и нажмите подключение.
 
@@ -99,7 +99,7 @@ Now on **Windows** too — with the same neon interface.
 
 | Platform | File | Requirements |
 |---|---|---|
-| 🤖 **Android** | [`SimProxy-v2.2.4.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.4/app-release.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
+| 🤖 **Android** | [`SimProxy-v2.2.6.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.6/SimProxy-v2.2.6.apk) | Android 7.0+ (API 24), arm64-v8a / armeabi-v7a |
 | 🪟 **Windows** | [`SimProxy-2.2.4.exe`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.4/SimProxy-Setup-2.2.4.exe) | Windows 10/11 x64, portable (no install required) |
 
 ---
@@ -140,7 +140,7 @@ Now on **Windows** too — with the same neon interface.
 ## 🚀 Installation
 
 **Android:**
-1. Download [`SimProxy-v2.2.4.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.4/app-release.apk).
+1. Download [`SimProxy-v2.2.6.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.2.6/SimProxy-v2.2.6.apk).
 2. Open it on your device → allow installation from unknown sources.
 3. Add a subscription (link / QR / clipboard) and tap connect.
 

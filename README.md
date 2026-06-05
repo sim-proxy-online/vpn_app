@@ -32,10 +32,6 @@
 <a href="https://github.com/sim-proxy-online/vpn_app/releases/download/v2.3.0/SimProxy-Setup-2.3.0.exe">
   <img src="https://img.shields.io/badge/↓%20SimProxy--Setup--2.3.0.exe-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Установщик Windows"/>
 </a>
-&nbsp;
-<a href="https://github.com/sim-proxy-online/vpn_app/releases/download/v2.3.0/SimProxy-2.3.0-portable.exe">
-  <img src="https://img.shields.io/badge/Portable-.exe-555555?style=for-the-badge&logo=windows&logoColor=white" alt="Portable Windows"/>
-</a>
 
 > Windows 10/11 · x64
 

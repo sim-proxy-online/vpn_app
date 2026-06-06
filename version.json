@@ -1,0 +1,6 @@
+{
+  "version": "2.4.1",
+  "apkUrl": "https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.1/SimProxy-v2.4.1.apk",
+  "pageUrl": "https://github.com/sim-proxy-online/vpn_app/releases/tag/v2.4.1",
+  "notes": "Антифильтр-пинг — полный рефактор.\n\nФиксированы ложные пинги у серверов, заблокированных белыми списками (ТСПУ). Устаревшие кэш-данные больше не влияют на отображение пингов."
+}

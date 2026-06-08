@@ -21,7 +21,6 @@
 | Платформа | Вариант | |
 |:---:|:---:|:---:|
 | 🤖 **Android** <br><sub>7.0+ · arm64-v8a · armeabi-v7a</sub> | APK | [![](https://img.shields.io/badge/Скачать%20APK-v2.4.2-00f0ff?style=for-the-badge&logo=android&logoColor=black)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.2.apk) |
-| 🖥️ **Windows** <br><sub>10 / 11 · x64</sub> | Portable <sub>без установки</sub> | [![](https://img.shields.io/badge/Portable-.exe-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-2.4.2-portable.exe) |
 | 🖥️ **Windows** <br><sub>10 / 11 · x64</sub> | Installer <sub>+ авто-обновление</sub> | [![](https://img.shields.io/badge/Installer-.exe-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-Setup-2.4.2.exe) |
 
 </div>
@@ -46,7 +45,7 @@ SimProxy — Android-клиент на базе **Xray-core** с неоновы�
 - **17+ протоколов:** VLESS, VMess, Trojan, Shadowsocks, Hysteria/Hysteria2, TUIC, WireGuard, REALITY, ShadowTLS, AnyTLS и др.
 - **Импорт подписок:** по ссылке, QR-коду (камера **и из галереи**), из буфера обмена, **массовой вставкой списка**, **из файла** (.txt/.json/.yaml) и по deep link `sim://` прямо из браузера.
 - **Автоопределение панелей:** Remnawave, Marzban/Marzneshin, 3x-ui, Hiddify.
-- **Авто-выбор лучшего сервера:** «Подключить быстрейший» — пинг всех узлов и выбор минимальной задержки; **избранные** серверы ⭐.
+- **Авто-выбор лучшего сервера:** «Подключить быстрейший» — пинг всех узлов и выбор минимальной задержки.
 - **Обход блокировок:** фрагментация TLS, шумовой трафик, пресет «YouTube Fix».
 - **Профили-сценарии:** Сбалансированный · Стриминг · Игры · Макс. приватность — пресеты DPI/DNS/маршрутизации в один тап.
 - **Умная маршрутизация:** глобально / обход RU / только заблокированное / split-tunnel по приложениям (поиск, иконки, фильтр польз./систем., массовые действия) + свои правила.
@@ -69,26 +68,6 @@ SimProxy — Android-клиент на базе **Xray-core** с неоновы�
 | `sim://routing/add/<base64>` | импорт профиля маршрутизации |
 
 Протокольные ссылки (`vless://`, `vmess://`, `trojan://`, `ss://`, `hysteria2://`, `tuic://`, `wireguard://`) импортируются вставкой из буфера обмена.
-
-## Сборка из исходников
-
-```bash
-npm install
-node build_apk.cjs   # vite build → prepare-android → gradle assembleRelease
-```
-
-Windows (PowerShell):
-
-```powershell
-npm install
-npm run build
-$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-./android/gradlew.bat -p ./android assembleRelease --no-daemon
-```
-
-APK появится в `android/app/build/outputs/apk/release/app-release.apk`.
-
-**Стек:** React 19 + Vite + TailwindCSS (WebView через Capacitor) · Xray-core (libxray) · tun2socks.
 
 ## Дисклеймер
 

@@ -5,9 +5,12 @@
 
 **Быстрый VPN/прокси-клиент на ядре Xray. Обходит белые списки и DPI в один тап.**
 
-[![Скачать APK](https://img.shields.io/badge/Скачать%20APK-v2.4.1-00f0ff?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.1.apk)
+[![Скачать APK](https://img.shields.io/badge/Android%20APK-v2.4.2-00f0ff?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.2.apk)
+[![Windows Portable](https://img.shields.io/badge/Windows%20Portable-v2.4.2-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-2.4.2-portable.exe)
+[![Windows Installer](https://img.shields.io/badge/Windows%20Installer-v2.4.2-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-Setup-2.4.2.exe)
 [![Releases](https://img.shields.io/github/v/release/sim-proxy-online/vpn_app?style=for-the-badge&label=Releases&color=7c3aed)](https://github.com/sim-proxy-online/vpn_app/releases)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=for-the-badge&logo=android&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=for-the-badge&logo=windows&logoColor=white)
 ![Xray](https://img.shields.io/badge/core-Xray-555?style=for-the-badge)
 
 </div>
@@ -37,7 +40,7 @@ SimProxy — Android-клиент на базе **Xray-core** с неоновы�
 
 ## Установка
 
-1. Скачайте [`SimProxy-v2.4.1.apk`](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.1.apk) или перейдите на страницу [**Releases**](https://github.com/sim-proxy-online/vpn_app/releases/latest).
+1. Скачайте [`SimProxy-v2.4.1.apk`](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.2.apk) или перейдите на страницу [**Releases**](https://github.com/sim-proxy-online/vpn_app/releases/latest).
 2. Откройте файл на Android → разрешите установку из неизвестных источников.
 3. Добавьте подписку (ссылка / QR / буфер) и нажмите кнопку подключения.
 

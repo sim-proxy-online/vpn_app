@@ -58,27 +58,6 @@ SimProxy — Android-клиент на базе **Xray-core** с неоновы�
 
 Протокольные ссылки (`vless://`, `vmess://`, `trojan://`, `ss://`, `hysteria2://`, `tuic://`, `wireguard://`) импортируются вставкой из буфера обмена.
 
-## Сборка из исходников
-
-```bash
-npm install
-node build_apk.cjs   # vite build → prepare-android → gradle assembleRelease
-```
-
-Windows (PowerShell):
-
-```powershell
-npm install
-npm run build                          # сборка веб-части (Vite)
-node android/prepare-android.cjs       # копирование ассетов в Android-проект
-$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-./android/gradlew.bat -p ./android assembleRelease --no-daemon
-```
-
-APK появится в `android/app/build/outputs/apk/release/app-release.apk`.
-
-**Стек:** React 19 + Vite + TailwindCSS (WebView через Capacitor) · Xray-core (libxray) · tun2socks.
-
 ## Дисклеймер
 
 Приложение предназначено для законного использования: приватность, доступ к сервисам и обход цензуры там, где это разрешено. Подписку на прокси-серверы пользователь предоставляет сам.

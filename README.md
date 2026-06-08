@@ -5,15 +5,35 @@
 
 **Быстрый VPN/прокси-клиент на ядре Xray. Обходит белые списки и DPI в один тап.**
 
-[![Скачать APK](https://img.shields.io/badge/Android%20APK-v2.4.2-00f0ff?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.2.apk)
-[![Windows Portable](https://img.shields.io/badge/Windows%20Portable-v2.4.2-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-2.4.2-portable.exe)
-[![Windows Installer](https://img.shields.io/badge/Windows%20Installer-v2.4.2-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-Setup-2.4.2.exe)
-[![Releases](https://img.shields.io/github/v/release/sim-proxy-online/vpn_app?style=for-the-badge&label=Releases&color=7c3aed)](https://github.com/sim-proxy-online/vpn_app/releases)
+[![Версия](https://img.shields.io/github/v/release/sim-proxy-online/vpn_app?style=for-the-badge&label=Версия&color=7c3aed)](https://github.com/sim-proxy-online/vpn_app/releases)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=for-the-badge&logo=android&logoColor=white)
 ![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=for-the-badge&logo=windows&logoColor=white)
 ![Xray](https://img.shields.io/badge/core-Xray-555?style=for-the-badge)
 
 </div>
+
+---
+
+## ⬇️ Скачать
+
+<div align="center">
+
+| Платформа | Вариант | |
+|:---:|:---:|:---:|
+| 🤖 **Android** <br><sub>7.0+ · arm64-v8a · armeabi-v7a</sub> | APK | [![](https://img.shields.io/badge/Скачать%20APK-v2.4.2-00f0ff?style=for-the-badge&logo=android&logoColor=black)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.2.apk) |
+| 🖥️ **Windows** <br><sub>10 / 11 · x64</sub> | Portable <sub>без установки</sub> | [![](https://img.shields.io/badge/Portable-.exe-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-2.4.2-portable.exe) |
+| 🖥️ **Windows** <br><sub>10 / 11 · x64</sub> | Installer <sub>+ авто-обновление</sub> | [![](https://img.shields.io/badge/Installer-.exe-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-Setup-2.4.2.exe) |
+
+</div>
+
+<div align="center">
+
+[📋 Все релизы и changelog](https://github.com/sim-proxy-online/vpn_app/releases)
+
+</div>
+
+> **Android:** откройте APK → разрешите установку из неизвестных источников → добавьте подписку → подключайтесь.  
+> **Windows Portable:** запустите `.exe` напрямую, без установки. **Installer:** устанавливается в систему, обновляется автоматически.
 
 ---
 
@@ -38,14 +58,6 @@ SimProxy — Android-клиент на базе **Xray-core** с неоновы�
 - **Авто-обновление:** проверка новых версий через [GitHub Releases](https://github.com/sim-proxy-online/vpn_app/releases).
 - **Кастомизация:** выбор цвета акцента (перекрашивает весь интерфейс) + онбординг для новичков.
 
-## Установка
-
-1. Скачайте [`SimProxy-v2.4.1.apk`](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.2.apk) или перейдите на страницу [**Releases**](https://github.com/sim-proxy-online/vpn_app/releases/latest).
-2. Откройте файл на Android → разрешите установку из неизвестных источников.
-3. Добавьте подписку (ссылка / QR / буфер) и нажмите кнопку подключения.
-
-> Android 7.0+ (API 24), arm64-v8a и armeabi-v7a.
-
 ## Deep links
 
 Открываются прямо из браузера (схемы `sim://` и `happ://`):
@@ -57,6 +69,26 @@ SimProxy — Android-клиент на базе **Xray-core** с неоновы�
 | `sim://routing/add/<base64>` | импорт профиля маршрутизации |
 
 Протокольные ссылки (`vless://`, `vmess://`, `trojan://`, `ss://`, `hysteria2://`, `tuic://`, `wireguard://`) импортируются вставкой из буфера обмена.
+
+## Сборка из исходников
+
+```bash
+npm install
+node build_apk.cjs   # vite build → prepare-android → gradle assembleRelease
+```
+
+Windows (PowerShell):
+
+```powershell
+npm install
+npm run build
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+./android/gradlew.bat -p ./android assembleRelease --no-daemon
+```
+
+APK появится в `android/app/build/outputs/apk/release/app-release.apk`.
+
+**Стек:** React 19 + Vite + TailwindCSS (WebView через Capacitor) · Xray-core (libxray) · tun2socks.
 
 ## Дисклеймер
 

@@ -8,7 +8,6 @@
 [![Версия](https://img.shields.io/github/v/release/sim-proxy-online/vpn_app?style=for-the-badge&label=Версия&color=7c3aed)](https://github.com/sim-proxy-online/vpn_app/releases)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=for-the-badge&logo=android&logoColor=white)
 ![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=for-the-badge&logo=windows&logoColor=white)
-![Xray](https://img.shields.io/badge/core-Xray-555?style=for-the-badge)
 
 </div>
 

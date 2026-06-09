@@ -19,8 +19,8 @@
 
 | Платформа | Вариант | 
 |:---:|:---:|
-| 🤖 **Android** <br><sub>7.0+ · arm64-v8a · armeabi-v7a</sub> | [![](https://img.shields.io/badge/Скачать%20APK-v2.4.3-00f0ff?style=for-the-badge&logo=android&logoColor=black)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-v2.4.3.apk) 
-| 🖥️ **Windows** <br><sub>10 / 11 · x64</sub> | [![](https://img.shields.io/badge/Installer-.exe-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/latest/download/SimProxy-Setup-2.4.3.exe) 
+| 🤖 **Android** <br><sub>7.0+ · arm64-v8a · armeabi-v7a</sub> | [![](https://img.shields.io/badge/Скачать%20APK-v2.4.4-00f0ff?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.4/SimProxy-v2.4.4.apk) 
+| 🖥️ **Windows** <br><sub>10 / 11 · x64</sub> | [![](https://img.shields.io/badge/Installer-.exe-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.4/SimProxy-Setup-2.4.4.exe) 
 
 </div>
 

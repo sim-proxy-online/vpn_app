@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/icon.png" alt="SimProxy" width="96" />
+<img width="1920" height="1200" alt="Screenshot_20260603-183232" src="https://github.com/user-attachments/assets/9613eaf3-2c77-4247-97f4-fa5c13ebf3c8" />
 
 # SimProxy
 

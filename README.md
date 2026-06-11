@@ -1,60 +1,107 @@
-<img width="1920" height="1200" alt="Screenshot_20260603-183232" src="https://github.com/user-attachments/assets/bf0a6bca-d6b7-4833-994d-dd340329c796" />
 <div align="center">
+
+<img src="public/icon.png" alt="SimProxy" width="96" />
 
 # SimProxy
 
-**Быстрый VPN/прокси-клиент на ядре Xray. Обходит белые списки и DPI в один тап.**
+**Быстрый VPN-клиент на ядре Xray для Android и Windows**  
+Обходит DPI и белые списки — там, где другие клиенты не работают
 
-[![Версия](https://img.shields.io/github/v/release/sim-proxy-online/vpn_app?style=for-the-badge&label=Версия&color=7c3aed)](https://github.com/sim-proxy-online/vpn_app/releases)
-![Android](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=for-the-badge&logo=android&logoColor=white)
-![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=for-the-badge&logo=windows&logoColor=white)
+<br/>
 
-</div>
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.4.5-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-v2.4.5.apk)
+[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.4.5-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-Setup-2.4.5.exe)
+[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.4.5-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-2.4.5-portable.exe)
 
----
+<br/>
 
-## ⬇️ Скачать
-
-<div align="center">
-
-| Платформа | Вариант | 
-|:---:|:---:|
-| 🤖 **Android** <br><sub>7.0+ · arm64-v8a · armeabi-v7a</sub> | [![](https://img.shields.io/badge/Скачать%20APK-v2.4.4-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.4/SimProxy-v2.4.4.apk) 
-| 🖥️ **Windows** <br><sub>10 / 11 · x64</sub> | [![](https://img.shields.io/badge/Installer-.exe-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.4/SimProxy-Setup-2.4.4.exe) 
+![Android 7+](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android&logoColor=white)
+![Windows 10+](https://img.shields.io/badge/Windows-10%2B-0078d4?style=flat-square&logo=windows&logoColor=white)
+![Xray Core](https://img.shields.io/badge/core-Xray-555555?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.4.5-00f0ff?style=flat-square)
 
 </div>
-
-<div align="center">
-
-[📋 Все релизы и changelog](https://github.com/sim-proxy-online/vpn_app/releases)
-
-</div>
-
-> **Android:** откройте APK → разрешите установку из неизвестных источников → добавьте подписку → подключайтесь.  
-> **Windows Portable:** запустите `.exe` напрямую, без установки. **Installer:** устанавливается в систему, обновляется автоматически.
 
 ---
 
 ## О приложении
 
-SimProxy — Android-клиент на базе **Xray-core** с неоновым интерфейсом, ориентированный на работу в условиях DPI и белых списков мобильных операторов. Реальная проверка серверов через Proxy GET и фрагментация TLS позволяют подключаться там, где обычные клиенты «не пингуются и не работают».
+**SimProxy** — клиент на базе [Xray-core](https://github.com/XTLS/Xray-core) с поддержкой 17+ протоколов. Специально оптимизирован для работы в России и других странах с жёстким DPI: фрагментация TLS ClientHello, шумовой трафик и умная система пресетов позволяют подключаться там, где обычные клиенты показывают -1.
+
+---
 
 ## Возможности
 
-- **17+ протоколов:** VLESS, VMess, Trojan, Shadowsocks, Hysteria/Hysteria2, TUIC, WireGuard, REALITY, ShadowTLS, AnyTLS и др.
-- **Импорт подписок:** по ссылке, QR-коду (камера **и из галереи**), из буфера обмена, **массовой вставкой списка**, **из файла** (.txt/.json/.yaml) и по deep link `sim://` прямо из браузера.
-- **Автоопределение панелей:** Remnawave, Marzban/Marzneshin, 3x-ui, Hiddify.
-- **Авто-выбор лучшего сервера:** «Подключить быстрейший» — пинг всех узлов и выбор минимальной задержки.
-- **Обход блокировок:** фрагментация TLS, шумовой трафик, пресет «YouTube Fix».
-- **Профили-сценарии:** Сбалансированный · Стриминг · Игры · Макс. приватность — пресеты DPI/DNS/маршрутизации в один тап.
-- **Умная маршрутизация:** глобально / обход RU / только заблокированное / split-tunnel по приложениям (поиск, иконки, фильтр польз./систем., массовые действия) + свои правила.
-- **DNS:** DoH (Cloudflare, Google, AdGuard, Quad9), Fake DNS, защита от утечек.
-- **Стабильность:** **авто-реконнект** при смене сети (Wi-Fi ↔ моб.), Kill Switch, виджет **скорости ↑/↓ в шторке уведомлений**.
-- **Безопасность и диагностика:** **авто-тест IP/DNS-утечек** при подключении, Speed Test, мониторинг качества и трафика.
-- **Резервные копии:** экспорт/импорт всех профилей и настроек одним файлом, опционально с шифрованием паролем (AES-256).
-- **Локализация:** русский и английский интерфейс.
-- **Авто-обновление:** проверка новых версий через [GitHub Releases](https://github.com/sim-proxy-online/vpn_app/releases).
-- **Кастомизация:** выбор цвета акцента (перекрашивает весь интерфейс) + онбординг для новичков.
+### Протоколы
+VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REALITY · ShadowTLS · AnyTLS · SOCKS · HTTP · SSH · Brook · Naive · XHTTPv2
+
+### Подписки и серверы
+- Импорт по ссылке, QR-коду (камера + галерея), из буфера обмена, из файла `.txt/.json/.yaml`
+- Массовая вставка списка серверов
+- Deep link `sim://` и `happ://` — открывается прямо из браузера
+- **Автоопределение панелей:** Remnawave, Marzban/Marzneshin, 3x-ui, Hiddify
+- Авто-обновление подписок по расписанию
+- Отображение трафика, даты истечения и статуса подписки
+
+### Обход блокировок
+- **Авто-пресет по оператору** — определяет МТС / Мегафон / Теле2 / Ростелеком / Билайн и применяет нужные настройки DPI автоматически при запуске
+- **Фрагментация TLS** — разбивает ClientHello на части, обходя DPI и белые списки
+- **Шумовой трафик (Noises)** — дополнительная обфускация соединения
+- Пресеты: `МТС · Мегафон · Теле2` / `Ростелеком · Дом.ру` / `YouTube / Instagram` / `Максимум`
+
+### Подключение и маршрутизация
+- **Авто-выбор лучшего сервера** — пинг всех узлов и подключение к быстрейшему
+- **Умная маршрутизация:** Глобально · Обход RU · Только заблокированное · Обход локальных
+- **Split-tunnel по приложениям** — выбираешь какие приложения идут через VPN
+- Прямой доступ к российским банкам и сервисам (Госуслуги, Сбер, Тинькофф, ВТБ и др.)
+- Пользовательские правила маршрутизации (домены, IP, geoIP)
+- Блокировка рекламы
+
+### Стабильность
+- **Авто-реконнект** при смене сети (Wi-Fi ↔ мобильная)
+- **Kill Switch** — блокирует трафик при обрыве VPN
+- Watchdog — обнаруживает зависание трафика и переподключается
+- **Авто-переключение** на другой сервер при деградации
+
+### Безопасность и диагностика
+- Авто-тест IP и DNS-утечек при подключении
+- Speed Test — замер реальной скорости через сервер
+- Мониторинг качества соединения (задержка, потери, jitter)
+- **DoH / Fake DNS** — защита DNS-запросов
+- Хосты-маппинг, выбор первичного/резервного DNS
+
+### Интерфейс
+- Неоновый тёмный UI с выбором цвета акцента
+- Dashboard: графики трафика, история, карта серверов
+- Виджет скорости ↑/↓ в шторке уведомлений (Android)
+- Русский и английский интерфейс
+- Онбординг для новых пользователей
+
+### Данные и экспорт
+- Резервная копия всех профилей и настроек одним файлом
+- Опциональное шифрование бэкапа (AES-256)
+- **Авто-обновление приложения** через GitHub Releases
+
+---
+
+## Установка
+
+### Android
+1. Скачайте [`SimProxy-v2.4.5.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-v2.4.5.apk)
+2. Откройте файл на устройстве → разрешите установку из неизвестных источников
+3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите кнопку подключения
+
+> Требования: Android 7.0+ (API 24), arm64 или arm32
+
+### Windows
+| Вариант | Ссылка | Описание |
+|---|---|---|
+| Установщик | [SimProxy-Setup-2.4.5.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-Setup-2.4.5.exe) | Устанавливает в профиль пользователя, без прав администратора |
+| Portable | [SimProxy-2.4.5-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-2.4.5-portable.exe) | Запускается без установки |
+
+> Требования: Windows 10+ x64
+
+---
 
 ## Deep links
 
@@ -62,12 +109,35 @@ SimProxy — Android-клиент на базе **Xray-core** с неоновы�
 
 | Ссылка | Действие |
 |---|---|
-| `sim://import/<ссылка>` | импорт подписки или одиночного сервера |
+| `sim://import/<url>` | импорт подписки или сервера |
 | `sim://add/<url>` · `sim://subscribe/<url>` | импорт подписки |
 | `sim://routing/add/<base64>` | импорт профиля маршрутизации |
 
-Протокольные ссылки (`vless://`, `vmess://`, `trojan://`, `ss://`, `hysteria2://`, `tuic://`, `wireguard://`) импортируются вставкой из буфера обмена.
+Протокольные ссылки `vless://` `vmess://` `trojan://` `ss://` `hysteria2://` `tuic://` `wireguard://` — вставляются из буфера обмена.
+
+---
+
+## Сборка из исходников
+
+**Android:**
+```bash
+npm install
+npm run build                          # Vite → dist/index.html
+cd android && ./gradlew assembleRelease
+# APK: android/app/build/outputs/apk/release/app-release.apk
+```
+
+**Windows:**
+```powershell
+npm install
+npm run electron:build
+# Артефакты: desktop/dist-exe/
+```
+
+**Стек:** React 19 + Vite + TailwindCSS + Capacitor (Android) · Electron (Windows) · Xray-core · Mihomo (Clash.Meta) · tun2socks
+
+---
 
 ## Дисклеймер
 
-Приложение предназначено для законного использования: приватность, доступ к сервисам и обход цензуры там, где это разрешено. Подписку на прокси-серверы пользователь предоставляет сам.
+Приложение предназначено для законного использования: приватность, доступ к сервисам и обход цензуры там, где это разрешено. Подписку на прокси-серверы пользователь предоставляет самостоятельно.

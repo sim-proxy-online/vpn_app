@@ -9,16 +9,16 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.4.5-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-v2.4.5.apk)
-[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.4.5-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-Setup-2.4.5.exe)
-[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.4.5-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-2.4.5-portable.exe)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.4.6-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.6/SimProxy-v2.4.6.apk)
+[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.4.6-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.6/SimProxy-Setup-2.4.6.exe)
+[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.4.6-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.6/SimProxy-2.4.6-portable.exe)
 
 <br/>
 
 ![Android 7+](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android&logoColor=white)
 ![Windows 10+](https://img.shields.io/badge/Windows-10%2B-0078d4?style=flat-square&logo=windows&logoColor=white)
 ![Xray Core](https://img.shields.io/badge/core-Xray-555555?style=flat-square)
-![Version](https://img.shields.io/badge/version-2.4.5-00f0ff?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.4.6-00f0ff?style=flat-square)
 
 </div>
 
@@ -87,7 +87,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`SimProxy-v2.4.5.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-v2.4.5.apk)
+1. Скачайте [`SimProxy-v2.4.6.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.6/SimProxy-v2.4.6.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите кнопку подключения
 
@@ -96,8 +96,8 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ### Windows
 | Вариант | Ссылка | Описание |
 |---|---|---|
-| Установщик | [SimProxy-Setup-2.4.5.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-Setup-2.4.5.exe) | Устанавливает в профиль пользователя |
-| Portable | [SimProxy-2.4.5-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-2.4.5-portable.exe) | Запускается без установки |
+| Установщик | [SimProxy-Setup-2.4.6.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.6/SimProxy-Setup-2.4.6.exe) | Устанавливает в профиль пользователя, без прав администратора |
+| Portable | [SimProxy-2.4.6-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.6/SimProxy-2.4.6-portable.exe) | Запускается без установки |
 
 > Требования: Windows 10+ x64
 
@@ -114,6 +114,27 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 | `sim://routing/add/<base64>` | импорт профиля маршрутизации |
 
 Протокольные ссылки `vless://` `vmess://` `trojan://` `ss://` `hysteria2://` `tuic://` `wireguard://` — вставляются из буфера обмена.
+
+---
+
+## Сборка из исходников
+
+**Android:**
+```bash
+npm install
+npm run build                          # Vite → dist/index.html
+cd android && ./gradlew assembleRelease
+# APK: android/app/build/outputs/apk/release/app-release.apk
+```
+
+**Windows:**
+```powershell
+npm install
+npm run electron:build
+# Артефакты: desktop/dist-exe/
+```
+
+**Стек:** React 19 + Vite + TailwindCSS + Capacitor (Android) · Electron (Windows) · Xray-core · Mihomo (Clash.Meta) · tun2socks
 
 ---
 

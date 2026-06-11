@@ -117,27 +117,6 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 
 ---
 
-## Сборка из исходников
-
-**Android:**
-```bash
-npm install
-npm run build                          # Vite → dist/index.html
-cd android && ./gradlew assembleRelease
-# APK: android/app/build/outputs/apk/release/app-release.apk
-```
-
-**Windows:**
-```powershell
-npm install
-npm run electron:build
-# Артефакты: desktop/dist-exe/
-```
-
-**Стек:** React 19 + Vite + TailwindCSS + Capacitor (Android) · Electron (Windows) · Xray-core · Mihomo (Clash.Meta) · tun2socks
-
----
-
 ## Дисклеймер
 
 Приложение предназначено для законного использования: приватность, доступ к сервисам и обход цензуры там, где это разрешено. Подписку на прокси-серверы пользователь предоставляет самостоятельно.

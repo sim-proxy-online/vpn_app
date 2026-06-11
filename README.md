@@ -96,7 +96,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ### Windows
 | Вариант | Ссылка | Описание |
 |---|---|---|
-| Установщик | [SimProxy-Setup-2.4.5.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-Setup-2.4.5.exe) | Устанавливает в профиль пользователя, без прав администратора |
+| Установщик | [SimProxy-Setup-2.4.5.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-Setup-2.4.5.exe) | Устанавливает в профиль пользователя |
 | Portable | [SimProxy-2.4.5-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.5/SimProxy-2.4.5-portable.exe) | Запускается без установки |
 
 > Требования: Windows 10+ x64
@@ -114,27 +114,6 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 | `sim://routing/add/<base64>` | импорт профиля маршрутизации |
 
 Протокольные ссылки `vless://` `vmess://` `trojan://` `ss://` `hysteria2://` `tuic://` `wireguard://` — вставляются из буфера обмена.
-
----
-
-## Сборка из исходников
-
-**Android:**
-```bash
-npm install
-npm run build                          # Vite → dist/index.html
-cd android && ./gradlew assembleRelease
-# APK: android/app/build/outputs/apk/release/app-release.apk
-```
-
-**Windows:**
-```powershell
-npm install
-npm run electron:build
-# Артефакты: desktop/dist-exe/
-```
-
-**Стек:** React 19 + Vite + TailwindCSS + Capacitor (Android) · Electron (Windows) · Xray-core · Mihomo (Clash.Meta) · tun2socks
 
 ---
 

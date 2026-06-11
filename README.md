@@ -9,16 +9,16 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.4.7-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.7/SimProxy-v2.4.7.apk)
-[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.4.7-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.7/SimProxy-Setup-2.4.7.exe)
-[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.4.7-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.7/SimProxy-2.4.7-portable.exe)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.4.8-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.8/SimProxy-v2.4.8.apk)
+[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.4.8-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.8/SimProxy-Setup-2.4.8.exe)
+[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.4.8-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.8/SimProxy-2.4.8-portable.exe)
 
 <br/>
 
 ![Android 7+](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android&logoColor=white)
 ![Windows 10+](https://img.shields.io/badge/Windows-10%2B-0078d4?style=flat-square&logo=windows&logoColor=white)
 ![Xray Core](https://img.shields.io/badge/core-Xray-555555?style=flat-square)
-![Version](https://img.shields.io/badge/version-2.4.7-00f0ff?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.4.8-00f0ff?style=flat-square)
 
 </div>
 
@@ -87,7 +87,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`SimProxy-v2.4.7.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.7/SimProxy-v2.4.7.apk)
+1. Скачайте [`SimProxy-v2.4.8.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.8/SimProxy-v2.4.8.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите кнопку подключения
 
@@ -96,8 +96,8 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ### Windows
 | Вариант | Ссылка | Описание |
 |---|---|---|
-| Установщик | [SimProxy-Setup-2.4.7.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.7/SimProxy-Setup-2.4.7.exe) | Устанавливает в профиль пользователя, без прав администратора |
-| Portable | [SimProxy-2.4.7-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.7/SimProxy-2.4.7-portable.exe) | Запускается без установки |
+| Установщик | [SimProxy-Setup-2.4.8.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.8/SimProxy-Setup-2.4.8.exe) | Устанавливает в профиль пользователя, без прав администратора |
+| Portable | [SimProxy-2.4.8-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.8/SimProxy-2.4.8-portable.exe) | Запускается без установки |
 
 > Требования: Windows 10+ x64
 

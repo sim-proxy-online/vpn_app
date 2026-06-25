@@ -1,0 +1,61 @@
+name: Build iOS (cloud macOS, no Mac needed)
+
+# Собирает iOS-приложение SimProxy на облачном macOS-раннере GitHub — свой Mac не нужен.
+# Результат: НЕподписанный .ipa (артефакт прогона). Установка на iPhone:
+#   • через AltStore / Sideloadly с Windows (переподпишут вашим Apple ID), либо
+#   • добавив сертификаты Apple Developer в секреты и включив подпись (см. IOS_SETUP.md).
+#
+# ⚠️ Это собирает интерфейс-приложение. VPN-туннель на iOS требует Network Extension
+#    и платного Apple Developer — см. раздел про VPN в IOS_SETUP.md.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
+
+      - name: Build unsigned .app (archive)
+        run: |
+          cd ios/App
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath "$PWD/build/App.xcarchive" \
+            archive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+
+      - name: Package unsigned IPA
+        run: |
+          cd ios/App/build
+          mkdir -p Payload
+          cp -R App.xcarchive/Products/Applications/App.app Payload/
+          zip -qr SimProxy-ios-unsigned.ipa Payload
+          ls -lh SimProxy-ios-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimProxy-ios-unsigned
+          path: ios/App/build/SimProxy-ios-unsigned.ipa
+          if-no-files-found: error

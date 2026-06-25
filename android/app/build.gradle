@@ -1,0 +1,115 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.simproxy.app'
+    compileSdk 34
+
+    signingConfigs {
+        release {
+            def propsFile = rootProject.file('keystore.properties')
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                storeFile file(props['storeFile'] ?: '../release.keystore')
+                storePassword props['storePassword'] ?: System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias props['keyAlias'] ?: System.getenv("KEY_ALIAS") ?: "simproxy"
+                keyPassword props['keyPassword'] ?: System.getenv("KEY_PASSWORD") ?: ""
+            } else {
+                storeFile file('../release.keystore')
+                storePassword System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias System.getenv("KEY_ALIAS") ?: "simproxy"
+                keyPassword System.getenv("KEY_PASSWORD") ?: ""
+            }
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.simproxy.app"
+        minSdk 24
+        targetSdk 34
+        versionCode 36
+        versionName "2.5.0"
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        debug {
+            // uses default Android debug keystore
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+        // mihomo — это Go ELF-бинарь (CLI-ядро), упакованный как libmihomo.so и
+        // исполняемый из nativeLibraryDir. НЕ стрипать: strip ломает Go-исполняемый файл.
+        doNotStrip "**/libmihomo.so"
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+}
+
+// Копируем ПОЛНЫЙ набор библиотек из Happ для обеспечения 100% стабильности
+tasks.register('copyHappLibs') {
+    doLast {
+        ['arm64-v8a', 'armeabi-v7a'].each { abi ->
+            def srcDir = file("../../Happ/lib/${abi}")
+            def dstDir = file("src/main/jniLibs/${abi}")
+            if (srcDir.exists()) {
+                if (!dstDir.exists()) dstDir.mkdirs()
+                srcDir.eachFile { file ->
+                    if (file.name.endsWith(".so")) {
+                        def dstFile = new File(dstDir, file.name)
+                        dstFile.bytes = file.bytes
+                        println "Copied lib: ${file.name} (${abi})"
+                    }
+                }
+            }
+        }
+    }
+}
+preBuild.dependsOn 'copyHappLibs'
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'com.google.android.material:material:1.12.0'
+
+    // QR Scanning
+    implementation 'com.google.mlkit:barcode-scanning:17.3.0'
+    implementation 'androidx.camera:camera-camera2:1.3.3'
+    implementation 'androidx.camera:camera-lifecycle:1.3.3'
+    implementation 'androidx.camera:camera-view:1.3.3'
+
+    // MMKV - Required by Happ's libgojni.so
+    implementation 'com.tencent:mmkv:1.3.9'
+    
+    // Sentry - Also used by Happ
+    implementation 'io.sentry:sentry-android:7.8.0'
+}

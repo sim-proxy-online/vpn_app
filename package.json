@@ -1,0 +1,45 @@
+{
+  "name": "react-vite-tailwind",
+  "private": true,
+  "version": "2.5.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron:build": "npm run build && npx electron-builder --win --config desktop/electron-builder.yml"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/clipboard": "^8.0.1",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.3.4",
+    "@capacitor/network": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
+    "clsx": "2.1.1",
+    "electron-updater": "^6.8.3",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.14.0",
+    "qrcode.react": "^4.2.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "tailwind-merge": "3.4.0"
+  },
+  "main": "desktop/main.cjs",
+  "devDependencies": {
+    "@electron/fuses": "^2.1.2",
+    "@electron/rebuild": "^3.6.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.5.0",
+    "electron": "^32",
+    "electron-builder": "^25.1.8",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.2",
+    "vite-plugin-singlefile": "^2.3.0"
+  }
+}

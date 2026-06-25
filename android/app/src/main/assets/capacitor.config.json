@@ -1,0 +1,21 @@
+{
+	"appId": "com.simproxy.app",
+	"appName": "Sim Proxy",
+	"webDir": "dist",
+	"icon": "icon.png",
+	"bundledWebRuntime": true,
+	"server": {
+		"androidScheme": "https"
+	},
+	"plugins": {
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#0a0a1a"
+		}
+	},
+	"android": {
+		"allowMixedContent": true,
+		"captureInput": true,
+		"webContentsDebuggingEnabled": false
+	}
+}

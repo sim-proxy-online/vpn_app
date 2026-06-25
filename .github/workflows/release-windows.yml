@@ -1,0 +1,69 @@
+name: Build & Sign Windows (SignPath)
+
+# Собирает портативный SimProxy .exe и подписывает его через SignPath Foundation
+# (бесплатная подпись кода для OSS). Запускается вручную или при публикации релиза.
+#
+# Перед первым запуском настройте SignPath и секреты репозитория — см. SIGNPATH_SETUP.md.
+
+on:
+  workflow_dispatch: {}
+  release:
+    types: [published]
+
+permissions:
+  contents: write   # чтобы прикрепить подписанный exe к релизу
+  id-token: write
+
+jobs:
+  build-and-sign:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build portable exe (unsigned)
+        run: npm run desktop:build
+
+      - name: Upload unsigned artifact
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimProxy-windows-unsigned
+          path: desktop/dist-exe/SimProxy-*-portable.exe
+          if-no-files-found: error
+
+      # Отправляет артефакт в SignPath, ждёт подписи и скачивает подписанный файл.
+      - name: Submit signing request to SignPath
+        id: signpath
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: simproxy
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: portable-exe
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed
+
+      - name: Upload signed artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimProxy-windows-signed
+          path: signed/**
+          if-no-files-found: error
+
+      - name: Attach signed exe to the release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: signed/**

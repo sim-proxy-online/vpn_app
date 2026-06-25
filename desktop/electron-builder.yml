@@ -1,0 +1,89 @@
+appId: com.simproxy.desktop
+productName: SimProxy
+copyright: SimProxy
+asar: true
+afterPack: desktop/afterPack.cjs
+
+directories:
+  output: desktop/dist-exe
+  buildResources: desktop/resources
+
+# Фид авто-обновлений (electron-updater). При сборке генерируется latest.yml +
+# *.blockmap, которые надо приложить к GitHub-релизу — по ним клиент в фоне
+# докачивает только изменившиеся блоки и ставит обновление тихо при выходе.
+publish:
+  - provider: github
+    owner: sim-proxy-online
+    repo: vpn_app
+    releaseType: release
+
+# Renderer (Vite single-file build) + Electron main/preload/bridge.
+files:
+  - dist/**/*
+  - desktop/main.cjs
+  - desktop/preload.cjs
+  - desktop/bridge.cjs
+  - icon.png
+
+# Ship xray.exe + geo databases alongside the app (read at runtime from
+# process.resourcesPath/xray — see bridge.cjs resourcesDir()).
+extraResources:
+  - from: desktop/resources
+    to: xray
+    filter:
+      - xray.exe
+      - mihomo.exe
+      - geoip.dat
+      - geosite.dat
+
+# Регистрация схем sim:// и happ:// — установщик пропишет их в системе, чтобы
+# ссылки из браузера открывали приложение «наверняка» (а не только после первого
+# запуска).
+protocols:
+  - name: Sim Proxy Deep Link
+    schemes:
+      - sim
+      - happ
+
+win:
+  icon: icon.png
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  artifactName: SimProxy-${version}-portable.exe
+  # ── Подпись кода (опционально) ──────────────────────────────────────────────
+  # Сертификат НЕ хранится в репозитории. Он подаётся при сборке через переменные
+  # окружения:
+  #   CSC_LINK         — путь к файлу .pfx (или его base64-содержимое)
+  #   CSC_KEY_PASSWORD — пароль к .pfx
+  # Если эти переменные не заданы — сборка остаётся НЕподписанной (как раньше),
+  # ничего не ломается. Параметры ниже применяются только когда подпись включена.
+  signtoolOptions:
+    signingHashAlgorithms:
+      - sha256
+    rfc3161TimeStampServer: http://timestamp.digicert.com
+    # Для EV-сертификата на USB-токене: НЕ задавайте CSC_LINK, вместо этого
+    # раскомментируйте строку ниже (точное «issued to» из сертификата) и
+    # держите токен подключённым во время сборки:
+    # certificateSubjectName: "ООО Ваша Компания"
+
+portable:
+  artifactName: SimProxy-${version}-portable.exe
+
+# Установщик (NSIS). Per-user (без прав администратора), с выбором папки и ярлыками.
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Sim Proxy
+  artifactName: SimProxy-Setup-${version}.exe
+  # Не удаляем профили/настройки пользователя при деинсталляции.
+  deleteAppDataOnUninstall: false
+

@@ -148,6 +148,7 @@ android/app/src/main/assets/xray*.zip
 desktop/resources/*.exe
 desktop/resources/*.dat
 desktop/resources/*.dat.bak
+desktop/resources/geosite.dat
 
 # Desktop dist
 desktop/dist-exe/

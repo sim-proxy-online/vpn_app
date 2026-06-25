@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Пути, которые FileProvider может отдавать другим приложениям (системному
-     установщику) по content:// URI. Сюда скачивается APK обновления. -->
-<paths>
-    <external-files-path name="apk_update" path="update/" />
-    <cache-path name="apk_cache" path="update/" />
-</paths>

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="shortcut_vpn_on_short">Вкл VPN</string>
-    <string name="shortcut_vpn_on_long">Включить Sim Proxy</string>
-    <string name="shortcut_vpn_off_short">Выкл VPN</string>
-    <string name="shortcut_vpn_off_long">Отключить Sim Proxy</string>
-</resources>

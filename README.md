@@ -9,7 +9,7 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.4.9-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.9/SimProxy-v2.4.9.apk)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.5.1-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.5.1/SimProxy-v2.5.1.apk)
 [![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.4.9-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.9/SimProxy-Setup-2.4.9.exe)
 [![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.4.9-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.9/SimProxy-2.4.9-portable.exe)
 
@@ -87,7 +87,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`SimProxy-v2.4.9.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.9/SimProxy-v2.4.9.apk)
+1. Скачайте [`SimProxy-v2.5.1.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.5.1/SimProxy-v2.5.1.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите кнопку подключения
 

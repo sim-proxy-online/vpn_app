@@ -15,13 +15,6 @@
 
 <br/>
 
-![Android 7+](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android&logoColor=white)
-![Windows 10+](https://img.shields.io/badge/Windows-10%2B-0078d4?style=flat-square&logo=windows&logoColor=white)
-![Cores](https://img.shields.io/badge/cores-Xray%20%2B%20mihomo-555555?style=flat-square)
-![Version](https://img.shields.io/badge/version-2.7.0-00f0ff?style=flat-square)
-
-<br/>
-
 <img src="docs/img/banner.jpg" alt="Квадрат Петровича — VPN с умным обходом блокировок" width="720" />
 
 </div>

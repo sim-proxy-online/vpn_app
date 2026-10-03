@@ -1,32 +1,59 @@
 <div align="center">
 
-<img src="public/icon.png" alt="SimProxy" width="96" />
+<img src="docs/img/icon.png" alt="Квадрат Петровича" width="96" />
 
-# SimProxy
+# Квадрат Петровича
 
-**Быстрый VPN-клиент на ядре Xray для Android и Windows**  
+**VPN-клиент с умным обходом блокировок для Android и Windows**  
 Обходит DPI и белые списки — там, где другие клиенты не работают
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.5.1-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.5.1/SimProxy-v2.5.1.apk)
-[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.4.9-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.9/SimProxy-Setup-2.4.9.exe)
-[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.4.9-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.9/SimProxy-2.4.9-portable.exe)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.7.0-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-v2.7.0.apk)
+[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.7.0-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-Setup-2.7.0.exe)
+[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.7.0-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-2.7.0-portable.exe)
 
 <br/>
 
 ![Android 7+](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android&logoColor=white)
 ![Windows 10+](https://img.shields.io/badge/Windows-10%2B-0078d4?style=flat-square&logo=windows&logoColor=white)
-![Xray Core](https://img.shields.io/badge/core-Xray-555555?style=flat-square)
-![Version](https://img.shields.io/badge/version-2.4.9-00f0ff?style=flat-square)
+![Cores](https://img.shields.io/badge/cores-Xray%20%2B%20mihomo-555555?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.7.0-00f0ff?style=flat-square)
+
+<br/>
+
+<img src="docs/img/banner.jpg" alt="Квадрат Петровича — VPN с умным обходом блокировок" width="720" />
 
 </div>
 
 ---
 
+## Скриншоты
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/img/screen-1-home.jpg" alt="Главный экран: защита включена" width="170" /></td>
+    <td align="center"><img src="docs/img/screen-2-servers.jpg" alt="Список серверов с описанием и пингом" width="170" /></td>
+    <td align="center"><img src="docs/img/screen-3-profiles.jpg" alt="Профили и подписки" width="170" /></td>
+    <td align="center"><img src="docs/img/screen-4-bypass.jpg" alt="Автоподбор обхода блокировок" width="170" /></td>
+    <td align="center"><img src="docs/img/screen-5-cold.jpg" alt="Главный экран до подключения" width="170" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Защита<br/>одним касанием</sub></td>
+    <td align="center"><sub>Серверы с описанием<br/>и пингом</sub></td>
+    <td align="center"><sub>Все подписки<br/>в одном месте</sub></td>
+    <td align="center"><sub>Обход подбирается<br/>сам</sub></td>
+    <td align="center"><sub>Без защиты<br/>Петровичу холодно</sub></td>
+  </tr>
+</table>
+
+---
+
 ## О приложении
 
-**SimProxy** — клиент на базе [Xray-core](https://github.com/XTLS/Xray-core) с поддержкой 17+ протоколов. Специально оптимизирован для работы в России и других странах с жёстким DPI: фрагментация TLS ClientHello, шумовой трафик и умная система пресетов позволяют подключаться там, где обычные клиенты показывают -1.
+**Квадрат Петровича** — клиент на базе [Xray-core](https://github.com/XTLS/Xray-core) и [mihomo](https://github.com/MetaCubeX/mihomo) с поддержкой 17+ протоколов. Специально оптимизирован для работы в России и других странах с жёстким DPI: фрагментация TLS ClientHello, шумовой трафик и умная система пресетов позволяют подключаться там, где обычные клиенты показывают -1.
+
+Приложение работает с подписками **любых провайдеров**, а не только с нашей. Получить подписку: [petrovich.party](https://petrovich.party).
 
 ---
 
@@ -42,8 +69,18 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 - **Автоопределение панелей:** Remnawave, Marzban/Marzneshin, 3x-ui, Hiddify
 - Авто-обновление подписок по расписанию
 - Отображение трафика, даты истечения и статуса подписки
+- **Описание сервера** под названием, цветная таблетка пинга («42 мс»), большой флаг страны
+
+### Совместимость с Happ
+Приложение понимает [параметры управления Happ](https://www.happ.su/main/ru/dev-docs/app-management), которые провайдер отдаёт вместе с подпиской:
+- описание сервера, фирменный цвет профиля, порядок и закрепление профилей, свёрнутые/развёрнутые списки;
+- автоподключение к нужному серверу, обновление и пинг при открытии, предупреждения об окончании подписки;
+- раздельное туннелирование по приложениям, исключение маршрутов, свой User-Agent, скрытие настроек.
+
+Параметры применяются только для проверенных провайдеров, пробного профиля и подписок, которые вы подтвердили сами. Небезопасные параметры (свои туннельные конфиги, учётные данные прокси) не применяются никогда.
 
 ### Обход блокировок
+- **Автоподбор обхода** — приложение само пробует режимы обхода, пока не найдёт рабочий
 - **Авто-пресет по оператору** — определяет МТС / Мегафон / Теле2 / Ростелеком / Билайн и применяет нужные настройки DPI автоматически при запуске
 - **Фрагментация TLS** — разбивает ClientHello на части, обходя DPI и белые списки
 - **Шумовой трафик (Noises)** — дополнительная обфускация соединения
@@ -64,6 +101,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 - **Авто-переключение** на другой сервер при деградации
 
 ### Безопасность и диагностика
+- Плитка **«Ваш адрес»** — реальный внешний IP и страна при включённом VPN
 - Авто-тест IP и DNS-утечек при подключении
 - Speed Test — замер реальной скорости через сервер
 - Мониторинг качества соединения (задержка, потери, jitter)
@@ -71,7 +109,8 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 - Хосты-маппинг, выбор первичного/резервного DNS
 
 ### Интерфейс
-- Неоновый тёмный UI с выбором цвета акцента
+- Тёмный неоновый UI с выбором цвета акцента
+- **Петрович меняет настроение** по состоянию подключения, на пустых экранах — рисунки
 - Dashboard: графики трафика, история, карта серверов
 - Виджет скорости ↑/↓ в шторке уведомлений (Android)
 - Русский и английский интерфейс
@@ -87,19 +126,28 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`SimProxy-v2.5.1.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.5.1/SimProxy-v2.5.1.apk)
+1. Скачайте [`KvadratPetrovicha-v2.7.0.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-v2.7.0.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
-3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите кнопку подключения
+3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите на Петровича
 
 > Требования: Android 7.0+ (API 24), arm64 или arm32
 
 ### Windows
 | Вариант | Ссылка | Описание |
 |---|---|---|
-| Установщик | [SimProxy-Setup-2.4.9.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.9/SimProxy-Setup-2.4.9.exe) | Устанавливает в профиль пользователя, без прав администратора |
-| Portable | [SimProxy-2.4.9-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.4.9/SimProxy-2.4.9-portable.exe) | Запускается без установки |
+| Установщик | [KvadratPetrovicha-Setup-2.7.0.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-Setup-2.7.0.exe) | Устанавливает в профиль пользователя, без прав администратора |
+| Portable | [KvadratPetrovicha-2.7.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-2.7.0-portable.exe) | Запускается без установки |
 
 > Требования: Windows 10+ x64
+
+### Если у вас был Sim Proxy
+«Квадрат Петровича» — **новое приложение**: оно ставится рядом со старым Sim Proxy, а не поверх него. Чтобы перенести подписки и настройки:
+1. В старом Sim Proxy: **Настройки → резервная копия (экспорт)** — сохраните файл.
+2. В «Квадрат Петровича»: **Настройки → «Восстановить из бэкапа»** — выберите этот файл.
+
+Или просто добавьте подписку заново по ссылке.
+
+Все версии и список изменений — на странице [Releases](https://github.com/sim-proxy-online/vpn_app/releases).
 
 ---
 

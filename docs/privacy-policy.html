@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Политика конфиденциальности — Квадрат Петровича / Privacy Policy — Kvadrat Petrovicha</title>
+<style>
+  :root { color-scheme: light dark; --bg:#fff; --fg:#1b1e28; --muted:#5b6172; --line:#dfe2ea; --accent:#0a7c8c; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b0d16; --fg:#e6e8f0; --muted:#9aa1b5; --line:#242840; --accent:#33d4e6; } }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:32px 20px 64px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  h2 { font-size:1.15rem; margin:28px 0 8px; }
+  p, li { margin:8px 0; }
+  ul { padding-left:22px; }
+  .muted { color:var(--muted); font-size:.92rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:40px 0; }
+  a { color:var(--accent); }
+  .lang { font-size:.9rem; margin-bottom:20px; }
+</style>
+</head>
+<body>
+<main>
+
+<p class="lang"><a href="#ru">Русский</a> · <a href="#en">English</a></p>
+
+<!-- ============================== РУССКИЙ ============================== -->
+<section id="ru" lang="ru">
+<h1>Политика конфиденциальности приложения «Квадрат Петровича»</h1>
+<p class="muted">Действует с 4 октября 2026 г. Ранее приложение называлось Sim Proxy.</p>
+
+<h2>1. Кто мы</h2>
+<p>Мы — издатель приложения «Квадрат Петровича» для Android и Windows (далее — «приложение»). По любым вопросам о данных пишите на <a href="mailto:proxytopsim@gmail.com">proxytopsim@gmail.com</a>.</p>
+
+<h2>2. Что делает приложение</h2>
+<p>«Квадрат Петровича» — клиент для прокси-серверов. Вы добавляете подписки и серверы, приложение запускает открытые ядра Xray и mihomo и направляет трафик через выбранный сервер. В Windows для этого включается системный прокси, в Android — VPN-подключение системы (VpnService). Для работы не нужны регистрация и аккаунт.</p>
+
+<h2>3. Данные, которые хранятся на вашем устройстве</h2>
+<p>Профили подписок, ссылки на подписки, добавленные серверы, настройки приложения и служебный журнал работы. Эти данные разработчику не отправляются. Чтобы их удалить, удалите приложение (для версии Windows без установщика — также папку данных приложения).</p>
+<p>В Android для раздельного туннелирования приложение читает список установленных приложений. Он используется только на устройстве и никуда не отправляется.</p>
+
+<h2>4. Разрешения Android</h2>
+<ul>
+  <li><b>Интернет и состояние сети</b> — для работы соединения и его восстановления при смене сети.</li>
+  <li><b>VPN</b> — системный запрос при первом подключении; без него трафик нельзя направить через сервер.</li>
+  <li><b>Уведомления и работа в фоне</b> — индикатор подключения и скорости.</li>
+  <li><b>Запуск после перезагрузки</b> — для автоподключения, если оно включено.</li>
+  <li><b>Отключение оптимизации батареи</b> — чтобы система не останавливала соединение.</li>
+  <li><b>Камера</b> — только для сканирования QR-кодов с подписками.</li>
+  <li><b>Список установленных приложений</b> — для раздельного туннелирования.</li>
+  <li><b>Установка пакетов</b> — только в версии вне магазинов, чтобы установить скачанное обновление.</li>
+</ul>
+
+<h2>5. Пробный период</h2>
+<p>При первом запуске приложение запрашивает у нашего сервера бесплатный пробный доступ на 1 день. Для этого отправляется <b>хеш идентификатора устройства</b> (SHA-256 от идентификатора: в Windows — идентификатор установки Windows, в Android — ANDROID_ID; сам идентификатор не передаётся и по хешу не восстанавливается). Сервер сохраняет этот хеш и время первого запроса, чтобы не выдавать пробный период повторно, и возвращает конфигурацию пробного сервера. Как и любой интернет-сервис, сервер видит IP-адрес, с которого пришёл запрос.</p>
+<p>Сервер находится в Европейском союзе (Франкфурт, Германия; хостинг Supabase). Запись не содержит вашего имени, e-mail или иных контактных данных, мы не связываем её с вами лично и храним, пока работает выдача пробных периодов.</p>
+
+<h2>6. Обращения к внешним сервисам</h2>
+<ul>
+  <li><b>Наш сервер (Supabase, Франкфурт)</b> — пробный доступ (см. раздел 5) и настройки обхода блокировок для операторов связи. Во втором запросе идентификатор устройства не передаётся.</li>
+  <li><b>Адреса подписок и серверов, которые вы добавили</b> — приложение обращается к ним, чтобы получить список серверов и подключиться. В Android при загрузке подписки провайдеру передаются идентификатор устройства (хеш), ОС и её версия, модель устройства, язык и версия приложения; провайдер может использовать их, например, чтобы ограничить число устройств по подписке.</li>
+  <li><b>ipinfo.io и ipapi.co</b> — при запуске и при смене сети приложение определяет ваш внешний IP-адрес, страну и оператора, чтобы подобрать настройки. Эти сервисы видят ваш IP-адрес. Функцию можно отключить в настройках приложения.</li>
+  <li><b>1.1.1.1 (Cloudflare)</b> — плитка «Ваш адрес» определяет внешний IP-адрес и страну запросом к 1.1.1.1/cdn-cgi/trace; также используется для проверок связи. Cloudflare видит IP-адрес, с которого пришёл запрос (при включённом VPN — адрес сервера).</li>
+  <li><b>speed.cloudflare.com</b> — только когда вы сами запускаете проверку скорости.</li>
+  <li><b>DNS-серверы из настроек</b> (по умолчанию 1.1.1.1) — обрабатывают DNS-запросы.</li>
+  <li><b>Обновления.</b> В версиях из Google Play и Microsoft Store обновления доставляет магазин. В версиях вне магазинов приложение проверяет наличие новой версии на GitHub (api.github.com, github.com).</li>
+</ul>
+<p>Эти сервисы работают по собственным политикам конфиденциальности.</p>
+
+<h2>7. Серверы и трафик</h2>
+<p>Когда приложение подключено, ваш трафик проходит через прокси-сервер, который вы выбрали, и обрабатывается его владельцем. Мы не ведём журналы соединений и не сохраняем содержимое вашего трафика. Пробный доступ может проходить через серверы партнёров; у них собственные политики. За серверы третьих лиц, которые вы добавили сами, отвечают их владельцы.</p>
+
+<h2>8. Чего приложение не делает</h2>
+<p>Приложение не содержит рекламы, не использует аналитические и трекинговые библиотеки, не отправляет разработчику список посещённых вами сайтов и содержимое вашего трафика, не отправляет отчёты о сбоях и не продаёт и не передаёт данные третьим лицам, кроме описанного выше.</p>
+
+<h2>9. Ваши права и вопросы</h2>
+<p>Вы можете запросить сведения о том, какие данные о вас мы обрабатываем, и потребовать их удаления, написав на <a href="mailto:proxytopsim@gmail.com">proxytopsim@gmail.com</a>. Поскольку запись о пробном периоде не связана с вашей личностью, мы можем не суметь найти её по имени или e-mail.</p>
+
+<h2>10. Изменения</h2>
+<p>Актуальная версия политики всегда находится на этой странице; дата вступления в силу указана вверху.</p>
+</section>
+
+<hr>
+
+<!-- ============================== ENGLISH ============================== -->
+<section id="en" lang="en">
+<h1>Kvadrat Petrovicha (Квадрат Петровича) — Privacy Policy</h1>
+<p class="muted">Effective October 4, 2026. The app was previously called Sim Proxy.</p>
+
+<h2>1. Who we are</h2>
+<p>We are the publisher of the Kvadrat Petrovicha app for Android and Windows (the “app”). For any data-related questions, contact <a href="mailto:proxytopsim@gmail.com">proxytopsim@gmail.com</a>.</p>
+
+<h2>2. What the app does</h2>
+<p>Kvadrat Petrovicha is a proxy client. You add subscriptions and servers; the app starts the open-source Xray and mihomo cores and routes your traffic through the server you selected. On Windows it turns on the system proxy; on Android it uses the system VPN connection (VpnService). No registration or account is required. The app interface is in Russian and English.</p>
+
+<h2>3. Data stored on your device</h2>
+<p>Subscription profiles, subscription links, servers you added, app settings and a technical activity log. This data is not sent to the developer. To delete it, uninstall the app (for the non-installer Windows version, also delete the app data folder).</p>
+<p>On Android, the app reads the list of installed apps to provide per-app split tunneling. It is used only on the device and is not sent anywhere.</p>
+
+<h2>4. Android permissions</h2>
+<ul>
+  <li><b>Internet and network state</b> — to operate the connection and restore it when the network changes.</li>
+  <li><b>VPN</b> — a system prompt on first connect; without it traffic cannot be routed through the server.</li>
+  <li><b>Notifications and background work</b> — the connection and speed indicator.</li>
+  <li><b>Start after reboot</b> — for auto-connect, if enabled.</li>
+  <li><b>Battery optimization exemption</b> — so the system does not stop the connection.</li>
+  <li><b>Camera</b> — only to scan QR codes with subscriptions.</li>
+  <li><b>List of installed apps</b> — for split tunneling.</li>
+  <li><b>Package installation</b> — only in the version distributed outside app stores, to install a downloaded update.</li>
+</ul>
+
+<h2>5. Trial period</h2>
+<p>On first launch the app requests a free 1-day trial from our server. This sends a <b>hash of the device identifier</b> (SHA-256 of the identifier: the Windows installation identifier on Windows, ANDROID_ID on Android; the identifier itself is not transmitted and cannot be recovered from the hash). The server stores the hash and the time of the first request so that the trial is not granted twice, and returns the trial server configuration. Like any internet service, the server sees the IP address of the request.</p>
+<p>The server is located in the European Union (Frankfurt, Germany; hosted by Supabase). The record contains no name, e-mail or other contact details; we do not link it to you personally and keep it for as long as the trial service operates.</p>
+
+<h2>6. Requests to external services</h2>
+<ul>
+  <li><b>Our server (Supabase, Frankfurt)</b> — the trial (see section 5) and bypass settings for mobile network operators. The second request does not include the device identifier.</li>
+  <li><b>Subscription and server addresses you added</b> — the app contacts them to fetch the server list and to connect. On Android, when loading a subscription, the provider receives the device identifier (hash), OS and its version, device model, language and app version; the provider may use them, for example, to limit the number of devices per subscription.</li>
+  <li><b>ipinfo.io and ipapi.co</b> — at startup and when the network changes, the app detects your public IP address, country and network operator to choose suitable settings. These services see your IP address. You can turn this off in the app settings.</li>
+  <li><b>1.1.1.1 (Cloudflare)</b> — the “Your address” tile detects your public IP address and country with a request to 1.1.1.1/cdn-cgi/trace; it is also used for connectivity checks. Cloudflare sees the IP address of the request (with the VPN on, the server’s address).</li>
+  <li><b>speed.cloudflare.com</b> — only when you start a speed test yourself.</li>
+  <li><b>DNS servers from the settings</b> (1.1.1.1 by default) — process DNS queries.</li>
+  <li><b>Updates.</b> In the Google Play and Microsoft Store versions updates are delivered by the store. In versions distributed outside stores the app checks GitHub (api.github.com, github.com) for new versions.</li>
+</ul>
+<p>These services operate under their own privacy policies.</p>
+
+<h2>7. Servers and traffic</h2>
+<p>While the app is connected, your traffic passes through the proxy server you selected and is handled by its owner. We do not keep connection logs and do not store the content of your traffic. The trial may run through partner servers, which have their own policies. Third-party servers you added yourself are the responsibility of their owners.</p>
+
+<h2>8. What the app does not do</h2>
+<p>The app contains no advertising, uses no analytics or tracking libraries, does not send the developer the list of sites you visit or the content of your traffic, does not send crash reports, and does not sell or share data with third parties other than as described above.</p>
+
+<h2>9. Your rights and questions</h2>
+<p>You may ask what data we process about you and request its deletion by writing to <a href="mailto:proxytopsim@gmail.com">proxytopsim@gmail.com</a>. Because the trial record is not linked to your identity, we may be unable to locate it by name or e-mail.</p>
+
+<h2>10. Changes</h2>
+<p>The current version of this policy is always available on this page; the effective date is shown at the top.</p>
+</section>
+
+</main>
+</body>
+</html>

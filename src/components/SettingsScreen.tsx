@@ -18,6 +18,7 @@ import AutoBypassCard from './AutoBypassCard';
 import Flag from './Flag';
 import { checkForUpdate, RELEASES_PAGE, APP_VERSION, getCurrentVersion } from '../utils/UpdateChecker';
 import { SUBSCRIPTION_URL } from '../utils/constants';
+import { THIRD_PARTY_COMPONENTS } from '../utils/thirdPartyLicenses';
 import {
   nativeGetSystemInfo,
   nativeGetCoreVersions, nativeOpenUrl, nativeRequestBatteryExemption, CoreVersion, nativeSetAutoConnect,
@@ -202,6 +203,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
   const [coreVersions, setCoreVersions] = useState<CoreVersion | null>(null);
   const [appVersion, setAppVersion] = useState(APP_VERSION);
   const [schemesOpen, setSchemesOpen] = useState(false);
+  const [licensesOpen, setLicensesOpen] = useState(false);
   const [page, setPage] = useState<string | null>(null);
 
   // Перехватываем androidback / жест назад когда открыт сабскрин.
@@ -800,6 +802,37 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
                   <li><span className="text-gray-300 font-mono">vless:// · vmess:// · trojan:// · ss://</span></li>
                   <li><span className="text-gray-300 font-mono">hysteria2:// · tuic:// · wireguard://</span></li>
                 </ul>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      <div className="bg-[#ffffff03]">
+        <button onClick={() => setLicensesOpen(o => !o)} className="w-full flex items-center gap-3 px-4 py-3 active:bg-white/5 transition-colors">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: withAlpha('#94a3b8', '15'), color: '#94a3b8' }}>
+            <FileText size={15} />
+          </div>
+          <p className="text-white text-[13px] font-semibold flex-1 text-left">Лицензии и открытый код</p>
+          <ChevronDown size={16} className={`text-gray-500 transition-transform ${licensesOpen ? 'rotate-180' : ''}`} />
+        </button>
+        <AnimatePresence initial={false}>
+          {licensesOpen && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+              <div className="px-4 pb-3 ml-11 space-y-2.5">
+                <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
+                  Приложение построено на открытых проектах. Исходный код каждого доступен по ссылке.
+                </p>
+                {THIRD_PARTY_COMPONENTS.map(c => (
+                  <div key={c.name} className="border-b border-white/5 pb-2 last:border-0">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <button onClick={() => nativeOpenUrl(c.url)} className="text-[12px] text-[var(--accent)] font-semibold hover:underline text-left">{c.name}</button>
+                      <span className="text-[10px] text-gray-400 font-mono">{c.license}</span>
+                      {c.version && <span className="text-[10px] text-gray-600 font-mono">{c.version}</span>}
+                    </div>
+                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">{c.usage}</p>
+                    {c.notice && <p className="text-[10px] text-gray-400 font-medium leading-relaxed mt-0.5">{c.notice}</p>}
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}

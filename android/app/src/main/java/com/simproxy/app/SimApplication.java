@@ -3,6 +3,7 @@ package com.simproxy.app;
 import android.app.Application;
 import android.util.Log;
 import com.simproxy.core.Tunnel;
+import com.simproxy.core.UnderlyingDns;
 import com.simproxy.simcore.Simcore;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -24,6 +25,8 @@ public class SimApplication extends Application {
             // Ядро: Simcore.touch() поднимает go.Seq и загружает libgojni.so (наша обёртка
             // над xray-core, android/simcore). Туннель (hev-socks5-tunnel) грузит класс Tunnel.
             Simcore.touch();
+            // DNS оператора/Wi-Fi идёт первым в резолвере ядра (важно под белыми списками).
+            UnderlyingDns.start(this);
             if (!Tunnel.isNativeLoaded()) {
                 throw new UnsatisfiedLinkError("hev-socks5-tunnel: " + Tunnel.getNativeLoadError());
             }

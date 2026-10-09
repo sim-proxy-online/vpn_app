@@ -13,7 +13,7 @@ function getJson(url, timeoutMs = 10000) {
   return new Promise((resolve, reject) => {
     const req = https.get(
       url,
-      { headers: { 'User-Agent': 'Petrovich-Desktop-Updater', Accept: 'application/vnd.github+json' }, timeout: timeoutMs },
+      { headers: { 'User-Agent': 'Petrovich-Desktop-Updater SimProxy-Desktop-Updater', Accept: 'application/vnd.github+json' }, timeout: timeoutMs },
       (res) => {
         if (res.statusCode !== 200) { res.resume(); return reject(new Error('HTTP ' + res.statusCode)); }
         const chunks = [];

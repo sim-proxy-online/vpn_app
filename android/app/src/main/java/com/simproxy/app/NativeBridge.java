@@ -1290,6 +1290,10 @@ public class NativeBridge {
         return cachedHwid;
     }
 
+    // Запросы обновления идут сразу с обоими именами клиента: новым и прежним (SimProxy), чтобы
+    // любые правила на стороне сервера, настроенные под одно из них, продолжали работать.
+    private static final String UPDATER_USER_AGENT = "Petrovich-Updater SimProxy-Updater";
+
     // Наш User-Agent по умолчанию для запросов подписки: Petrovich/<версия>. Обычно его передаёт
     // JS-слой (utils/subscriptionFetch.ts), здесь — запасное значение.
     private String defaultUserAgent() {
@@ -1857,7 +1861,7 @@ public class NativeBridge {
                     conn.setInstanceFollowRedirects(false);
                     conn.setConnectTimeout(20000);
                     conn.setReadTimeout(30000);
-                    conn.setRequestProperty("User-Agent", "Petrovich-Updater");
+                    conn.setRequestProperty("User-Agent", UPDATER_USER_AGENT);
                     int code = conn.getResponseCode();
                     if (code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP
                             || code == 307 || code == 308) {
@@ -1936,7 +1940,7 @@ public class NativeBridge {
                     conn.setInstanceFollowRedirects(false);
                     conn.setConnectTimeout(20000);
                     conn.setReadTimeout(30000);
-                    conn.setRequestProperty("User-Agent", "Petrovich-Updater");
+                    conn.setRequestProperty("User-Agent", UPDATER_USER_AGENT);
                     int code = conn.getResponseCode();
                     if (code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP
                             || code == 307 || code == 308) {

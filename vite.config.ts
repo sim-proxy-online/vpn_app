@@ -16,19 +16,19 @@ const appVersion: string = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, "package.json"), "utf8"),
 ).version;
 
-// Plugin: after build, copy index.html directly into Android assets so
-// the Gradle build always picks up the latest frontend without a manual copy.
+// Plugin: после сборки копирует ВЕСЬ dist (index.html, flags/, fonts/, иконку, manifest.json,
+// sw.js) в Android assets, чтобы Gradle всегда брал свежий фронтенд без ручного `cap copy`.
+// Раньше копировался только index.html: флаги серверов и шрифты пропадали из приложения.
+// Файлы, которых нет в dist (geoip.dat, geosite.dat), не трогаем.
 function copyToAndroidAssets() {
   return {
     name: "copy-to-android-assets",
     closeBundle() {
-      const src = path.resolve(__dirname, "dist/index.html");
-      const dest = path.join(androidAssets, "index.html");
-      if (fs.existsSync(src)) {
-        fs.mkdirSync(androidAssets, { recursive: true });
-        fs.copyFileSync(src, dest);
-        console.log(`[copy-to-android-assets] ${dest}`);
-      }
+      const distDir = path.resolve(__dirname, "dist");
+      if (!fs.existsSync(path.join(distDir, "index.html"))) return;
+      fs.mkdirSync(androidAssets, { recursive: true });
+      fs.cpSync(distDir, androidAssets, { recursive: true, force: true });
+      console.log(`[copy-to-android-assets] dist -> ${androidAssets}`);
     },
   };
 }

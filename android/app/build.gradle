@@ -129,6 +129,23 @@ tasks.register('verifyNativeLibs') {
         println "verifyNativeLibs: OK (${abis.join(', ')})"
     }
 }
+// Веб-часть (flags/, fonts/ и т.д.) попадает в assets при `npm run build` (плагин
+// copy-to-android-assets в vite.config.ts). Если её забыли собрать, приложение без флагов и
+// шрифтов компилируется «успешно» — проверяем заранее для задач упаковки.
+tasks.register('verifyWebAssets') {
+    doLast {
+        def assets = file('src/main/assets')
+        def missing = []
+        ['index.html', 'flags/ru.svg', 'fonts', 'manifest.json'].each { rel ->
+            if (!new File(assets, rel).exists()) missing << rel
+        }
+        if (!missing.isEmpty()) {
+            throw new GradleException("В ${assets} нет веб-ресурсов: ${missing.join(', ')}. " +
+                "Выполните `npm run build` в корне репозитория.")
+        }
+        println "verifyWebAssets: OK"
+    }
+}
 // Привязка без tasks.whenTaskAdded/all: они принудительно создают ВСЕ задачи сразу, а AGP
 // подключает артефакты лениво. Из-за этого R8 (minifyReleaseWithR8) начинал писать результат в
 // тот же base.jar, который читает, и Gradle стирал его перед запуском (NoSuchFileException).
@@ -136,7 +153,7 @@ tasks.register('verifyNativeLibs') {
 afterEvaluate {
     ['packageDebug', 'packageRelease', 'packagePlay', 'bundleDebug', 'bundleRelease', 'bundlePlay'].each { n ->
         if (tasks.names.contains(n)) {
-            tasks.named(n).configure { dependsOn 'verifyNativeLibs' }
+            tasks.named(n).configure { dependsOn 'verifyNativeLibs', 'verifyWebAssets' }
         }
     }
 }

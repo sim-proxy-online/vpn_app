@@ -22,7 +22,7 @@
   <Identity Name="{{IDENTITY_NAME}}" Publisher="{{PUBLISHER}}" Version="{{VERSION}}" ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Квадрат Петровича</DisplayName>
+    <DisplayName>Петрович</DisplayName>
     <PublisherDisplayName>{{PUBLISHER_DISPLAY_NAME}}</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
@@ -45,15 +45,15 @@
   <Applications>
     <Application Id="KvadratPetrovicha" Executable="KvadratPetrovicha.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="Квадрат Петровича"
-        Description="Квадрат Петровича - прокси-клиент для Windows (ядра Xray и mihomo)"
+        DisplayName="Петрович"
+        Description="Петрович - прокси-клиент для Windows (ядра Xray и mihomo)"
         BackgroundColor="#0a0a1a"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png" />
       <Extensions>
         <uap:Extension Category="windows.protocol">
           <uap:Protocol Name="sim">
-            <uap:DisplayName>Квадрат Петровича</uap:DisplayName>
+            <uap:DisplayName>Петрович</uap:DisplayName>
           </uap:Protocol>
         </uap:Extension>
       </Extensions>

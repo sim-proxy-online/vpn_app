@@ -43,6 +43,8 @@ if (-not $Out) {
 
 # ── makeappx: Windows SDK or the copy that electron-builder keeps in its cache ──
 $tool = @(
+  # Optional explicit path (for example a standalone MSIX tools folder): $env:MAKEAPPX_PATH
+  if ($env:MAKEAPPX_PATH -and (Test-Path -LiteralPath $env:MAKEAPPX_PATH)) { Get-Item -LiteralPath $env:MAKEAPPX_PATH }
   Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending
   Get-ChildItem "$env:LOCALAPPDATA\electron-builder\Cache\winCodeSign\*\windows-10\x64\makeappx.exe" -ErrorAction SilentlyContinue
 ) | Select-Object -First 1

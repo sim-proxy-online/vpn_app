@@ -2,7 +2,8 @@ package com.simproxy.app;
 
 import android.app.Application;
 import android.util.Log;
-import com.tencent.mmkv.MMKV;
+import com.simproxy.core.Tunnel;
+import com.simproxy.simcore.Simcore;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SimApplication extends Application {
@@ -20,13 +21,13 @@ public class SimApplication extends Application {
         installCrashHandler();
         android.util.Log.i(TAG, "SimApplication: Initializing Core Stack...");
         try {
-            // ПРАВИЛЬНЫЙ порядок загрузки для Gomobile/Xray стека из Happ
-            System.loadLibrary("mmkv");
-            System.loadLibrary("core");
-            System.loadLibrary("gojni");
-            System.loadLibrary("tun2socks");
+            // Ядро: Simcore.touch() поднимает go.Seq и загружает libgojni.so (наша обёртка
+            // над xray-core, android/simcore). Туннель (hev-socks5-tunnel) грузит класс Tunnel.
+            Simcore.touch();
+            if (!Tunnel.isNativeLoaded()) {
+                throw new UnsatisfiedLinkError("hev-socks5-tunnel: " + Tunnel.getNativeLoadError());
+            }
 
-            MMKV.initialize(this);
             staticSupportSet = new XraySupportSetImpl(globalLogs);
             // Инициализируем SplitTunnelManager при старте приложения — это применяет
             // пресет российских сервисов при первой установке (до открытия настроек).

@@ -3,8 +3,9 @@ package com.simproxy.app;
 import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
-import libxray.Libxray;
-import libxray.XRayPoint;
+import com.simproxy.simcore.Core;
+import com.simproxy.simcore.Simcore;
+import com.simproxy.core.SocketProtector;
 import android.content.Context;
 import go.Seq;
 
@@ -12,7 +13,7 @@ public class XrayManager {
     private static final String TAG = "XrayManager";
     private static volatile boolean isNativeBooted = false;
 
-    private volatile XRayPoint xrayPoint = null;
+    private volatile Core xrayPoint = null;
     private volatile boolean isRunning = false;
     private volatile Thread xrayThread = null;
     // Фактический SOCKS-порт работающего боевого ядра (из конфига, не хардкод).
@@ -65,7 +66,8 @@ public class XrayManager {
 
             // Инициализация через Gomobile (Seq) — выполняется один раз
             Seq.setContext(context.getApplicationContext());
-            Libxray.initXEnv(datPath, xudpBaseKey(context));
+            Simcore.setProtector(SocketProtector.get());
+            Simcore.initEnv(datPath, xudpBaseKey(context));
 
             isNativeBooted = true;
             Log.i(TAG, "Native Core System Boot Success");
@@ -78,9 +80,9 @@ public class XrayManager {
     /**
      * Ключ для env "xray.xudp.basekey".
      *
-     * Второй аргумент initXEnv биндинга (github.com/flyfrog-llc/android_wrapper_build)
-     * биндинг кладёт именно в этот env. Общий xray-core/common/xudp/xudp.go через 100 мс
-     * после загрузки либы читает его и делает panic(), если значение не декодируется
+     * Второй аргумент Simcore.initEnv() наша обёртка (android/simcore) кладёт прямо в
+     * xudp.BaseKey, минуя env. В самом xray-core (common/xudp/xudp.go) env читается через
+     * 100 мс после загрузки либы и вызывает panic(), если значение не декодируется
      * base64url в ровно 32 байта. Go-паника роняет ВЕСЬ процесс (SIGABRT).
      *
      * Раньше передавалось "simproxy_default_id" (19 символов → 14 байт после base64url)
@@ -120,7 +122,7 @@ public class XrayManager {
         this.liveSocksPort = socksPort;
 
         if (xrayPoint != null) {
-            try { xrayPoint.coreStopLoop(); } catch (Throwable ignored) {}
+            try { xrayPoint.stop(); } catch (Throwable ignored) {}
             xrayPoint = null;
         }
 
@@ -136,29 +138,28 @@ public class XrayManager {
         }
 
         try {
-            xrayPoint = Libxray.newXRayPoint(SimApplication.staticSupportSet, true);
+            xrayPoint = Simcore.newCore(SimApplication.staticSupportSet);
         } catch (Throwable t) {
             throw new Exception("newXRayPoint failed: " + t.getMessage());
         }
 
         final String finalConfig = config;
         final int finalFd = tunFd;
-        final libxray.XRayPoint point = xrayPoint;
+        final Core point = xrayPoint;
 
         isRunning = false;
         Thread t = new Thread(() -> {
             try {
                 if (finalFd > 0) {
                     Log.i(TAG, "Core RunLoop Start (NATIVE TUN MODE)");
-                    point.coreRunLoopWithTun(finalConfig, finalFd);
+                    point.start(finalConfig, finalFd);
                 } else {
                     Log.i(TAG, "Core RunLoop Start (LOCAL SOCKS)");
-                    point.coreRunLoop(finalConfig);
+                    point.start(finalConfig, 0);
                 }
-                // ВНИМАНИЕ: в этом форке libxray coreRunLoop* НЕ блокирует —
-                // возвращается сразу после инициализации, ядро живёт нативно.
+                // Core.start() не блокирует: возвращается после запуска ядра, оно живёт нативно.
                 // Поэтому здесь НЕ трогаем isRunning (готовность определит проверка порта в start()).
-                Log.i(TAG, "Core RunLoop call returned (core runs natively)");
+                Log.i(TAG, "Core start returned (core runs natively)");
             } catch (Throwable ex) {
                 Log.e(TAG, "Core RunLoop Error", ex);
                 isRunning = false;
@@ -234,7 +235,7 @@ public class XrayManager {
     public synchronized void stop() {
         isRunning = false;
         if (xrayPoint != null) {
-            try { xrayPoint.coreStopLoop(); } catch (Throwable ignored) {}
+            try { xrayPoint.stop(); } catch (Throwable ignored) {}
             xrayPoint = null;
         }
     }

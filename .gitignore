@@ -166,3 +166,8 @@ desktop/dist-exe/
 Happ.apk
 /Incy/
 Incy.apk
+
+# Нативные сборки и артефакты (воспроизводятся скриптами android/native и android/simcore)
+android/native/hev-socks5-tunnel/
+android/app/libs/*.aar
+android/app/libs/*-sources.jar

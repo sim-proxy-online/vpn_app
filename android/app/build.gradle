@@ -38,6 +38,8 @@ android {
         targetSdk 36
         versionCode 45
         versionName appVersionName
+        // Ядро (xray) и туннель собираются только под ARM: x86-библиотек нет, и на x86 приложение не запустится.
+        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a' }
     }
 
     buildFeatures {
@@ -97,36 +99,14 @@ android {
     }
 }
 
-// Копируем ПОЛНЫЙ набор библиотек из Happ для обеспечения 100% стабильности
-tasks.register('copyHappLibs') {
-    doLast {
-        ['arm64-v8a', 'armeabi-v7a'].each { abi ->
-            def srcDir = file("../../Happ/lib/${abi}")
-            def dstDir = file("src/main/jniLibs/${abi}")
-            if (srcDir.exists()) {
-                if (!dstDir.exists()) dstDir.mkdirs()
-                srcDir.eachFile { file ->
-                    // libxray.so не нужна (см. packagingOptions.jniLibs.excludes)
-                    if (file.name.endsWith(".so") && file.name != "libxray.so") {
-                        def dstFile = new File(dstDir, file.name)
-                        dstFile.bytes = file.bytes
-                        println "Copied lib: ${file.name} (${abi})"
-                    }
-                }
-            }
-        }
-    }
-}
-preBuild.dependsOn 'copyHappLibs'
-
-// Нативные библиотеки в репозитории не лежат (они копируются из Happ/lib, а mihomo кладётся
-// отдельно). Без них APK собирается «успешно», но падает на запуске (UnsatisfiedLinkError) —
+// Нативные библиотеки в репозитории не лежат: туннель собирается android/native/build-tunnel.ps1,
+// ядро xray (libgojni.so) приезжает внутри libs/simcore.aar (android/simcore/build-aar.ps1), а
+// mihomo кладётся отдельно. Без них APK собирается «успешно», но падает на запуске (UnsatisfiedLinkError) —
 // ошибка находится только на устройстве. Проверяем заранее, но лишь для задач упаковки:
 // компиляция Java (например, в CI) этих файлов не требует.
 // Проверка по умолчанию смотрит в src/main/jniLibs; для проверки другой папки:
 //   ./gradlew :app:verifyNativeLibs -PnativeLibsDir=/path/to/jniLibs
-// libmmkv.so приезжает из зависимости com.tencent:mmkv, поэтому здесь не требуется.
-def requiredNativeLibs = ['libgojni.so', 'libtun2socks.so', 'libcore.so', 'libmihomo.so']
+def requiredNativeLibs = ['libhev-socks5-tunnel.so', 'libmihomo.so']
 tasks.register('verifyNativeLibs') {
     doLast {
         def root = file(project.findProperty('nativeLibsDir') ?: 'src/main/jniLibs')
@@ -134,7 +114,7 @@ tasks.register('verifyNativeLibs') {
         if (abis.isEmpty()) {
             throw new GradleException(
                 "Нет нативных библиотек: в ${root} нет ни arm64-v8a, ни armeabi-v7a. " +
-                "Нужны Happ/lib/<abi>/*.so (копируются задачей copyHappLibs) и libmihomo.so.")
+                "Нужны libhev-socks5-tunnel.so (android/native/build-tunnel.ps1) и libmihomo.so.")
         }
         def missing = []
         abis.each { abi ->
@@ -168,13 +148,10 @@ dependencies {
 
     // QR Scanning
     implementation 'com.google.mlkit:barcode-scanning:17.3.0'
-    implementation 'androidx.camera:camera-camera2:1.3.3'
-    implementation 'androidx.camera:camera-lifecycle:1.3.3'
-    implementation 'androidx.camera:camera-view:1.3.3'
+    implementation 'androidx.camera:camera-camera2:1.4.2'
+    implementation 'androidx.camera:camera-lifecycle:1.4.2'
+    implementation 'androidx.camera:camera-view:1.4.2'
 
-    // MMKV - Required by Happ's libgojni.so
-    implementation 'com.tencent:mmkv:1.3.9'
-    
-    // Sentry - Also used by Happ
-    implementation 'io.sentry:sentry-android:7.8.0'
+    // Ядро xray-core в нашей обёртке (gomobile): android/simcore → libs/simcore.aar
+    implementation files('libs/simcore.aar')
 }

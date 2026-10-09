@@ -20,7 +20,8 @@ import androidx.annotation.Keep;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.concurrent.atomic.AtomicBoolean;
-import su.happ.proxyutility.service.XRayVpnService;
+import com.simproxy.core.SocketProtector;
+import com.simproxy.core.Tunnel;
 
 @Keep
 public class VpnServiceImpl extends VpnService {
@@ -277,6 +278,7 @@ public class VpnServiceImpl extends VpnService {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        SocketProtector.attach(this);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         createNotificationChannel();
         networkMonitor = NetworkMonitor.getInstance(this);
@@ -522,13 +524,13 @@ public class VpnServiceImpl extends VpnService {
                 tunFd = newTunFd;  // mihomo: нет CORE_LOCK гонки, присваиваем сразу
                 final int miSocksPort = mihomoManager.getSocksPort();
                 // Bridge TUN fd → mihomo SOCKS5 proxy via tun2socks.
-                XRayVpnService.setVpnService(this);
+                SocketProtector.attach(this);
                 final ParcelFileDescriptor t2sPfd = tunFd;
                 final int t2sMtu = mtu;
                 final android.content.Context t2sCtx = this;
                 Thread t2sThread = new Thread(() -> {
-                    int result = XRayVpnService.safeStartTun2Socks(
-                        t2sCtx, t2sPfd, "127.0.0.1:" + miSocksPort, "8.8.8.8", t2sMtu);
+                    int result = Tunnel.start(
+                        t2sCtx, t2sPfd, "127.0.0.1", miSocksPort, t2sMtu);
                     Log.i(TAG, "tun2socks setup finished: result=" + result);
                     // result==0 значит fd доставлен и туннель поднят — native-поток
                     // дальше живёт сам. Ненулевой результат — реальная неудача запуска.
@@ -801,13 +803,9 @@ public class VpnServiceImpl extends VpnService {
         activeConfigJson = null;
         stopStatsLoop();
         long t0 = System.currentTimeMillis();
-        XRayVpnService.safeStopTun2Socks();
+        Tunnel.stop();
         long t2sDur = System.currentTimeMillis() - t0;
-        Log.i(TAG, "stopVpnGraceful: safeStopTun2Socks took " + t2sDur + "ms");
-        if (t2sDur > 5 && t2sDur < 500) {
-            try { Thread.sleep(1200); } catch (InterruptedException ignored) {}
-            Log.i(TAG, "stopVpnGraceful: waited for Go tun2socks cleanup");
-        }
+        Log.i(TAG, "stopVpnGraceful: Tunnel.stop took " + t2sDur + "ms");
         Thread t2s = tun2socksThread.getAndSet(null);
         if (t2s != null) {
             try { t2s.join(3000); } catch (InterruptedException ignored) {}
@@ -865,17 +863,9 @@ public class VpnServiceImpl extends VpnService {
         // was started concurrently (e.g. STOP + START intents arriving in quick succession).
         int epochBeforeSleep = mihomoManager.getStartEpoch();
         long t0 = System.currentTimeMillis();
-        XRayVpnService.safeStopTun2Socks();
+        Tunnel.stop();
         long t2sDur = System.currentTimeMillis() - t0;
-        Log.i(TAG, "stopVpnInternal: safeStopTun2Socks took " + t2sDur + "ms");
-        // Go tun2socks goroutine holds a SCM_RIGHTS copy of the TUN fd.
-        // stopTun2Socks sends a stop signal but returns before Go has closed its copy.
-        // Wait only when the call did real work (>5ms) and returned fast (<500ms),
-        // meaning it was non-blocking and Go still needs time to close its fd.
-        if (t2sDur > 5 && t2sDur < 500) {
-            try { Thread.sleep(1200); } catch (InterruptedException ignored) {}
-            Log.i(TAG, "stopVpnInternal: waited for Go tun2socks cleanup");
-        }
+        Log.i(TAG, "stopVpnInternal: Tunnel.stop took " + t2sDur + "ms");
         Thread t2s = tun2socksThread.getAndSet(null);
         if (t2s != null) {
             try { t2s.join(3000); } catch (InterruptedException ignored) {}

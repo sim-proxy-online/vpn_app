@@ -14,8 +14,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.provider.Settings;
 import androidx.core.content.FileProvider;
-import libxray.Libxray;
-import libxray.XRayPoint;
+import com.simproxy.simcore.Core;
+import com.simproxy.simcore.Simcore;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import android.content.SharedPreferences;
@@ -343,8 +343,8 @@ public class NativeBridge {
     public String getCoreVersions() {
         JSONObject obj = new JSONObject();
         try {
-            obj.put("xray", Libxray.getCoreVersion());
-            obj.put("wrapper", Libxray.getWrapperVersion());
+            obj.put("xray", Simcore.coreVersion());
+            obj.put("wrapper", Simcore.version());
         } catch (Exception ignored) {}
         return obj.toString();
     }
@@ -652,7 +652,7 @@ public class NativeBridge {
         });
     }
 
-    // Пинг как в Happ: measureOutboundDelayWithType из libxray.
+    // Пинг: Simcore.measureDelay (временный экземпляр ядра, наша обёртка).
     // VPN включён + активный сервер → GET через живой SOCKS (мгновенно, точно).
     // VPN включён + другой сервер  → -1 (нельзя запустить второй libxray-инстанс).
     // VPN выключен → measureOutboundDelayWithType с полным конфигом (включая bypass-цепочку).
@@ -761,7 +761,7 @@ public class NativeBridge {
         });
     }
 
-    // ПИНГ КАК В HAPP: встроенный measureOutboundDelay из libxray. Сама Go-либа
+    // ПИНГ: встроенный Simcore.measureDelay. Сама Go-либа
     // поднимает outbound (REALITY+fragment+dialerProxy) и дёргает url через прокси —
     // тем же дайлером, что и боевое соединение, поэтому проходит DPI белого списка
     // ДАЖЕ при выключенном VPN (когда свежее «ручное» временное ядро не бутстрапится,
@@ -806,7 +806,7 @@ public class NativeBridge {
                     }
                 } catch (Throwable ignored) {}
                 synchronized (PING_CORE_LOCK) {
-                    d = libxray.Libxray.measureOutboundDelay(configJson, u, PING_TIMEOUT_MS);
+                    d = Simcore.measureDelay(configJson, u, PING_TIMEOUT_MS);
                 }
                 android.util.Log.i(TAG, "measureDelay -> " + d + "ms (url " + u + ")");
             } catch (Throwable t) {
@@ -820,7 +820,7 @@ public class NativeBridge {
     static final Object PING_CORE_LOCK = new Object();
     private static final int LIVE_SOCKS_PORT = 10808;
     private static final int PING_SOCKS_PORT  = 10899;
-    // Таймаут (мс) для measureOutboundDelay — 3-й аргумент биндинга Happ 4.7.1.
+    // Таймаут (мс) для measureOutboundDelay — 3-й аргумент Simcore.measureDelay.
     // Соответствует нашим внешним watchdog-таймаутам (3с), см. measureDelayWithFallback.
     private static final int PING_TIMEOUT_MS = 3000;
 
@@ -833,7 +833,7 @@ public class NativeBridge {
             new XrayManager().boot(activity, activity.getFilesDir().getAbsolutePath());
             boolean hasVision = configJson.contains("xtls-rprx-vision");
             String url = hasVision ? "https://cp.cloudflare.com/" : "http://cp.cloudflare.com/";
-            long d = libxray.Libxray.measureOutboundDelay(configJson, url, PING_TIMEOUT_MS);
+            long d = Simcore.measureDelay(configJson, url, PING_TIMEOUT_MS);
             android.util.Log.i(TAG, "measureDelay(fast) vision=" + hasVision + ": " + d + "ms");
             if (d > 0) return d;
         } catch (Throwable t) {
@@ -899,7 +899,7 @@ public class NativeBridge {
     // dialerProxy-цепочку корректно и даёт "closed pipe" / TLS timeout на DPI-сетях.
     // Вызывать только под PING_CORE_LOCK и только когда VPN выключен.
     private long pingViaFullCore(String configJson) {
-        libxray.XRayPoint pingPoint = null;
+        Core pingPoint = null;
         Thread pingCoreThread = null;
         try {
             new XrayManager().boot(activity, activity.getFilesDir().getAbsolutePath());
@@ -993,10 +993,10 @@ public class NativeBridge {
             cfg.put("inbounds", inbounds);
             final String pingCfg = cfg.toString();
 
-            pingPoint = libxray.Libxray.newXRayPoint(SimApplication.staticSupportSet, true);
-            final libxray.XRayPoint point = pingPoint;
+            pingPoint = Simcore.newCore(SimApplication.staticSupportSet);
+            final Core point = pingPoint;
             pingCoreThread = new Thread(() -> {
-                try { point.coreRunLoop(pingCfg); } catch (Throwable ignored) {}
+                try { point.start(pingCfg, 0); } catch (Throwable ignored) {}
             }, "PingCore");
             pingCoreThread.start();
 
@@ -1022,7 +1022,7 @@ public class NativeBridge {
             return -1;
         } finally {
             if (pingPoint != null) {
-                try { pingPoint.coreStopLoop(); } catch (Throwable ignored) {}
+                try { pingPoint.stop(); } catch (Throwable ignored) {}
             }
             // Ждём закрытия порта перед следующим вызовом (ядро освобождает ресурсы)
             long portDeadline = System.currentTimeMillis() + 1500;
@@ -2193,7 +2193,7 @@ public class NativeBridge {
                                 try {
                                     new XrayManager().boot(activity, activity.getFilesDir().getAbsolutePath());
                                     synchronized (PING_CORE_LOCK) {
-                                        delay = libxray.Libxray.measureOutboundDelay(configJson, "http://cp.cloudflare.com/", PING_TIMEOUT_MS);
+                                        delay = Simcore.measureDelay(configJson, "http://cp.cloudflare.com/", PING_TIMEOUT_MS);
                                     }
                                 } catch (Throwable t) {
                                     Log.i(TAG, "PingBatch(vpn): " + nodeId + " measureOutbound err: " + t.getMessage());

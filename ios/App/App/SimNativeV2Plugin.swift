@@ -383,7 +383,7 @@ public class SimNativeV2Plugin: CAPPlugin, CAPBridgedPlugin {
 
     @objc func fetchUrl(_ call: CAPPluginCall) {
         let url = call.getString("url") ?? ""
-        let ua = call.getString("userAgent") ?? "v2rayNG/1.8.19"
+        let ua = call.getString("userAgent") ?? SimHttp.defaultUserAgent
         SimHttp.fetch(urlString: url, userAgent: ua, timeout: 20) { result in
             call.resolve(["result": result.asDict])
         }
@@ -393,7 +393,7 @@ public class SimNativeV2Plugin: CAPPlugin, CAPBridgedPlugin {
     /// и обычный запрос эквивалентны. Возвращаем честный отказ, если туннеля нет.
     @objc func fetchUrlViaProxy(_ call: CAPPluginCall) {
         let url = call.getString("url") ?? ""
-        let ua = call.getString("userAgent") ?? "v2rayNG/1.8.19"
+        let ua = call.getString("userAgent") ?? SimHttp.defaultUserAgent
         whenStatus { status in
             guard status == "connected" else {
                 call.resolve(["result": ["ok": false, "error": "vpn-off", "body": ""]])
@@ -413,7 +413,7 @@ public class SimNativeV2Plugin: CAPPlugin, CAPBridgedPlugin {
                 call.resolve(["result": NSNull()])
                 return
             }
-            SimHttp.fetch(urlString: "https://1.1.1.1/cdn-cgi/trace", userAgent: "v2rayNG/1.8.19", timeout: 12) { outcome in
+            SimHttp.fetch(urlString: "https://1.1.1.1/cdn-cgi/trace", userAgent: SimHttp.defaultUserAgent, timeout: 12) { outcome in
                 guard outcome.ok,
                       let ip = SimTrace.parse(outcome.body, key: "ip"), !ip.isEmpty else {
                     call.resolve(["result": NSNull()])
@@ -439,7 +439,7 @@ public class SimNativeV2Plugin: CAPPlugin, CAPBridgedPlugin {
                 ]])
                 return
             }
-            SimHttp.fetch(urlString: "https://1.1.1.1/cdn-cgi/trace", userAgent: "v2rayNG/1.8.19", timeout: 12) { outcome in
+            SimHttp.fetch(urlString: "https://1.1.1.1/cdn-cgi/trace", userAgent: SimHttp.defaultUserAgent, timeout: 12) { outcome in
                 guard outcome.ok,
                       let ip = SimTrace.parse(outcome.body, key: "ip"), !ip.isEmpty else {
                     call.resolve(["result": [

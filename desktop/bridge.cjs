@@ -1028,6 +1028,13 @@ async function measureDelay(rawConfig, _url) {
 const FETCH_MAX_REDIRECTS = 5;
 const FETCH_MAX_BYTES = 8 * 1024 * 1024;
 
+// Наш User-Agent по умолчанию: SimProxy/<версия приложения>.
+function defaultUserAgent() {
+  let ver = '0';
+  try { ver = require('electron').app.getVersion() || ver; } catch { /* вне Electron (тесты) */ }
+  return 'SimProxy/' + ver;
+}
+
 function fetchUrl(url, userAgent, redirects = 0) {
   return new Promise((resolve) => {
     try {
@@ -1039,7 +1046,7 @@ function fetchUrl(url, userAgent, redirects = 0) {
       const req = lib.get(
         u,
         {
-          headers: { 'User-Agent': userAgent || 'v2rayNG/1.8.19', 'Accept-Encoding': 'identity' },
+          headers: { 'User-Agent': userAgent || defaultUserAgent(), 'Accept-Encoding': 'identity' },
           timeout: 20000,
         },
         (res) => {

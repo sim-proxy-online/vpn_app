@@ -1,4 +1,5 @@
 import { RoutingProfile, ServerNode } from '../types';
+import { APP_USER_AGENT } from '../utils/userAgent';
 import { MANAGEMENT_HEADER_KEYS } from '../utils/appManagement';
 import { isIpAddress, parseTrace, type PublicIp } from '../utils/publicIp';
 // iOS: при загрузке модуля ставит window.SimNativeV2 поверх Capacitor-плагина —
@@ -456,7 +457,7 @@ export interface FetchResult {
 
 /** userAgent — от провайдера подписки (change-user-agent, только доверенному профилю); без него обычный v2rayNG. */
 export async function nativeFetchUrl(url: string, userAgent?: string): Promise<string | FetchResult> {
-  const ua = userAgent || 'v2rayNG/1.8.19';
+  const ua = userAgent || APP_USER_AGENT;
   if (isNative()) {
     return callNativeAsync<FetchResult>('fetchUrl', url, ua);
   }
@@ -487,7 +488,7 @@ export async function nativeFetchUrl(url: string, userAgent?: string): Promise<s
  */
 export async function nativeFetchUrlViaProxy(url: string, socksPort: number, userAgent?: string): Promise<string | FetchResult> {
   if (isNative()) {
-    return callNativeAsync<FetchResult>('fetchUrlViaProxy', url, userAgent || 'v2rayNG/1.8.19', socksPort);
+    return callNativeAsync<FetchResult>('fetchUrlViaProxy', url, userAgent || APP_USER_AGENT, socksPort);
   }
   // Браузер не умеет ходить через локальный SOCKS — просто обычный запрос.
   return nativeFetchUrl(url, userAgent);

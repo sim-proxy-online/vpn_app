@@ -129,9 +129,9 @@ export interface ManagedProfileState {
 }
 
 /**
- * Каким User-Agent запрашивать подписку, чтобы провайдер отдал больше: описания серверов и подсказки он
- * часто даёт только Happ. default — обычный запрос; happ — запрос как у Happ дал больше и запомнен.
- * checkedAt — когда сравнивали (раз в неделю сравнение повторяется для default).
+ * Устаревшее: раньше приложение запоминало, каким User-Agent провайдер отдаёт больше данных
+ * (в том числе «как Happ»). Теперь всегда используется наш User-Agent, поле остаётся только
+ * для чтения старых бэкапов и localStorage и при следующем обновлении подписки очищается.
  */
 export interface UaPreference {
   mode: 'default' | 'happ';
@@ -159,7 +159,7 @@ export interface SubscriptionProfile {
   trialExpiresAt?: number;
   // Параметры управления от провайдера подписки (стиль Happ): объявление, кнопки, доверие.
   managed?: ManagedProfileState;
-  // Какой User-Agent даёт у этого провайдера больше данных (см. utils/subscriptionFetch.ts).
+  // Устаревшее (см. UaPreference): больше не пишется, при обновлении подписки очищается.
   fetchUa?: UaPreference;
   status: 'healthy' | 'warning' | 'expired' | 'error';
   // Причина последнего неудачного обновления подписки (status === 'error'); очищается при успешном.

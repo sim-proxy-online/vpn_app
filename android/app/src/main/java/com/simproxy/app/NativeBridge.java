@@ -1290,7 +1290,15 @@ public class NativeBridge {
         return cachedHwid;
     }
 
-    // Заголовки, которые шлёт Happ для разблокировки HWID-locked подписок.
+    // Наш User-Agent по умолчанию для запросов подписки: SimProxy/<версия>. Обычно его передаёт
+    // JS-слой (utils/subscriptionFetch.ts), здесь — запасное значение.
+    private String defaultUserAgent() {
+        String ver = "0";
+        try { ver = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName; } catch (Throwable ignored) {}
+        return "SimProxy/" + ver;
+    }
+
+    // Заголовки устройства для HWID-привязанных подписок (протокол панелей: X-HWID и др.).
     private void applySubscriptionHeaders(HttpURLConnection conn) {
         try {
             String ver = "1.0";
@@ -1496,8 +1504,8 @@ public class NativeBridge {
                 URL urlObj = new URL(currentUrl);
                 conn = (HttpURLConnection) urlObj.openConnection();
                 conn.setRequestMethod("GET");
-                // Используем User-Agent, который часто ожидают провайдеры (v2rayNG или Clash)
-                conn.setRequestProperty("User-Agent", userAgent != null ? userAgent : "v2rayNG/1.8.19");
+                // User-Agent: переданный из JS (провайдера/наш), иначе SimProxy/<версия>.
+                conn.setRequestProperty("User-Agent", userAgent != null ? userAgent : defaultUserAgent());
                 conn.setRequestProperty("Accept-Encoding", "gzip");
                 applySubscriptionHeaders(conn);
                 // Отключаем автоматические редиректы — обрабатываем сами с лимитом
@@ -1589,7 +1597,7 @@ public class NativeBridge {
                     URL urlObj = new URL(currentUrl);
                     conn = (HttpURLConnection) urlObj.openConnection(proxy);
                     conn.setRequestMethod("GET");
-                    conn.setRequestProperty("User-Agent", userAgent != null ? userAgent : "v2rayNG/1.8.19");
+                    conn.setRequestProperty("User-Agent", userAgent != null ? userAgent : defaultUserAgent());
                     conn.setRequestProperty("Accept-Encoding", "gzip");
                     applySubscriptionHeaders(conn);
                     conn.setInstanceFollowRedirects(false);

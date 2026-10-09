@@ -57,9 +57,15 @@ enum SimErrorSanitizer {
 // MARK: - HTTP-помощники
 
 /// Зеркалит семантику Java NativeBridge.fetchUrl: ≤5 редиректов, UA по умолчанию
-/// v2rayNG/1.8.19, таймаут 20 с, разбор заголовков подписки (profile-title,
+/// SimProxy/<версия>, таймаут 20 с, разбор заголовков подписки (profile-title,
 /// subscription-userinfo, hiddify-app-info, content-disposition, profile-update-url).
 enum SimHttp {
+    /// Наш User-Agent по умолчанию: SimProxy/<версия приложения>.
+    static var defaultUserAgent: String {
+        let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
+        return "SimProxy/\(v)"
+    }
+
     struct FetchOutcome {
         var ok: Bool
         var body: String
@@ -182,7 +188,7 @@ enum SimHttp {
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
         request.timeoutInterval = timeout
-        request.setValue("v2rayNG/1.8.19", forHTTPHeaderField: "User-Agent")
+        request.setValue(SimHttp.defaultUserAgent, forHTTPHeaderField: "User-Agent")
 
         let config = URLSessionConfiguration.ephemeral
         config.timeoutIntervalForRequest = timeout
@@ -206,7 +212,7 @@ enum SimHttp {
         guard let url = URL(string: urlString) else { completion(-1, 0); return }
         var request = URLRequest(url: url)
         request.timeoutInterval = timeout
-        request.setValue("v2rayNG/1.8.19", forHTTPHeaderField: "User-Agent")
+        request.setValue(SimHttp.defaultUserAgent, forHTTPHeaderField: "User-Agent")
 
         let config = URLSessionConfiguration.ephemeral
         config.timeoutIntervalForResource = timeout

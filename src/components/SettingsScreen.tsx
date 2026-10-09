@@ -4,7 +4,7 @@ import {
   ArrowLeft, Wifi, Globe, Smartphone, Info, ChevronDown,
   Route, Lock, Eye, Map, Download,
   Database, Upload, Trash2, Activity, Zap,
-  Monitor, Hash, Clock, Layers, FileText, Settings2, Network, Terminal, Cpu, Check, Palette, Link, ChevronRight as ChevronRightIcon, Building2, ShieldOff, Shield, ShieldCheck, Tv, Flame
+  Monitor, Hash, Clock, Layers, FileText, Settings2, Network, Terminal, Cpu, Check, Palette, Link, ChevronRight as ChevronRightIcon, Building2, ShieldOff, Shield, ShieldCheck, Tv, Flame, Sparkles
 } from 'lucide-react';
 import { useState, ReactNode, useEffect } from 'react';
 import { useTheme, ACCENT_PRESETS, DEFAULT_ACCENT } from '../ThemeContext';
@@ -242,6 +242,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
   // Core settings
   const [killSwitch, setKillSwitch] = usePersist('sim-killswitch', true);
   const [autoConnect, setAutoConnect] = usePersist('sim-autoconnect', false);
+  const [happUa, setHappUa] = usePersist('sim-happ-ua', true);
   const [updateViaVpn, setUpdateViaVpn] = usePersist('sim-update-via-vpn', true);
   const [autoLeakTest, setAutoLeakTest] = usePersist('sim-auto-leaktest', true);
   const [autoReconnect, setAutoReconnect] = usePersist('sim-autoreconnect', true);
@@ -339,6 +340,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
         <KillSwitchToggle enabled={killSwitch} onToggle={setKillSwitch} />
       </div>
       <Row icon={<Wifi size={15} />} iconColor="#00ff88" label="Авто-подключение" desc="Подключаться при запуске приложения" right={<Toggle on={autoConnect} onToggle={() => { const next = !autoConnect; setAutoConnect(next); nativeSetAutoConnect(next).catch(console.error); }} />} />
+      <Row icon={<Sparkles size={15} />} iconColor="#b000ff" label="Режим Happ для подписок" desc="Приложение само проверяет, отдаёт ли провайдер больше данных (описания серверов, подсказки), если запросить подписку как Happ, и запоминает это" right={<Toggle on={happUa} onToggle={() => setHappUa(!happUa)} />} />
       <Row icon={<Route size={15} />} iconColor="#ff8c00" label="Обновлять подписку через VPN" desc="Обновление идёт напрямую, но если подписку режет оператор или она доступна только с адреса сервера — запрос автоматически повторяется через поднятый туннель. Включено по умолчанию" right={<Toggle on={updateViaVpn} onToggle={() => setUpdateViaVpn(!updateViaVpn)} />} />
       <Row icon={<Eye size={15} />} iconColor="#ff00aa" label="Авто-проверка утечек" desc="Тест IP/DNS после подключения + предупреждение" right={<Toggle on={autoLeakTest} onToggle={() => setAutoLeakTest(!autoLeakTest)} />} />
       <Row icon={<Network size={15} />} iconColor="#2d7dff" label="Авто-реконнект" desc="Переподключаться при смене сети (Wi-Fi ↔ моб.)" right={<Toggle on={autoReconnect} onToggle={() => setAutoReconnect(!autoReconnect)} />} />

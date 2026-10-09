@@ -1290,12 +1290,12 @@ public class NativeBridge {
         return cachedHwid;
     }
 
-    // Наш User-Agent по умолчанию для запросов подписки: SimProxy/<версия>. Обычно его передаёт
+    // Наш User-Agent по умолчанию для запросов подписки: Petrovich/<версия>. Обычно его передаёт
     // JS-слой (utils/subscriptionFetch.ts), здесь — запасное значение.
     private String defaultUserAgent() {
         String ver = "0";
         try { ver = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName; } catch (Throwable ignored) {}
-        return "SimProxy/" + ver;
+        return "Petrovich/" + ver;
     }
 
     // Заголовки устройства для HWID-привязанных подписок (протокол панелей: X-HWID и др.).
@@ -1504,7 +1504,7 @@ public class NativeBridge {
                 URL urlObj = new URL(currentUrl);
                 conn = (HttpURLConnection) urlObj.openConnection();
                 conn.setRequestMethod("GET");
-                // User-Agent: переданный из JS (провайдера/наш), иначе SimProxy/<версия>.
+                // User-Agent: переданный из JS (провайдера/наш), иначе Petrovich/<версия>.
                 conn.setRequestProperty("User-Agent", userAgent != null ? userAgent : defaultUserAgent());
                 conn.setRequestProperty("Accept-Encoding", "gzip");
                 applySubscriptionHeaders(conn);
@@ -1737,7 +1737,7 @@ public class NativeBridge {
                             c = (HttpURLConnection) new URL(target).openConnection(proxy);
                             c.setConnectTimeout(6000);
                             c.setReadTimeout(6000);
-                            c.setRequestProperty("User-Agent", "SimProxy/1.0");
+                            c.setRequestProperty("User-Agent", "Petrovich/1.0");
                             if (c.getResponseCode() != 200) continue;
                             BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"));
                             String ln;
@@ -1857,7 +1857,7 @@ public class NativeBridge {
                     conn.setInstanceFollowRedirects(false);
                     conn.setConnectTimeout(20000);
                     conn.setReadTimeout(30000);
-                    conn.setRequestProperty("User-Agent", "SimProxy-Updater");
+                    conn.setRequestProperty("User-Agent", "Petrovich-Updater");
                     int code = conn.getResponseCode();
                     if (code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP
                             || code == 307 || code == 308) {
@@ -1936,7 +1936,7 @@ public class NativeBridge {
                     conn.setInstanceFollowRedirects(false);
                     conn.setConnectTimeout(20000);
                     conn.setReadTimeout(30000);
-                    conn.setRequestProperty("User-Agent", "SimProxy-Updater");
+                    conn.setRequestProperty("User-Agent", "Petrovich-Updater");
                     int code = conn.getResponseCode();
                     if (code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP
                             || code == 307 || code == 308) {

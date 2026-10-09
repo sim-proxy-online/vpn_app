@@ -232,7 +232,7 @@ public class AntiFilterService extends Service {
             // HTTP GET
             String reqLine = "GET " + path + " HTTP/1.1\r\n"
                 + "Host: " + host + "\r\n"
-                + "User-Agent: SimProxy-AntiFilter\r\n"
+                + "User-Agent: Petrovich-AntiFilter\r\n"
                 + "Connection: close\r\n\r\n";
             os.write(reqLine.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
             os.flush();

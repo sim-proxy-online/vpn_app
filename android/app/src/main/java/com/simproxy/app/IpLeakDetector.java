@@ -109,7 +109,7 @@ public class IpLeakDetector {
                 conn = (HttpURLConnection) new URL(target).openConnection(proxy);
                 conn.setConnectTimeout(6000);
                 conn.setReadTimeout(6000);
-                conn.setRequestProperty("User-Agent", "SimProxy/1.0");
+                conn.setRequestProperty("User-Agent", "Petrovich/1.0");
                 if (conn.getResponseCode() != 200) continue;
                 String ip = "";
                 String loc = "";
@@ -151,7 +151,7 @@ public class IpLeakDetector {
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(3000);
                 conn.setReadTimeout(3000);
-                conn.setRequestProperty("User-Agent", "SimProxy/1.0");
+                conn.setRequestProperty("User-Agent", "Petrovich/1.0");
 
                 if (conn.getResponseCode() == 200) {
                     try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {

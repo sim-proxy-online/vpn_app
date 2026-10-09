@@ -1665,14 +1665,16 @@ public class VpnServiceImpl extends VpnService {
                 // этой же сессии — первая версия этой правки сравнивала только isRunning()+
                 // isNetworkAvailable() без типа сети, что и вызывало эту регрессию).
                 NetworkMonitor.NetworkType nowType = networkMonitor != null ? networkMonitor.getCurrentNetwork() : NetworkMonitor.NetworkType.NONE;
-                // Смена сети при живом ядре — только перепривязка, без перезапуска ядра.
-                // Полный перезапуск пересоздаёт TUN, и чтение нового интерфейса не
-                // поднимается: трафик входит в tun и дропается, а SOCKS-порт ядра при этом
-                // продолжает отвечать. Снаружи это ровно «подключено, но интернета нет»,
-                // и вылечивается лишь ручным переподключением. Проверено на устройстве.
+                // Короткий всплеск той же сети (тип не изменился) — только перепривязка через
+                // setUnderlyingNetworks, ядро живёт. А при РЕАЛЬНОЙ смене типа (Wi-Fi <-> мобильная)
+                // ядро нужно перезапускать сразу: его DNS-клиенты и пулы соединений остались от
+                // прежней сети и «зависают» (DoH по таймауту), туннель оживал лишь через ~30-45 с,
+                // когда две подряд проверки падали и срабатывал fast-failover. Перезапуск на
+                // собственном ядре (simcore) поднимает туннель за ~5 с (проверено на устройстве).
+                boolean typeChanged = nowType != connectedNetworkType;
                 boolean rebindOnly = isRunning()
                         && nowType != NetworkMonitor.NetworkType.NONE
-                        && (nowType == connectedNetworkType || reconnectFromNetworkChange);
+                        && !typeChanged;
                 reconnectFromNetworkChange = false;
                 if (rebindOnly) {
                     Log.i(TAG, "reconnectWithDelay: rebind only (" + connectedNetworkType + "->" + nowType

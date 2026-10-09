@@ -8,8 +8,10 @@
 package simcore
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -167,6 +169,7 @@ type Core struct {
 	listener Listener
 	inst     *core.Instance
 	running  bool
+	tunMTU   int32
 }
 
 // NewCore создаёт управляющий объект. Listener может быть nil.
@@ -176,6 +179,53 @@ func (c *Core) emit(code int64, msg string) {
 	if c.listener != nil {
 		c.listener.OnStatus(code, msg)
 	}
+}
+
+// SetTunMTU задаёт MTU TUN-интерфейса для следующего Start (должен совпадать с
+// VpnService.Builder.setMtu). По умолчанию 1500.
+func (c *Core) SetTunMTU(mtu int32) {
+	c.mu.Lock()
+	c.tunMTU = mtu
+	c.mu.Unlock()
+}
+
+// withTunInbound добавляет в JSON-конфиг inbound "tun" (встроенный TUN xray на Android,
+// дескриптор берётся из xray.tun.fd). Если tun-инбаунд в конфиге уже есть, конфиг не меняется.
+func withTunInbound(config string, mtu int32) (string, error) {
+	if mtu <= 0 {
+		mtu = 1500
+	}
+	dec := json.NewDecoder(strings.NewReader(config))
+	dec.UseNumber() // не превращать большие целые в float64
+	var root map[string]any
+	if err := dec.Decode(&root); err != nil {
+		return "", fmt.Errorf("конфиг: %w", err)
+	}
+	inbounds, _ := root["inbounds"].([]any)
+	for _, raw := range inbounds {
+		if in, ok := raw.(map[string]any); ok {
+			if p, _ := in["protocol"].(string); strings.EqualFold(p, "tun") {
+				return config, nil
+			}
+		}
+	}
+	tun := map[string]any{
+		"tag":      "tun-in",
+		"protocol": "tun",
+		"settings": map[string]any{"name": "xray0", "MTU": mtu, "userLevel": 0},
+		"sniffing": map[string]any{
+			"enabled":      true,
+			"destOverride": []any{"http", "tls", "quic"},
+		},
+	}
+	root["inbounds"] = append(inbounds, tun)
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(root); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
 // Start запускает ядро и возвращается, не дожидаясь остановки.
@@ -207,6 +257,15 @@ func (c *Core) Start(config string, tunFd int32) (err error) {
 		}
 	} else {
 		_ = os.Unsetenv(envTun)
+	}
+
+	if tunFd > 0 {
+		cfg, err := withTunInbound(config, c.tunMTU)
+		if err != nil {
+			c.emit(StatusError, err.Error())
+			return err
+		}
+		config = cfg
 	}
 
 	inst, err := buildInstance(config)

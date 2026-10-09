@@ -1,4 +1,4 @@
-# Сборка libhev-socks5-tunnel.so (открытый hev-socks5-tunnel, MIT) под имя Java-класса
+﻿# Сборка libhev-socks5-tunnel.so (открытый hev-socks5-tunnel, MIT) под имя Java-класса
 # com.simproxy.core.Tunnel. Результат кладётся в android/app/src/main/jniLibs/<abi>/.
 #
 # Требуется: Android NDK (ANDROID_NDK_HOME или -Ndk), git.

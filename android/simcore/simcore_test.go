@@ -1,8 +1,10 @@
 package simcore
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
+	"strings"
 	"testing"
 	"time"
 )
@@ -110,5 +112,39 @@ func TestMeasureDelayDirect(t *testing.T) {
 	t.Logf("delay %d ms", ms)
 	if ms > 8000 {
 		t.Fatalf("слишком большая задержка: %d", ms)
+	}
+}
+
+func TestWithTunInbound(t *testing.T) {
+	cfg := `{"inbounds":[{"tag":"socks-in","protocol":"socks","port":10808}],"outbounds":[{"protocol":"freedom"}],"big":12345678901234567}`
+	out, err := withTunInbound(cfg, 1400)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m struct {
+		Inbounds []struct {
+			Protocol string `json:"protocol"`
+			Settings struct {
+				MTU int `json:"MTU"`
+			} `json:"settings"`
+		} `json:"inbounds"`
+	}
+	if err := json.Unmarshal([]byte(out), &m); err != nil {
+		t.Fatal(err)
+	}
+	if len(m.Inbounds) != 2 || m.Inbounds[0].Protocol != "socks" || m.Inbounds[1].Protocol != "tun" || m.Inbounds[1].Settings.MTU != 1400 {
+		t.Fatalf("inbounds: %+v", m.Inbounds)
+	}
+	if !strings.Contains(out, "12345678901234567") {
+		t.Fatal("большое целое число испорчено при перекодировании")
+	}
+	// если tun уже есть — конфиг не трогаем
+	same, _ := withTunInbound(out, 1400)
+	if same != out {
+		t.Fatal("повторная подстановка не должна менять конфиг")
+	}
+	// некорректный JSON
+	if _, err := withTunInbound("{", 0); err == nil {
+		t.Fatal("ожидалась ошибка")
 	}
 }

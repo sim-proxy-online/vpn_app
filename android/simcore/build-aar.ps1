@@ -1,4 +1,4 @@
-# Сборка libs/simcore.aar (Go-обёртка над xray-core) через gomobile bind.
+﻿# Сборка libs/simcore.aar (Go-обёртка над xray-core) через gomobile bind.
 # Требуется: Go (>=1.26), gomobile и gobind в PATH, JDK 17+, Android SDK и NDK.
 #   .\build-aar.ps1 -Sdk D:\android-tools\sdk -Ndk D:\android-tools\sdk\ndk\27.2.12479018
 param(

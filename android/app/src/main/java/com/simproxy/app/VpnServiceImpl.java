@@ -556,6 +556,7 @@ public class VpnServiceImpl extends VpnService {
                 // 9с (waitForPortClosed) + 12с (waitForReady), блокируя stopVpnGraceful.
                 // Защита от убийства нового Xray обеспечивается epoch-механизмом
                 // (xrayManager.stopIfEpoch) в stopVpnGraceful.
+                xrayManager.setTunMtu(mtu);
                 int socksPort = xrayManager.start(this, datPath, config, rawFd, false);
                 if (!xrayManager.waitForReady(socksPort)) {
                     throw new Exception("Xray SOCKS-порт не открылся за 12с");

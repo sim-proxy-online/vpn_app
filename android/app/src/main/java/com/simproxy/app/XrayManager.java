@@ -14,6 +14,8 @@ public class XrayManager {
     private static volatile boolean isNativeBooted = false;
 
     private volatile Core xrayPoint = null;
+    // MTU TUN-интерфейса: должен совпадать с VpnService.Builder.setMtu (задаёт VpnServiceImpl).
+    private volatile int tunMtu = 1500;
     private volatile boolean isRunning = false;
     private volatile Thread xrayThread = null;
     // Фактический SOCKS-порт работающего боевого ядра (из конфига, не хардкод).
@@ -24,6 +26,7 @@ public class XrayManager {
     private volatile int xrayEpoch = 0;
 
     public int getSocksPort() { return liveSocksPort; }
+    public void setTunMtu(int mtu) { if (mtu > 0) tunMtu = mtu; }
     public int getXrayEpoch() { return xrayEpoch; }
 
     private void extractAssets(Context context, String datPath) {
@@ -139,6 +142,7 @@ public class XrayManager {
 
         try {
             xrayPoint = Simcore.newCore(SimApplication.staticSupportSet);
+            xrayPoint.setTunMTU(tunMtu);
         } catch (Throwable t) {
             throw new Exception("newXRayPoint failed: " + t.getMessage());
         }

@@ -1,0 +1,104 @@
+name: Build iOS (cloud macOS, no Mac needed)
+
+# Собирает iOS-приложение SimProxy на облачном macOS-раннере GitHub — свой Mac не нужен.
+# Результат: НЕподписанный .ipa (артефакт прогона). Установка на iPhone:
+#   • через AltStore / Sideloadly с Windows (переподпишут вашим Apple ID), либо
+#   • добавив сертификаты Apple Developer в секреты и включив подпись (см. IOS_SETUP.md).
+#
+# В архив попадает и app-таргет, и расширение PacketTunnel.appex (Network Extension
+# с ядром Xray через SwiftyXrayKit) — поэтому IPA выходит заметно крупной (~100+ МБ
+# до сжатия): LibXray ~80 МБ + geoip.dat 16 МБ + geosite.dat 11 МБ.
+#
+# ⚠️ Запуск туннеля на устройстве требует платного Apple Developer (Network Extension
+#    недоступен при бесплатном sideloading) — см. IOS_SETUP.md.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode (latest stable)
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Sync Capacitor iOS
+        # cap sync пересобирает packageClassList ТОЛЬКО из node_modules — наш
+        # SimNativeV2Plugin туда не попадает, поэтому регистрируем его пост-скриптом.
+        run: |
+          npx cap sync ios
+          node scripts/ios-register-plugin.mjs
+
+      - name: Verify plugin registered
+        run: |
+          node -e "
+            const c = require('./ios/App/App/capacitor.config.json');
+            if (!c.packageClassList.includes('SimNativeV2Plugin')) {
+              console.error('SimNativeV2Plugin отсутствует в packageClassList');
+              process.exit(1);
+            }
+            console.log('packageClassList OK:', c.packageClassList.join(', '));
+          "
+
+      - name: Build unsigned .app (archive)
+        run: |
+          cd ios/App
+          xcodebuild \
+            -resolvePackageDependencies \
+            -project App.xcodeproj \
+            -scheme App
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath "$PWD/build/App.xcarchive" \
+            archive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+
+      - name: Verify PacketTunnel extension present
+        run: |
+          APP="ios/App/build/App.xcarchive/Products/Applications/App.app"
+          if [ ! -d "$APP/PlugIns/PacketTunnel.appex" ]; then
+            echo "PacketTunnel.appex не найден внутри App.app"
+            exit 1
+          fi
+          echo "PacketTunnel.appex на месте"
+          ls -la "$APP/PlugIns/"
+          echo "geo-данные в расширении:"
+          ls -la "$APP/PlugIns/PacketTunnel.appex/" | grep -E 'geoip|geosite' || {
+            echo "geoip.dat/geosite.dat не скопированы — маршрутизация по geoip:/geoite: не заработает"
+            exit 1
+          }
+
+      - name: Package unsigned IPA
+        run: |
+          cd ios/App/build
+          mkdir -p Payload
+          cp -R App.xcarchive/Products/Applications/App.app Payload/
+          zip -qr SimProxy-ios-unsigned.ipa Payload
+          ls -lh SimProxy-ios-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimProxy-ios-unsigned
+          path: ios/App/build/SimProxy-ios-unsigned.ipa
+          if-no-files-found: error

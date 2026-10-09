@@ -144,6 +144,42 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 
 ---
 
+## Проверка подлинности
+
+Скачанные файлы можно проверить — это защищает от подмены на стороне CDN/зеркала.
+
+**1. Хеши SHA-256.** К каждому релизу прикреплён файл `SHA256SUMS.txt`:
+
+```bash
+sha256sum -c SHA256SUMS.txt          # Linux / macOS
+Get-FileHash .\SimProxy-v2.7.1.apk -Algorithm SHA256   # Windows PowerShell
+```
+
+**2. Подпись APK.** APK подписан ключом проекта; отпечаток сертификата публикуется здесь:
+
+```bash
+apksigner verify --print-certs SimProxy-v2.7.1.apk
+```
+
+| Поле | Значение |
+|---|---|
+| Signer DN | `CN=Sim Proxy, OU=Development, O=SimProxy, C=RU` |
+| **SHA-256 сертификата** | `c20f51e2f97fd01ddcb68a906b3bdcd3bd02b3ab83aeff23b1684238eeb704d1` |
+
+Отпечаток в порядке (без пробелов и двоеточий, в нижнем регистре) — файл от нас. APK с любым другим отпечатком **не обновится поверх** установленного: Android сам отклонит такую установку — это штатная защита.
+
+> Если отпечаток вдруг изменится (смена keystore), это будет объявлено отдельно в релизе.
+
+**3. Подпись Windows-сборки.** Portable-`.exe` подписывается через SignPath (см. [SIGNPATH_SETUP.md](SIGNPATH_SETUP.md)):
+
+```powershell
+Get-AuthenticodeSignature .\SimProxy-2.7.1-portable.exe | Format-List Status, SignerCertificate
+```
+
+Статус `Valid` — подпись доверенная. Подпись набирает репутацию SmartScreen по числу загрузок, поэтому у свежего издателя Windows всё равно может показать предупреждение.
+
+---
+
 ## Deep links
 
 Открываются прямо из браузера (схемы `sim://` и `happ://`):

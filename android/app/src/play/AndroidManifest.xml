@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Сборка для Google Play (buildType "play"). Отличия от обычного релиза продиктованы
+     правилами магазина:
+     - приложение не обновляет себя скачиванием APK, поэтому REQUEST_INSTALL_PACKAGES не нужен;
+     - QUERY_ALL_PACKAGES разрешён только узкому кругу приложений (VPN в него не входит),
+       вместо него список приложений для раздельного туннелирования берётся через <queries>:
+       видны все приложения с иконкой в лаунчере. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:node="remove" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+</manifest>

@@ -1,0 +1,5 @@
+# Binary geodata — must never be line-ending normalized.
+# core.autocrlf=true on Windows would strip CRLF sequences from geosite.dat
+# (git sees it as text: it contains no NUL bytes), corrupting the file, after
+# which Xray fails to load geoip:/geoite: routing rules at startup.
+*.dat binary

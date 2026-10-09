@@ -32,6 +32,7 @@ Thumbs.db
 .DS_Store
 
 # Claude / AI tooling
+.claude/
 .claude-flow/
 .hive-mind/
 .mcp.json
@@ -39,6 +40,9 @@ Thumbs.db
 claude-skills/
 AGENTS.md
 AGENTS.md.bak*
+
+# Session research scratch (декомпиляции, LibXray ~315 МБ, скриншоты — не коммитить)
+.tmp/
 
 # APK builds & extracts
 *.apk
@@ -68,6 +72,7 @@ temp_xray/
 /COMPLETION_*.md
 /DEPLOYMENT_*.md
 /DISCONNECT_*.md
+/FINALIZE_*.md
 /DOCUMENTATION_INDEX.md
 /EXAMPLES.md
 /FILES_INDEX.md
@@ -154,7 +159,10 @@ desktop/resources/geosite.dat
 desktop/dist-exe/
 
 # Happ reference app
-Happ/
+# Ведущий слэш обязателен: без него правило ловит каталог с таким именем на любой
+# глубине, а на Windows git сравнивает без учёта регистра — из-за этого молча
+# игнорировались исходники su/happ/proxyutility/**.
+/Happ/
 Happ.apk
-Incy/
+/Incy/
 Incy.apk

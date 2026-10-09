@@ -1,0 +1,118 @@
+name: Build & Sign Windows (SignPath)
+
+# Собирает портативный SimProxy .exe и подписывает его через SignPath Foundation
+# (бесплатная подпись кода для OSS). Запускается вручную или при публикации релиза.
+#
+# Перед первым запуском настройте SignPath и секреты репозитория — см. SIGNPATH_SETUP.md.
+
+on:
+  workflow_dispatch: {}
+  release:
+    types: [published]
+
+permissions:
+  contents: write   # чтобы прикрепить подписанный exe к релизу
+  id-token: write
+
+jobs:
+  build-and-sign:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build web part
+        run: npm run build
+
+      # --publish never: сборка ничего не выгружает сама (иначе на теге electron-builder
+      # пытается публиковать и требует GH_TOKEN). latest.yml при этом всё равно
+      # создаётся — он пишется независимо от публикации.
+      - name: Build installer and portable exe (unsigned)
+        run: npx electron-builder --win --config desktop/electron-builder.yml --publish never
+
+      - name: Upload unsigned artifact
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimProxy-windows-unsigned
+          path: desktop/dist-exe/SimProxy-*-portable.exe
+          if-no-files-found: error
+
+      # Файлы автообновления (electron-updater): установщик, blockmap и latest.yml.
+      # Их раньше прикладывали вручную, и релиз без них (например, только с APK — так
+      # вышли v2.5.0 и v2.5.1) ломал автообновление у пользователей Windows: latest.yml
+      # в последнем релизе отвечал 404. latest.yml содержит sha512 установщика, поэтому
+      # установщик и latest.yml обязаны быть из одной сборки и прикладываются вместе, без
+      # отдельной подписи (она изменила бы хеш и updater отверг бы файл).
+      - name: Upload updater files
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimProxy-windows-updater
+          path: |
+            desktop/dist-exe/SimProxy-Setup-*.exe
+            desktop/dist-exe/SimProxy-Setup-*.exe.blockmap
+            desktop/dist-exe/latest.yml
+          if-no-files-found: error
+
+      # Отправляет артефакт в SignPath, ждёт подписи и скачивает подписанный файл.
+      - name: Submit signing request to SignPath
+        id: signpath
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: simproxy
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: portable-exe
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed
+
+      - name: Upload signed artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimProxy-windows-signed
+          path: signed/**
+          if-no-files-found: error
+
+      # Хеши считаем ПОСЛЕ подписи — подпись меняет содержимое файла,
+      # и хеши «до подписи» у пользователя не сошлись бы с скачанным файлом.
+      - name: Generate SHA256SUMS.txt
+        shell: pwsh
+        run: |
+          $files = @()
+          $files += Get-ChildItem -Recurse signed/* -File
+          $files += Get-ChildItem desktop/dist-exe/SimProxy-Setup-*.exe
+          $files += Get-ChildItem desktop/dist-exe/SimProxy-Setup-*.exe.blockmap
+          if ($files.Count -eq 0) { throw 'Нет файлов для хеширования' }
+          # Сплаттинг через переменную: массив уходит отдельными аргументами,
+          # а не одной строкой (иначе ломается на путях с пробелами).
+          $paths = @($files | ForEach-Object { $_.FullName })
+          node scripts/checksums.mjs -o SHA256SUMS.txt @paths
+          Get-Content SHA256SUMS.txt
+
+      - name: Attach signed exe and updater files to the release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            signed/**
+            desktop/dist-exe/SimProxy-Setup-*.exe
+            desktop/dist-exe/SimProxy-Setup-*.exe.blockmap
+            desktop/dist-exe/latest.yml
+            SHA256SUMS.txt

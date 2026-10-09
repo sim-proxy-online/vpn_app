@@ -1,0 +1,92 @@
+name: CI
+
+# Проверки на каждый push в main и на pull request: типы, тесты, сборка веб-части,
+# десктопный мост и приложение на Windows, компиляция Android-кода.
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Types, tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  desktop:
+    name: Desktop bridge and app (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      # Мост с подменёнными реестром/процессами: системный прокси не трогает.
+      - run: npm run test:desktop
+      # Приложение из исходников под настоящим Electron в режиме SIM_SMOKE_TEST.
+      - run: npm run test:desktop:smoke
+      - run: npm run test:desktop:e2e
+
+  desktop-packaged:
+    name: Packaged app starts (ASAR integrity on)
+    runs-on: windows-latest
+    env:
+      # Собираем с включённой проверкой целостности asar и запускаем результат: если он
+      # стартует, фьюз можно сделать значением по умолчанию (desktop/afterPack.cjs).
+      SIM_ASAR_INTEGRITY: '1'
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Build unpacked app (unsigned)
+        run: npx electron-builder --win dir --x64 --config desktop/electron-builder.yml "-c.directories.output=smoke-out" "-c.win.signAndEditExecutable=false" --publish never
+      - name: Launch it
+        run: node tests/desktop/smoke.cjs smoke-out/win-unpacked/SimProxy.exe
+
+  android:
+    name: Android Java compiles
+    runs-on: ubuntu-latest
+    # Первый прогон на Linux-раннере не проверялся локально (в разработке нет Android SDK) —
+    # пока не блокирует остальные проверки.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      # В android/gradle.properties прописаны пути машины разработчика (JDK из Android Studio,
+      # aapt2 в профиле пользователя) — на раннере их нет. Без нативных .so (они не в репозитории)
+      # проверяется только компиляция Java-кода.
+      - name: Drop machine-specific Gradle settings
+        run: sed -i '/^org.gradle.java.home=/d;/^android.aapt2FromMavenOverride=/d' android/gradle.properties
+      - name: Compile
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:compileDebugJavaWithJavac

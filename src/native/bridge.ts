@@ -1913,7 +1913,11 @@ export function nativeStartAntiFilterBatch(nodes: ServerNode[]): void {
 // почищен, server-домены → localhost-DNS), но без TUN-инбаунда — для замера
 // прокси-GET. ВАЖНО: держать в синхроне с App.tsx; при правке трансформации
 // боевого конфига править ОБА места.
-function buildJsonPingConfig(node: ServerNode): any {
+//
+// keepRoute=true — НЕ упрощаем маршрутизацию провайдера: балансировщики, обсерватория и правила
+// остаются как в боевом конфиге. Такой конфиг нужен для запасного замера «по рабочему пути», когда
+// первый outbound недоступен (белые списки оператора), а туннель при этом живёт на резервных.
+function buildJsonPingConfig(node: ServerNode, keepRoute = false): any {
   const raw = (node.rawLink || '').trim();
   const parsed = JSON.parse(raw);
   const cfg: any = Array.isArray(parsed) ? parsed[0] : parsed;
@@ -1928,7 +1932,7 @@ function buildJsonPingConfig(node: ServerNode): any {
   // Упрощаем балансеры → прямые outbound-теги, затем удаляем их и observatory.
   // Xray 26.x требует observatory при наличии balancers (иначе "not all dependencies resolved"
   // → ядро не стартует). Для замера одной ноды балансировка не нужна — берём первый outbound.
-  if (Array.isArray(cfg.routing?.balancers) && cfg.routing.balancers.length > 0) {
+  if (!keepRoute && Array.isArray(cfg.routing?.balancers) && cfg.routing.balancers.length > 0) {
     const balMap: Record<string, string> = {};
     for (const b of cfg.routing.balancers) {
       if (b?.tag && Array.isArray(b.selector) && b.selector.length > 0) {
@@ -1944,8 +1948,10 @@ function buildJsonPingConfig(node: ServerNode): any {
     });
     delete cfg.routing.balancers;
   }
-  delete cfg.observatory;
-  delete cfg.burstObservatory;
+  if (!keepRoute) {
+    delete cfg.observatory;
+    delete cfg.burstObservatory;
+  }
 
   // Только SOCKS-вход для измерительного GET (TUN не нужен — fd нет). Порт —
   // заглушка: нативный слой подменит на свободный (под параллельные пинги списка).
@@ -2008,14 +2014,16 @@ function buildJsonPingConfig(node: ServerNode): any {
     !['freedom', 'blackhole', 'dns', 'loopback'].includes(o.protocol)
   );
   const mainProxyTag = mainProxyOb?.tag || 'proxy';
-  cfg.routing = {
-    domainStrategy: 'AsIs',
-    rules: [
-      { type: 'field', network: 'tcp,udp', outboundTag: mainProxyTag }
-    ]
-  };
+  if (!keepRoute) {
+    cfg.routing = {
+      domainStrategy: 'AsIs',
+      rules: [
+        { type: 'field', network: 'tcp,udp', outboundTag: mainProxyTag }
+      ]
+    };
+  }
 
-  cfg.log = { loglevel: "warning" };
+  cfg.log = { loglevel: keepRoute ? "none" : "warning" };
   delete cfg.remarks;
   return cfg;
 }
@@ -2040,6 +2048,16 @@ export async function nativePingNode(node: ServerNode, mode: PingMode = getPingM
 // www.gstatic.com → 142.251.33.67), fragment-цепочку и т.д. — только убираем
 // inbounds (measureOutboundDelayWithType сам диалит через первый outbound,
 // inbounds для замера не нужны и конфликтуют с уже запущенным VPN-сокетом).
+/** У JSON-конфига есть балансировщики, и мы на Android (запасной замер реализован в NativeBridge.java). */
+export function hasRouteFallback(node: ServerNode): boolean {
+  if (typeof navigator === 'undefined' || !/Android/i.test(navigator.userAgent) || isDesktopPlatform() || !isNative()) return false;
+  try {
+    const parsed = JSON.parse((node.rawLink || '').trim());
+    const cfg = Array.isArray(parsed) ? parsed[0] : parsed;
+    return Array.isArray(cfg?.routing?.balancers) && cfg.routing.balancers.length > 0;
+  } catch { return false; }
+}
+
 function buildMeasureConfig(node: ServerNode, settings: Record<string, unknown> = {}): any {
   const _raw = node.rawLink || '';
   if (node.protocol === 'json' || (_raw.length > 300 && _raw[0] === '{')) {
@@ -2089,6 +2107,12 @@ function buildMeasureConfig(node: ServerNode, settings: Record<string, unknown> 
       'connectivitycheck.android.com': '142.251.33.67',
       'www.gstatic.com': '142.251.33.67',
     });
+    // Запасной замер по рабочему пути (Android): у конфигов с балансировщиками первый outbound может
+    // быть закрыт оператором, хотя сам туннель работает через резервные. Нативный слой берёт этот
+    // конфиг, только если замер через первый outbound не удался, и вырезает поле перед запуском ядра.
+    if (hasRouteFallback(node)) {
+      try { cfg.simRouteConfig = buildJsonPingConfig(node, true); } catch { /* замер останется обычным */ }
+    }
     return cfg;
   }
 

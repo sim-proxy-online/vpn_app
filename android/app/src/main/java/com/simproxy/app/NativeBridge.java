@@ -829,6 +829,18 @@ public class NativeBridge {
     // Если сервер задан доменом — ждём Go ещё 5с, затем pingViaFullCore.
     // Вызывать только под PING_CORE_LOCK.
     private long measureDelayWithFallback(String configJson) {
+        // JS-слой может приложить запасной конфиг «по рабочему пути» (поле simRouteConfig, см.
+        // buildMeasureConfig в src/native/bridge.ts). В ядро он не передаётся: вырезаем заранее.
+        String routeJson = null;
+        if (configJson != null && configJson.contains("\"simRouteConfig\"")) {
+            try {
+                org.json.JSONObject full = new org.json.JSONObject(configJson);
+                org.json.JSONObject route = full.optJSONObject("simRouteConfig");
+                full.remove("simRouteConfig");
+                configJson = full.toString();
+                if (route != null) routeJson = route.toString();
+            } catch (Throwable ignored) {}
+        }
         try {
             new XrayManager().boot(activity, activity.getFilesDir().getAbsolutePath());
             boolean hasVision = configJson.contains("xtls-rprx-vision");
@@ -839,7 +851,7 @@ public class NativeBridge {
         } catch (Throwable t) {
             android.util.Log.i(TAG, "measureDelay(fast) failed: " + t);
         }
-        return pingViaFullCore(configJson);
+        return pingViaFullCore(configJson, routeJson);
     }
 
     // TCP-пинг к серверу только по IPv4-адресу (без DNS). Вызывается пока Go-поток ещё работает.
@@ -898,7 +910,7 @@ public class NativeBridge {
     // (REALITY/fragment/noise) без TUN: measureOutboundDelayWithType не инициализирует
     // dialerProxy-цепочку корректно и даёт "closed pipe" / TLS timeout на DPI-сетях.
     // Вызывать только под PING_CORE_LOCK и только когда VPN выключен.
-    private long pingViaFullCore(String configJson) {
+    private long pingViaFullCore(String configJson, String routeJson) {
         Core pingPoint = null;
         Thread pingCoreThread = null;
         try {
@@ -979,6 +991,13 @@ public class NativeBridge {
                 } catch (Throwable ignored) {
                     android.util.Log.i(TAG, "pingViaFullCore: TCP " + serverHost + ":" + serverPort + " failed, fallback to SOCKS");
                 }
+            }
+
+            // Первый outbound недоступен (например, белые списки оператора), а у конфига есть
+            // балансировщики: меряем GET через весь конфиг — тем же путём, каким пойдёт туннель.
+            if (routeJson != null) {
+                cfg = new org.json.JSONObject(routeJson);
+                android.util.Log.i(TAG, "pingViaFullCore: first outbound unreachable -> measuring through the full route");
             }
 
             org.json.JSONArray inbounds = new org.json.JSONArray();

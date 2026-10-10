@@ -9,9 +9,9 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.7.0-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-v2.7.0.apk)
-[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.7.0-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-Setup-2.7.0.exe)
-[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.7.0-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-2.7.0-portable.exe)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.8.2-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.2/KvadratPetrovicha-v2.8.2.apk)
+[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.8.2-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.2/KvadratPetrovicha-Setup-2.8.2.exe)
+[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.8.2-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.2/KvadratPetrovicha-2.8.2-portable.exe)
 
 <br/>
 
@@ -119,7 +119,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`KvadratPetrovicha-v2.7.0.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-v2.7.0.apk)
+1. Скачайте [`KvadratPetrovicha-v2.8.2.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.2/KvadratPetrovicha-v2.8.2.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите на Петровича
 
@@ -128,8 +128,8 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ### Windows
 | Вариант | Ссылка | Описание |
 |---|---|---|
-| Установщик | [KvadratPetrovicha-Setup-2.7.0.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-Setup-2.7.0.exe) | Устанавливает в профиль пользователя, без прав администратора |
-| Portable | [KvadratPetrovicha-2.7.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-2.7.0-portable.exe) | Запускается без установки |
+| Установщик | [KvadratPetrovicha-Setup-2.8.2.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.2/KvadratPetrovicha-Setup-2.8.2.exe) | Устанавливает в профиль пользователя, без прав администратора |
+| Portable | [KvadratPetrovicha-2.8.2-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.2/KvadratPetrovicha-2.8.2-portable.exe) | Запускается без установки |
 
 > Требования: Windows 10+ x64
 

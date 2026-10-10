@@ -64,10 +64,6 @@ var (
 	setupOnce sync.Once
 )
 
-// Fallback-DNS для самой обёртки: на Android у Go нет /etc/resolv.conf, поэтому
-// стандартный резолвер пытается 127.0.0.1:53 и [::1]:53 и не работает.
-var fallbackDNS = []string{"77.88.8.8:53", "1.1.1.1:53", "8.8.8.8:53"}
-
 // CoreVersion возвращает версию xray-core.
 func CoreVersion() string { return core.Version() }
 
@@ -105,7 +101,12 @@ func InitEnv(assetDir string, xudpKey string) error {
 	return nil
 }
 
-// setup регистрирует защиту сокетов и безопасный DNS-резолвер (один раз на процесс).
+// setup регистрирует защиту сокетов (один раз на процесс).
+//
+// net.DefaultResolver НЕ подменяем: в сборке gomobile (cgo) Go на Android сам ходит в системный
+// резолвер (getaddrinfo), то есть в DNS текущей сети телефона — как это делала прежняя библиотека.
+// Приложение исключено из собственного VPN, поэтому запросы идут мимо туннеля. Свой резолвер с
+// зашитыми публичными адресами ломал имена серверов там, где оператор эти адреса не пропускает.
 func setup() {
 	_ = internet.RegisterDialerController(func(network, address string, c syscall.RawConn) error {
 		return protectConn(c)
@@ -113,25 +114,6 @@ func setup() {
 	_ = internet.RegisterListenerController(func(network, address string, c syscall.RawConn) error {
 		return protectConn(c)
 	})
-
-	net.DefaultResolver = &net.Resolver{
-		PreferGo: true,
-		Dial: func(ctx context.Context, network, _ string) (net.Conn, error) {
-			var lastErr error
-			for _, server := range fallbackDNS {
-				d := net.Dialer{
-					Timeout: 3 * time.Second,
-					Control: func(_, _ string, c syscall.RawConn) error { return protectConn(c) },
-				}
-				conn, err := d.DialContext(ctx, network, server)
-				if err == nil {
-					return conn, nil
-				}
-				lastErr = err
-			}
-			return nil, lastErr
-		},
-	}
 }
 
 func protectConn(c syscall.RawConn) error {

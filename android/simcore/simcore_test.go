@@ -148,3 +148,12 @@ func TestWithTunInbound(t *testing.T) {
 		t.Fatal("ожидалась ошибка")
 	}
 }
+
+func TestUsesDialerProxy(t *testing.T) {
+	if usesDialerProxy.MatchString(`{"sockopt":{"dialerProxy":""}}`) {
+		t.Fatal("пустой dialerProxy не должен считаться цепочкой")
+	}
+	if !usesDialerProxy.MatchString(`{"sockopt":{"dialerProxy" : "fragment"}}`) {
+		t.Fatal("непустой dialerProxy не распознан")
+	}
+}

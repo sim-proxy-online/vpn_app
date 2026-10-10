@@ -828,19 +828,25 @@ public class NativeBridge {
     // Если Go-поток завис (DPI-таймаут) → TCP-пинг к IP напрямую (быстро, без DNS/Go).
     // Если сервер задан доменом — ждём Go ещё 5с, затем pingViaFullCore.
     // Вызывать только под PING_CORE_LOCK.
-    private long measureDelayWithFallback(String configJson) {
-        // JS-слой может приложить запасной конфиг «по рабочему пути» (поле simRouteConfig, см.
-        // buildMeasureConfig в src/native/bridge.ts). В ядро он не передаётся: вырезаем заранее.
-        String routeJson = null;
+    // Делит замерный конфиг на {конфиг для ядра, запасной конфиг «по рабочему пути» или null}.
+    private static String[] splitRouteConfig(String configJson) {
         if (configJson != null && configJson.contains("\"simRouteConfig\"")) {
             try {
                 org.json.JSONObject full = new org.json.JSONObject(configJson);
                 org.json.JSONObject route = full.optJSONObject("simRouteConfig");
                 full.remove("simRouteConfig");
-                configJson = full.toString();
-                if (route != null) routeJson = route.toString();
+                return new String[] { full.toString(), route != null ? route.toString() : null };
             } catch (Throwable ignored) {}
         }
+        return new String[] { configJson, null };
+    }
+
+    private long measureDelayWithFallback(String configJson) {
+        // JS-слой может приложить запасной конфиг «по рабочему пути» (поле simRouteConfig, см.
+        // buildMeasureConfig в src/native/bridge.ts). В ядро он не передаётся: вырезаем заранее.
+        String[] parts = splitRouteConfig(configJson);
+        configJson = parts[0];
+        String routeJson = parts[1];
         try {
             new XrayManager().boot(activity, activity.getFilesDir().getAbsolutePath());
             boolean hasVision = configJson.contains("xtls-rprx-vision");
@@ -909,7 +915,8 @@ public class NativeBridge {
     // затем останавливает ядро. Это единственный надёжный способ тестировать DPI-обход
     // (REALITY/fragment/noise) без TUN: measureOutboundDelayWithType не инициализирует
     // dialerProxy-цепочку корректно и даёт "closed pipe" / TLS timeout на DPI-сетях.
-    // Вызывать только под PING_CORE_LOCK и только когда VPN выключен.
+    // Вызывать только под PING_CORE_LOCK. При включённом VPN используется лишь как запасной замер
+    // «по рабочему пути» (routeJson) для неактивных серверов.
     private long pingViaFullCore(String configJson, String routeJson) {
         Core pingPoint = null;
         Thread pingCoreThread = null;
@@ -2223,8 +2230,13 @@ public class NativeBridge {
                                 // tcpPingViaSocks gives false results (measures VPN-tunnel latency, not server latency).
                                 try {
                                     new XrayManager().boot(activity, activity.getFilesDir().getAbsolutePath());
+                                    // Первый outbound может быть закрыт оператором (белые списки), хотя
+                                    // конфиг рабочий: тогда меряем через весь конфиг, как при выключенном VPN.
+                                    // Приложение исключено из собственного VPN, замер идёт мимо туннеля.
+                                    String[] parts = splitRouteConfig(configJson);
                                     synchronized (PING_CORE_LOCK) {
-                                        delay = Simcore.measureDelay(configJson, "http://cp.cloudflare.com/", PING_TIMEOUT_MS);
+                                        delay = Simcore.measureDelay(parts[0], "http://cp.cloudflare.com/", PING_TIMEOUT_MS);
+                                        if (delay <= 0 && parts[1] != null) delay = pingViaFullCore(parts[0], parts[1]);
                                     }
                                 } catch (Throwable t) {
                                     Log.i(TAG, "PingBatch(vpn): " + nodeId + " measureOutbound err: " + t.getMessage());

@@ -18,6 +18,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -29,6 +30,8 @@ import (
 	"github.com/xtls/xray-core/common/platform"
 	"github.com/xtls/xray-core/common/xudp"
 	"github.com/xtls/xray-core/core"
+	"github.com/xtls/xray-core/features/dns"
+	"github.com/xtls/xray-core/features/outbound"
 	"github.com/xtls/xray-core/infra/conf/serial"
 	"github.com/xtls/xray-core/transport/internet"
 
@@ -62,7 +65,32 @@ var (
 	mu        sync.Mutex
 	protector Protector
 	setupOnce sync.Once
+	// liveInst — экземпляр боевого туннеля (запущен с TUN-дескриптором), пока он работает.
+	liveInst *core.Instance
 )
+
+// usesDialerProxy: в конфиге есть outbound с непустым sockopt.dialerProxy (цепочка fragment/noises).
+var usesDialerProxy = regexp.MustCompile(`"dialerProxy"\s*:\s*"[^"]`)
+
+// restoreLiveDialer возвращает общий сетевой слой xray боевому туннелю.
+//
+// В xray DNS-клиент и менеджер исходящих для sockopt (domainStrategy, dialerProxy) — переменные пакета
+// transport/internet: core.New каждого нового экземпляра перезаписывает их своими. Временный экземпляр
+// для замера пинга, поднятый рядом с работающим VPN, оставлял туннелю свои (уже закрытые) DNS и
+// исходящие — новые соединения туннеля после этого зависали по таймауту.
+func restoreLiveDialer() {
+	mu.Lock()
+	inst := liveInst
+	mu.Unlock()
+	if inst == nil {
+		return
+	}
+	dc, _ := inst.GetFeature(dns.ClientType()).(dns.Client)
+	om, _ := inst.GetFeature(outbound.ManagerType()).(outbound.Manager)
+	if dc != nil && om != nil {
+		internet.InitSystemDialer(dc, om)
+	}
+}
 
 // CoreVersion возвращает версию xray-core.
 func CoreVersion() string { return core.Version() }
@@ -262,6 +290,15 @@ func (c *Core) Start(config string, tunFd int32) (err error) {
 	}
 	c.inst = inst
 	c.running = true
+	if tunFd > 0 {
+		mu.Lock()
+		liveInst = inst
+		mu.Unlock()
+	} else if !usesDialerProxy.MatchString(config) {
+		// Вспомогательный экземпляр (замер через SOCKS) без dialerProxy-цепочки: общий слой можно
+		// вернуть туннелю сразу, не дожидаясь остановки.
+		restoreLiveDialer()
+	}
 	c.emit(StatusStarted, "ядро запущено")
 	return nil
 }
@@ -274,8 +311,17 @@ func (c *Core) Stop() {
 		return
 	}
 	defer func() { _ = recover() }()
+	mu.Lock()
+	wasLive := liveInst == c.inst
+	if wasLive {
+		liveInst = nil
+	}
+	mu.Unlock()
 	_ = c.inst.Close()
 	c.inst = nil
+	if !wasLive {
+		restoreLiveDialer()
+	}
 	c.running = false
 	c.emit(StatusStopped, "ядро остановлено")
 	debug.FreeOSMemory()
@@ -311,7 +357,13 @@ func MeasureDelay(config string, url string, timeoutMs int64) (ms int64) {
 		_ = inst.Close()
 		return -1
 	}
-	defer inst.Close()
+	defer func() {
+		_ = inst.Close()
+		restoreLiveDialer()
+	}()
+	if !usesDialerProxy.MatchString(config) {
+		restoreLiveDialer()
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutMs)*time.Millisecond)
 	defer cancel()

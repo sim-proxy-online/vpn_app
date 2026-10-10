@@ -1,4 +1,4 @@
-import { APP_USER_AGENT } from '../utils/userAgent';
+import { SUBSCRIPTION_USER_AGENT } from '../utils/userAgent';
 /**
  * iOS-мост: ставит window.SimNativeV2 поверх Capacitor-плагина SimNativeV2 (Swift,
  * ios/App/App/SimNativeV2.swift + PacketTunnel). Без этого моста bridge.ts на iOS
@@ -255,8 +255,8 @@ export function installIosShim(): void {
     scanQrCode: task('scanQrCode', () => ({}), asString),
     checkTorPort: task('checkTorPort', () => ({}), () => ({ available: false })),
     openOrbotInstall: task('openOrbotInstall', () => ({}), asFalse),
-    fetchUrl: task('fetchUrl', (a) => ({ url: String(a[0] ?? ''), userAgent: String(a[1] ?? APP_USER_AGENT) }), asFetchError),
-    fetchUrlViaProxy: task('fetchUrlViaProxy', (a) => ({ url: String(a[0] ?? ''), userAgent: String(a[1] ?? APP_USER_AGENT), socksPort: Number(a[2] ?? 10808) }), asFetchError),
+    fetchUrl: task('fetchUrl', (a) => ({ url: String(a[0] ?? ''), userAgent: String(a[1] ?? SUBSCRIPTION_USER_AGENT) }), asFetchError),
+    fetchUrlViaProxy: task('fetchUrlViaProxy', (a) => ({ url: String(a[0] ?? ''), userAgent: String(a[1] ?? SUBSCRIPTION_USER_AGENT), socksPort: Number(a[2] ?? 10808) }), asFetchError),
     getPendingDeepLink: task('getPendingDeepLink', () => ({}), asString),
 
     // ── Прямые (await-ятся в bridge.ts) ────────────────────────────────────

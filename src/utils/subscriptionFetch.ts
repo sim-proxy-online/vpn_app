@@ -5,7 +5,7 @@
  * linkMeta.ts) по User-Agent, и чаще всего — только Happ. Чтобы это работало с подписками любых провайдеров,
  * приложение само проверяет, какой запрос даёт больше, и запоминает результат в профиле (SubscriptionProfile.fetchUa):
  *
- *  1. Обычный запрос с нашим User-Agent (Petrovich/<версия>). Ошибка этого запроса пробрасывается, как и раньше.
+ *  1. Обычный запрос (v2rayNG) — как раньше. Ошибка этого запроса пробрасывается, как и раньше.
  *  2. Один раз, а потом раз в неделю — пробный запрос как у Happ. Он принимается, только если серверов не меньше,
  *     а данных строго больше (описания, параметры управления) или серверов больше (у провайдера для «чужих»
  *     клиентов могла лежать заглушка). Иначе всё остаётся как было — у провайдеров, которым Happ-запрос не нужен,
@@ -18,10 +18,10 @@
 import { nativeFetchUrl, nativeFetchUrlViaProxy, type FetchResult } from '../native/bridge';
 import { parseSubscription, type SubscriptionParseResult } from '../data';
 import type { UaPreference } from '../types';
-import { APP_USER_AGENT } from './userAgent';
+import { SUBSCRIPTION_USER_AGENT } from './userAgent';
 
-/** Наш User-Agent: Petrovich/<версия>. Им идут все обычные запросы подписки. */
-export const DEFAULT_UA = APP_USER_AGENT;
+/** Обычный User-Agent запросов подписки (как в 2.7.0) — см. SUBSCRIPTION_USER_AGENT. */
+export const DEFAULT_UA = SUBSCRIPTION_USER_AGENT;
 /**
  * Режим Happ (настройка «Режим Happ для подписок», включена по умолчанию): пробный запрос с этим
  * User-Agent — единственный способ получить у ряда провайдеров расширенные данные (описания

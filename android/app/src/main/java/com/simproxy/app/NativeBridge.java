@@ -1320,12 +1320,11 @@ public class NativeBridge {
     // любые правила на стороне сервера, настроенные под одно из них, продолжали работать.
     private static final String UPDATER_USER_AGENT = "Petrovich-Updater SimProxy-Updater";
 
-    // Наш User-Agent по умолчанию для запросов подписки: Petrovich/<версия>. Обычно его передаёт
-    // JS-слой (utils/subscriptionFetch.ts), здесь — запасное значение.
+    // User-Agent запросов подписки по умолчанию — тот же, что в 2.7.0: на него серверы подписок отдают
+    // полные конфиги с запасными маршрутами, а на незнакомый Petrovich/<версия> — простые ссылки.
+    // Обычно его передаёт JS-слой (utils/subscriptionFetch.ts), здесь — запасное значение.
     private String defaultUserAgent() {
-        String ver = "0";
-        try { ver = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName; } catch (Throwable ignored) {}
-        return "Petrovich/" + ver;
+        return "v2rayNG/1.8.19";
     }
 
     // Заголовки устройства для HWID-привязанных подписок (протокол панелей: X-HWID и др.).
@@ -1534,7 +1533,7 @@ public class NativeBridge {
                 URL urlObj = new URL(currentUrl);
                 conn = (HttpURLConnection) urlObj.openConnection();
                 conn.setRequestMethod("GET");
-                // User-Agent: переданный из JS (провайдера/наш), иначе Petrovich/<версия>.
+                // User-Agent: переданный из JS (провайдера/обычный), иначе обычный (см. defaultUserAgent).
                 conn.setRequestProperty("User-Agent", userAgent != null ? userAgent : defaultUserAgent());
                 conn.setRequestProperty("Accept-Encoding", "gzip");
                 applySubscriptionHeaders(conn);

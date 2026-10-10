@@ -57,13 +57,13 @@ enum SimErrorSanitizer {
 // MARK: - HTTP-помощники
 
 /// Зеркалит семантику Java NativeBridge.fetchUrl: ≤5 редиректов, UA по умолчанию
-/// Petrovich/<версия>, таймаут 20 с, разбор заголовков подписки (profile-title,
+/// v2rayNG/1.8.19, таймаут 20 с, разбор заголовков подписки (profile-title,
 /// subscription-userinfo, hiddify-app-info, content-disposition, profile-update-url).
 enum SimHttp {
-    /// Наш User-Agent по умолчанию: Petrovich/<версия приложения>.
+    /// User-Agent запросов подписки по умолчанию — как в 2.7.0: на него серверы подписок отдают полные
+    /// конфиги с запасными маршрутами, а на незнакомый Petrovich/<версия> — простые ссылки.
     static var defaultUserAgent: String {
-        let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
-        return "Petrovich/\(v)"
+        return "v2rayNG/1.8.19"
     }
 
     struct FetchOutcome {

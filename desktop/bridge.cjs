@@ -1028,11 +1028,10 @@ async function measureDelay(rawConfig, _url) {
 const FETCH_MAX_REDIRECTS = 5;
 const FETCH_MAX_BYTES = 8 * 1024 * 1024;
 
-// Наш User-Agent по умолчанию: Petrovich/<версия приложения>.
+// User-Agent запросов подписки по умолчанию — как в 2.7.0: на него серверы подписок отдают полные
+// конфиги с запасными маршрутами, а на незнакомый Petrovich/<версия> — простые ссылки.
 function defaultUserAgent() {
-  let ver = '0';
-  try { ver = require('electron').app.getVersion() || ver; } catch { /* вне Electron (тесты) */ }
-  return 'Petrovich/' + ver;
+  return 'v2rayNG/1.8.19';
 }
 
 function fetchUrl(url, userAgent, redirects = 0) {

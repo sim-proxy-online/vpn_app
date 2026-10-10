@@ -976,6 +976,10 @@ public class VpnServiceImpl extends VpnService {
                         && networkMonitor != null
                         && networkMonitor.getCurrentNetwork() != NetworkMonitor.NetworkType.NONE) {
                     boolean socksOk = probeTunnelOnce();
+                    // Проба длится до 12 с. Если за это время VPN остановили (кнопка «Отключить»),
+                    // её отказ — следствие остановки ядра, а не мёртвый туннель: без этой проверки
+                    // вторая подряд неудача убивала процесс приложения прямо при ручном отключении.
+                    if (!statsRunning || userStopped) break;
                     // SOCKS жив ≠ туннель жив: проба идёт по 127.0.0.1 из процесса, чей
                     // uid намеренно выведен из маршрутов tun. Отказом считаем и случай
                     // «SOCKS отвечает, но в интерфейс льются пакеты без ответа».

@@ -68,43 +68,6 @@ var (
 // стандартный резолвер пытается 127.0.0.1:53 и [::1]:53 и не работает.
 var fallbackDNS = []string{"77.88.8.8:53", "1.1.1.1:53", "8.8.8.8:53"}
 
-// sysDNS — DNS-серверы нижележащей (не VPN) сети; задаются из Java при смене сети. Они идут
-// первыми: под «белыми списками» мобильного оператора публичные DNS обычно закрыты, а DNS
-// оператора отвечает, поэтому ждать таймаута публичных серверов не нужно.
-var sysDNS []string
-
-// SetSystemDNS принимает список адресов через запятую (IPv4/IPv6, порт не нужен).
-func SetSystemDNS(csv string) {
-	var list []string
-	for _, a := range strings.Split(csv, ",") {
-		a = strings.TrimSpace(a)
-		if a == "" {
-			continue
-		}
-		if ip := net.ParseIP(a); ip != nil {
-			list = append(list, net.JoinHostPort(ip.String(), "53"))
-		}
-	}
-	mu.Lock()
-	sysDNS = list
-	mu.Unlock()
-}
-
-// dnsServers: сначала DNS оператора/Wi-Fi, затем публичные запасные (без повторов).
-func dnsServers() []string {
-	mu.Lock()
-	defer mu.Unlock()
-	seen := map[string]bool{}
-	var out []string
-	for _, s := range append(append([]string{}, sysDNS...), fallbackDNS...) {
-		if !seen[s] {
-			seen[s] = true
-			out = append(out, s)
-		}
-	}
-	return out
-}
-
 // CoreVersion возвращает версию xray-core.
 func CoreVersion() string { return core.Version() }
 
@@ -154,16 +117,12 @@ func setup() {
 	net.DefaultResolver = &net.Resolver{
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, _ string) (net.Conn, error) {
-			ctl := func(_, _ string, c syscall.RawConn) error { return protectConn(c) }
-			servers := dnsServers()
-			if strings.HasPrefix(network, "udp") {
-				// UDP: запрос уходит всем серверам сразу, берём первый ответ.
-				return dialRace(ctx, servers, ctl)
-			}
-			// TCP (большие ответы): первый доступный сервер.
 			var lastErr error
-			for _, server := range servers {
-				d := net.Dialer{Timeout: 1500 * time.Millisecond, Control: ctl}
+			for _, server := range fallbackDNS {
+				d := net.Dialer{
+					Timeout: 3 * time.Second,
+					Control: func(_, _ string, c syscall.RawConn) error { return protectConn(c) },
+				}
 				conn, err := d.DialContext(ctx, network, server)
 				if err == nil {
 					return conn, nil

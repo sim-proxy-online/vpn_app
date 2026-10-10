@@ -690,6 +690,15 @@ public class NativeBridge {
                                 delay = System.currentTimeMillis() - t0;
                             } catch (Throwable ignored) { delay = -1; }
                             android.util.Log.i(TAG, "pingProxyServer: direct TCP " + pHost + ":" + pPort + " -> " + delay + "ms");
+                            // Первый outbound закрыт оператором, а у конфига есть балансировщики: тот же запасной
+                            // замер «по рабочему пути», что и в пакетном замере (nativePingBatch).
+                            if (delay <= 0) {
+                                String[] parts = splitRouteConfig(configJson);
+                                if (parts[1] != null) {
+                                    synchronized (PING_CORE_LOCK) { delay = pingViaFullCore(parts[0], parts[1]); }
+                                    android.util.Log.i(TAG, "pingProxyServer: full route -> " + delay + "ms");
+                                }
+                            }
                         }
                     }
                 } else {
@@ -823,6 +832,10 @@ public class NativeBridge {
     // Таймаут (мс) для measureOutboundDelay — 3-й аргумент Simcore.measureDelay.
     // Соответствует нашим внешним watchdog-таймаутам (3с), см. measureDelayWithFallback.
     private static final int PING_TIMEOUT_MS = 3000;
+    // Запасной замер «по рабочему пути» (pingViaFullCore): таймауты попыток GET и минимальная пауза
+    // между их стартами. Сумма (10.5с) близка к прежнему единственному таймауту в 9с.
+    private static final int[] ROUTE_PING_TIMEOUTS_MS = { 2500, 3500, 4500 };
+    private static final int ROUTE_PING_MIN_GAP_MS = 1500;
 
     // Измеряет задержку: сначала measureOutboundDelay в потоке с таймаутом 3с.
     // Если Go-поток завис (DPI-таймаут) → TCP-пинг к IP напрямую (быстро, без DNS/Go).
@@ -1040,8 +1053,24 @@ public class NativeBridge {
                 android.util.Log.w(TAG, "pingViaFullCore: SOCKS not ready in 4s");
                 return -1;
             }
-            long delay = httpGetViaSocks(PING_SOCKS_PORT, "connectivitycheck.gstatic.com", 80, "/generate_204", 9000);
-            android.util.Log.i(TAG, "pingViaFullCore: gstatic -> " + delay + "ms");
+            // У только что запущенного ядра обсерватория ещё не собрала результаты проб: балансировщики
+            // отдают fallbackTag, и первый запрос уходит на запасной узел, а не туда, куда пойдёт туннель.
+            // Если этот узел закрыт оператором, один GET висел до таймаута и сервер получал «нет ответа»,
+            // хотя конфиг рабочий. Повторяем: к следующей попытке балансировщик уже выбирает живой узел.
+            // Без routeJson путь один (первый outbound): повтор попадёт туда же, поэтому одна попытка, как раньше.
+            int[] timeouts = routeJson != null ? ROUTE_PING_TIMEOUTS_MS : new int[] { 9000 };
+            long delay = -1;
+            for (int attempt = 0; attempt < timeouts.length; attempt++) {
+                long started = System.currentTimeMillis();
+                delay = httpGetViaSocks(PING_SOCKS_PORT, "connectivitycheck.gstatic.com", 80, "/generate_204", timeouts[attempt]);
+                android.util.Log.i(TAG, "pingViaFullCore: gstatic attempt " + (attempt + 1) + " -> " + delay + "ms");
+                if (delay > 0 || attempt == timeouts.length - 1) break;
+                // Мгновенный отказ (узел сбросил соединение) не должен сжечь все попытки до первых проб.
+                long wait = ROUTE_PING_MIN_GAP_MS - (System.currentTimeMillis() - started);
+                if (wait > 0) {
+                    try { Thread.sleep(wait); } catch (InterruptedException ie) { return -1; }
+                }
+            }
             return delay;
         } catch (Throwable t) {
             android.util.Log.e(TAG, "pingViaFullCore error: " + t);

@@ -9,7 +9,7 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.7.0-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-v2.7.0.apk)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.8.2-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.2/KvadratPetrovicha-v2.8.2.apk)
 [![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.7.0-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-Setup-2.7.0.exe)
 [![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.7.0-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-2.7.0-portable.exe)
 
@@ -116,10 +116,23 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 
 ---
 
+## Что нового в 2.8.2
+
+Мобильные операторы в России (МТС, Мегафон и другие) начали активнее резать соединения: часть серверов из подписки перестала открываться, а обновление подписки возвращало список без резервных маршрутов. В этой версии —
+
+- **Ядро обновлено до свежего Xray-core** (сентябрьская версия) — переписан модуль TUN/UDP, через который проходит весь трафик телефона. Это устраняет зависания и обрывы соединения, особенно на мобильной сети.
+- **Восстановлено корректное обновление подписки** — приложение снова получает от провайдера полные конфигурации с балансировщиками и резервными маршрутами. Раньше часть запросов уходила с неизвестным User-Agent, и сервер отдавал урезанный список без запасных серверов.
+- **Исправлено падение при ручном отключении** — если нажать «Отключить» во время фоновой проверки соединения, приложение больше не завершается с ошибкой.
+- **Стабильность при смене сети** — туннель корректно переподключается при переключении Wi-Fi ↔ мобильная смена и в авиарежиме.
+
+Полный список версий и файлы — на странице [Releases](https://github.com/sim-proxy-online/vpn_app/releases).
+
+---
+
 ## Установка
 
 ### Android
-1. Скачайте [`KvadratPetrovicha-v2.7.0.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.7.0/KvadratPetrovicha-v2.7.0.apk)
+1. Скачайте [`KvadratPetrovicha-v2.8.2.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.2/KvadratPetrovicha-v2.8.2.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите на Петровича
 

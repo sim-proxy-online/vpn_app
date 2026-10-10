@@ -28,7 +28,6 @@ import (
 
 	xnet "github.com/xtls/xray-core/common/net"
 	"github.com/xtls/xray-core/common/platform"
-	"github.com/xtls/xray-core/common/xudp"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/features/dns"
 	"github.com/xtls/xray-core/features/outbound"
@@ -110,8 +109,8 @@ func SetProtector(p Protector) {
 //	assetDir — каталог с geoip.dat / geosite.dat;
 //	xudpKey  — 32 байта в base64url без заполнения (43 символа) либо пустая строка.
 //
-// Ключ XUDP ставится напрямую в переменную пакета, а не через env: в xray-core его
-// читают из env с задержкой 100 мс, и при неверном значении ядро паникует.
+// Ключ XUDP проверяется здесь и передаётся ядру через env "xray.xudp.basekey": ядро читает
+// его при каждом core.New (platform.ReloadEnvSettings) и при неверном значении не запускается.
 func InitEnv(assetDir string, xudpKey string) error {
 	if assetDir != "" {
 		if err := os.Setenv(platform.NormalizeEnvName(platform.AssetLocation), assetDir); err != nil {
@@ -123,7 +122,9 @@ func InitEnv(assetDir string, xudpKey string) error {
 		if err != nil || len(raw) != 32 {
 			return fmt.Errorf("xudp key: нужно 32 байта в base64url без заполнения")
 		}
-		xudp.BaseKey = raw
+		if err := os.Setenv(platform.NormalizeEnvName(platform.XUDPBaseKey), xudpKey); err != nil {
+			return err
+		}
 	}
 	setupOnce.Do(setup)
 	return nil

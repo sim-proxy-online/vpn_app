@@ -83,10 +83,9 @@ public class XrayManager {
     /**
      * Ключ для env "xray.xudp.basekey".
      *
-     * Второй аргумент Simcore.initEnv() наша обёртка (android/simcore) кладёт прямо в
-     * xudp.BaseKey, минуя env. В самом xray-core (common/xudp/xudp.go) env читается через
-     * 100 мс после загрузки либы и вызывает panic(), если значение не декодируется
-     * base64url в ровно 32 байта. Go-паника роняет ВЕСЬ процесс (SIGABRT).
+     * Второй аргумент Simcore.initEnv() наша обёртка (android/simcore) проверяет (base64url, ровно
+     * 32 байта) и кладёт в этот env; ядро читает его при каждом запуске и с неверным значением
+     * не стартует.
      *
      * Раньше передавалось "simproxy_default_id" (19 символов → 14 байт после base64url)
      * и получалась гонка: если boot() успевал вызваться раньше, чем xudp прочитал env,

@@ -14,7 +14,9 @@ $out = Join-Path $PSScriptRoot '..\app\libs'
 New-Item -ItemType Directory -Force $out | Out-Null
 
 # max-page-size=16384 — выравнивание страниц 16 КБ (требование Google Play для 64-бит).
-$ld = '-ldflags=-s -w -extldflags=-Wl,-z,max-page-size=16384'
+# -checklinkname=0 — xray-core на Android читает сетевые интерфейсы через github.com/wlynxg/anet,
+# а тот ссылается на внутренние имена пакета net (go:linkname); без флага компоновщик Go отказывает.
+$ld = '-ldflags=-s -w -checklinkname=0 -extldflags=-Wl,-z,max-page-size=16384'
 & gomobile bind -v '-target=android/arm64,android/arm' -androidapi 24 -javapkg com.simproxy -trimpath $ld `
     -o (Join-Path $out 'simcore.aar') .
 if ($LASTEXITCODE -ne 0) { throw "gomobile bind завершился с кодом $LASTEXITCODE" }

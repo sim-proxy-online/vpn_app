@@ -33,6 +33,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class NativeBridge {
     private static final String TAG = "NativeBridge";
@@ -41,15 +43,28 @@ public class NativeBridge {
     private final WebView webView;
     private static volatile NativeBridge instance;
     public static NativeBridge getInstance() { return instance; }
-    private final ExecutorService executor = new ThreadPoolExecutor(2, 8, 60L,
-            TimeUnit.SECONDS, new LinkedBlockingQueue<>(64),
-            new ThreadPoolExecutor.CallerRunsPolicy());
+    // Общий пул вызовов моста (загрузка подписки, проверка туннеля, внешний адрес, TCP-пробы). Все шесть потоков
+    // основные: ThreadPoolExecutor добавляет потоки сверх основных, только когда очередь заполнена, и при прежних
+    // (2, 8) два долгих вызова задерживали все остальные.
+    private final ExecutorService executor = newBridgePool();
+    // Замеры пинга идут в своих потоках и общий пул не занимают: пакет из дюжины серверов работает десятки секунд,
+    // и стоявшая за ним проверка туннеля (testProxyDelay) не успевала ответить — приложение считало сервер упавшим.
+    private final ExecutorService pingExecutor = Executors.newFixedThreadPool(2);
+    private final ExecutorService pingBatchExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService antiFilterExecutor = Executors.newSingleThreadExecutor();
-    // VPN start/stop must never queue behind ping/fetch work on `executor`: ThreadPoolExecutor
-    // only grows past corePoolSize=2 once its 128-slot queue is full, so a burst of slow pings
-    // (live SOCKS checks can take 5-10s each) can delay startVpnWithResult past the JS-side
-    // 30s callNativeAsync timeout, surfacing as "Native call timeout: startVpnWithResult".
+    // VPN start/stop must never queue behind fetch work on `executor`: a burst of slow calls can
+    // delay startVpnWithResult past the JS-side 30s callNativeAsync timeout, surfacing as
+    // "Native call timeout: startVpnWithResult".
     private final ExecutorService vpnControlExecutor = Executors.newSingleThreadExecutor();
+    // Когда JS запросил запуск VPN (мс). Сервис выставляет isStarting чуть позже, в onStartCommand.
+    private static volatile long vpnStartRequestedAt = 0;
+
+    private static ExecutorService newBridgePool() {
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(6, 6, 60L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(64), new ThreadPoolExecutor.CallerRunsPolicy());
+        pool.allowCoreThreadTimeOut(true);
+        return pool;
+    }
     private volatile boolean antiFilterRunning = false;
     private String lastQrTaskId = null;
     private volatile String pendingVpnPermissionTaskId = null;
@@ -67,6 +82,8 @@ public class NativeBridge {
     // this instance's executor threads (they were never shut down before).
     public void shutdownExecutors() {
         executor.shutdown();
+        pingExecutor.shutdown();
+        pingBatchExecutor.shutdown();
         antiFilterExecutor.shutdown();
         vpnControlExecutor.shutdown();
         if (instance == this) instance = null;
@@ -89,6 +106,7 @@ public class NativeBridge {
 
     @JavascriptInterface
     public void startVpnWithResult(String jsonPayload, String taskId) {
+        vpnStartRequestedAt = System.currentTimeMillis();
         vpnControlExecutor.execute(() -> {
             try {
                 JSONObject payload = new JSONObject(jsonPayload);
@@ -654,13 +672,15 @@ public class NativeBridge {
 
     // Пинг: Simcore.measureDelay (временный экземпляр ядра, наша обёртка).
     // VPN включён + активный сервер → GET через живой SOCKS (мгновенно, точно).
-    // VPN включён + другой сервер  → -1 (нельзя запустить второй libxray-инстанс).
+    // VPN включён + другой сервер  → TCP к серверу; не дошёл и есть балансировщики — замер «по рабочему пути».
     // VPN выключен → measureOutboundDelayWithType с полным конфигом (включая bypass-цепочку).
     @JavascriptInterface
     public void pingProxyServer(String configJson, String mode, String taskId) {
-        executor.execute(() -> {
+        pingExecutor.execute(() -> {
             long delay = -1;
             try {
+                // Запуск VPN в разгаре: дожидаемся и меряем уже как при включённом (обычно это живой SOCKS).
+                awaitVpnStart();
                 VpnServiceImpl svc = VpnServiceImpl.getInstance();
                 if (svc != null && svc.isRunning()) {
                     // VPN включён: только активный сервер получает live-замер через SOCKS.
@@ -695,7 +715,7 @@ public class NativeBridge {
                             if (delay <= 0) {
                                 String[] parts = splitRouteConfig(configJson);
                                 if (parts[1] != null) {
-                                    synchronized (PING_CORE_LOCK) { delay = pingViaFullCore(parts[0], parts[1]); }
+                                    delay = withPingCore(() -> pingViaFullCore(parts[0], parts[1]));
                                     android.util.Log.i(TAG, "pingProxyServer: full route -> " + delay + "ms");
                                 }
                             }
@@ -703,9 +723,7 @@ public class NativeBridge {
                     }
                 } else {
                     android.util.Log.i(TAG, "pingProxyServer: vpn=OFF -> measureDelayWithFallback");
-                    synchronized (PING_CORE_LOCK) {
-                        delay = measureDelayWithFallback(configJson);
-                    }
+                    delay = withPingCore(() -> measureDelayWithFallback(configJson));
                     android.util.Log.i(TAG, "pingProxyServer: -> " + delay + "ms");
                 }
             } catch (Throwable t) {
@@ -779,7 +797,7 @@ public class NativeBridge {
     // LoadJSONConfig падал). При ПОДНЯТОМ VPN не использовать — глобальный core занят.
     @JavascriptInterface
     public void measureDelay(String configJson, String url, String taskId) {
-        executor.execute(() -> {
+        pingExecutor.execute(() -> {
             long d = -1;
             try {
                 // Не вызывать при запущенном VPN — libxray занят coreRunLoopWithTun.
@@ -814,9 +832,7 @@ public class NativeBridge {
                         android.util.Log.i(TAG, "measureDelay cfg: routing_rules=" + (rules != null ? rules.length() : 0) + " balancers=" + (routing.optJSONArray("balancers") != null));
                     }
                 } catch (Throwable ignored) {}
-                synchronized (PING_CORE_LOCK) {
-                    d = Simcore.measureDelay(configJson, u, PING_TIMEOUT_MS);
-                }
+                d = withPingCore(() -> Simcore.measureDelay(configJson, u, PING_TIMEOUT_MS));
                 android.util.Log.i(TAG, "measureDelay -> " + d + "ms (url " + u + ")");
             } catch (Throwable t) {
                 android.util.Log.e(TAG, "measureDelay error: " + t);
@@ -826,7 +842,46 @@ public class NativeBridge {
     }
 
     // Глобальный лок — libxray держит один core-стейт, нельзя запускать два ядра параллельно.
-    static final Object PING_CORE_LOCK = new Object();
+    // Честная очередь: одиночный замер (пинг на главном экране) не ждёт, пока пакетный переберёт весь список, —
+    // он проходит сразу после сервера, который меряется сейчас.
+    static final ReentrantLock PING_CORE_LOCK = new ReentrantLock(true);
+    // Сколько замер ждёт, пока запускается боевое ядро (обычный запуск занимает 3–4 с).
+    private static final int VPN_START_WAIT_MS = 15000;
+
+    private interface CoreMeasure { long run() throws Throwable; }
+
+    // Замер, которому нужно временное ядро: по одному за раз и не во время запуска VPN.
+    private static long withPingCore(CoreMeasure measure) throws Throwable {
+        PING_CORE_LOCK.lock();
+        try {
+            // Проверяем уже с блокировкой: пока замер стоял в очереди, запуск VPN мог начаться.
+            awaitVpnStart();
+            return measure.run();
+        } finally {
+            PING_CORE_LOCK.unlock();
+        }
+    }
+
+    private static boolean vpnStarting() {
+        if (System.currentTimeMillis() - vpnStartRequestedAt < 3000) return true;
+        VpnServiceImpl svc = VpnServiceImpl.getInstance();
+        return svc != null && svc.isStarting();
+    }
+
+    // Пока запускается боевое ядро, временные ядра для замеров не поднимаем: они делят с ним общее состояние
+    // xray и на слабом телефоне отнимают у запуска процессор и сеть. Ждём окончания запуска (не дольше
+    // VPN_START_WAIT_MS — на случай залипшего флага).
+    private static void awaitVpnStart() {
+        long deadline = System.currentTimeMillis() + VPN_START_WAIT_MS;
+        while (vpnStarting() && System.currentTimeMillis() < deadline) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+    }
     private static final int LIVE_SOCKS_PORT = 10808;
     private static final int PING_SOCKS_PORT  = 10899;
     // Таймаут (мс) для measureOutboundDelay — 3-й аргумент Simcore.measureDelay.
@@ -2187,6 +2242,8 @@ public class NativeBridge {
         long ts = System.currentTimeMillis();
         int tested = 0, succeeded = 0;
         for (int i = 0; i < servers.length(); i++) {
+            // Сначала дожидаемся запуска VPN, если он идёт: иначе проверка ниже его ещё не увидит.
+            awaitVpnStart();
             VpnServiceImpl vpn = VpnServiceImpl.getInstance();
             if (vpn != null && vpn.isRunning()) {
                 Log.i(TAG, "AntiFilter: VPN started, aborting batch at server " + i);
@@ -2197,9 +2254,7 @@ public class NativeBridge {
             String configJson = entry.getString("config");
             long result = -1;
             try {
-                synchronized (PING_CORE_LOCK) {
-                    result = measureDelayWithFallback(configJson);
-                }
+                result = withPingCore(() -> measureDelayWithFallback(configJson));
             } catch (Throwable t) {
                 Log.d(TAG, "AntiFilter: " + nodeId + " failed: " + t.getMessage());
             }
@@ -2218,80 +2273,31 @@ public class NativeBridge {
         emitJsEvent("antifilter-update", "{\"tested\":" + tested + ",\"ok\":" + succeeded + "}");
     }
 
-    private volatile boolean pingBatchCancelled = false;
+    // Поколение пакетных замеров: cancelPingBatch() увеличивает его, и пакеты, начатые раньше, останавливаются.
+    // Прежний общий флаг отмены сбрасывался каждым новым пакетом, поэтому отменённый пакет продолжал работать
+    // (ушли с экрана и вернулись — шли уже два пакета подряд).
+    private final AtomicInteger pingBatchGen = new AtomicInteger();
 
     @JavascriptInterface
     public void nativePingBatch(String serversJson, String taskId) {
-        pingBatchCancelled = false;
-        executor.execute(() -> {
+        final int gen = pingBatchGen.get();
+        pingBatchExecutor.execute(() -> {
             try {
                 JSONArray servers = new JSONArray(serversJson);
                 int total = servers.length();
                 Log.i(TAG, "PingBatch: started, " + total + " servers");
-
-                VpnServiceImpl vpn = VpnServiceImpl.getInstance();
-                if (vpn != null && vpn.isRunning()) {
-                    // VPN включён: активный сервер — live SOCKS, остальные — measureOutboundDelay.
-                    // REALITY-серверы RST-ят plain TCP → только REALITY-путь даёт реальный RTT.
-                    // measureOutboundDelay поднимает легковесный инстанс рядом с VPN (как Happ).
-                    // Сериализуем через PING_CORE_LOCK — параллельные инстансы не поддерживаются.
-                    String activeEndpoint = VpnServiceImpl.getActiveProxyEndpoint();
-                    int liveSocks = vpn.getSocksPort();
-                    if (liveSocks <= 0) liveSocks = LIVE_SOCKS_PORT;
-                    Log.i(TAG, "PingBatch(vpn): active=" + activeEndpoint);
-
-                    for (int i = 0; i < total; i++) {
-                        if (pingBatchCancelled) { Log.i(TAG, "PingBatch(vpn): cancelled at " + i); break; }
-                        JSONObject entry = servers.getJSONObject(i);
-                        String nodeId = entry.optString("id", "?");
-                        String configJson = entry.getString("config");
-                        long delay = -1;
-                        try {
-                            org.json.JSONObject cfg = new org.json.JSONObject(configJson);
-                            String pingEndpoint = extractProxyEndpoint(cfg);
-                            boolean isSame = activeEndpoint != null && activeEndpoint.equals(pingEndpoint);
-                            Log.i(TAG, "PingBatch(vpn): " + nodeId + " ep=" + pingEndpoint + " same=" + isSame);
-                            if (isSame) {
-                                delay = httpGetViaSocks(liveSocks, "connectivitycheck.gstatic.com", 80, "/generate_204", 10000);
-                            } else {
-                                // Non-active server: measureOutboundDelay only.
-                                // tcpPingViaSocks gives false results (measures VPN-tunnel latency, not server latency).
-                                try {
-                                    new XrayManager().boot(activity, activity.getFilesDir().getAbsolutePath());
-                                    // Первый outbound может быть закрыт оператором (белые списки), хотя
-                                    // конфиг рабочий: тогда меряем через весь конфиг, как при выключенном VPN.
-                                    // Приложение исключено из собственного VPN, замер идёт мимо туннеля.
-                                    String[] parts = splitRouteConfig(configJson);
-                                    synchronized (PING_CORE_LOCK) {
-                                        delay = Simcore.measureDelay(parts[0], "http://cp.cloudflare.com/", PING_TIMEOUT_MS);
-                                        if (delay <= 0 && parts[1] != null) delay = pingViaFullCore(parts[0], parts[1]);
-                                    }
-                                } catch (Throwable t) {
-                                    Log.i(TAG, "PingBatch(vpn): " + nodeId + " measureOutbound err: " + t.getMessage());
-                                }
-                            }
-                        } catch (Throwable t) {
-                            Log.e(TAG, "PingBatch(vpn): " + nodeId + " err: " + t);
-                        }
-                        Log.i(TAG, "PingBatch(vpn): " + nodeId + " -> " + delay + "ms");
-                        emitPingItem(nodeId, delay, i, total, taskId);
+                for (int i = 0; i < total; i++) {
+                    if (pingBatchGen.get() != gen) { Log.i(TAG, "PingBatch: cancelled at " + i); break; }
+                    JSONObject entry = servers.getJSONObject(i);
+                    String nodeId = entry.optString("id", "?");
+                    long delay = -1;
+                    try {
+                        delay = pingBatchItem(nodeId, entry.getString("config"));
+                    } catch (Throwable t) {
+                        Log.e(TAG, "PingBatch: " + nodeId + " error: " + t);
                     }
-                } else {
-                    // VPN выключен: последовательный measureDelayWithFallback (требует PING_CORE_LOCK).
-                    for (int i = 0; i < total; i++) {
-                        if (pingBatchCancelled) { Log.i(TAG, "PingBatch: cancelled at " + i); break; }
-                        JSONObject entry = servers.getJSONObject(i);
-                        String nodeId = entry.getString("id");
-                        String configJson = entry.getString("config");
-                        long delay = -1;
-                        try {
-                            synchronized (PING_CORE_LOCK) { delay = measureDelayWithFallback(configJson); }
-                        } catch (Throwable t) {
-                            Log.e(TAG, "PingBatch: " + nodeId + " error: " + t);
-                        }
-                        Log.i(TAG, "PingBatch: " + nodeId + " -> " + delay + "ms (" + (i + 1) + "/" + total + ")");
-                        emitPingItem(nodeId, delay, i, total, taskId);
-                    }
+                    Log.i(TAG, "PingBatch: " + nodeId + " -> " + delay + "ms (" + (i + 1) + "/" + total + ")");
+                    emitPingItem(nodeId, delay, i, total, taskId);
                 }
             } catch (Throwable t) {
                 Log.e(TAG, "nativePingBatch error: " + t);
@@ -2301,9 +2307,43 @@ public class NativeBridge {
         });
     }
 
+    // Один сервер пакетного замера. Включён ли VPN, смотрим для каждого сервера заново: пакет идёт долго, и за
+    // это время туннель могли поднять или снять.
+    private long pingBatchItem(String nodeId, String configJson) throws Throwable {
+        awaitVpnStart();
+        VpnServiceImpl vpn = VpnServiceImpl.getInstance();
+        if (vpn == null || !vpn.isRunning()) {
+            // VPN выключен: measureDelayWithFallback (по одному временному ядру за раз).
+            return withPingCore(() -> measureDelayWithFallback(configJson));
+        }
+        // VPN включён: активный сервер — live SOCKS, остальные — measureOutboundDelay.
+        // REALITY-серверы RST-ят plain TCP → только REALITY-путь даёт реальный RTT.
+        // measureOutboundDelay поднимает легковесный инстанс рядом с VPN (как Happ).
+        String activeEndpoint = VpnServiceImpl.getActiveProxyEndpoint();
+        String pingEndpoint = extractProxyEndpoint(new org.json.JSONObject(configJson));
+        boolean isSame = activeEndpoint != null && activeEndpoint.equals(pingEndpoint);
+        Log.i(TAG, "PingBatch(vpn): " + nodeId + " ep=" + pingEndpoint + " same=" + isSame);
+        if (isSame) {
+            int liveSocks = vpn.getSocksPort();
+            if (liveSocks <= 0) liveSocks = LIVE_SOCKS_PORT;
+            return httpGetViaSocks(liveSocks, "connectivitycheck.gstatic.com", 80, "/generate_204", 10000);
+        }
+        // Non-active server: measureOutboundDelay only.
+        // tcpPingViaSocks gives false results (measures VPN-tunnel latency, not server latency).
+        new XrayManager().boot(activity, activity.getFilesDir().getAbsolutePath());
+        // Первый outbound может быть закрыт оператором (белые списки), хотя конфиг рабочий: тогда меряем
+        // через весь конфиг, как при выключенном VPN. Приложение исключено из собственного VPN, замер идёт
+        // мимо туннеля.
+        String[] parts = splitRouteConfig(configJson);
+        return withPingCore(() -> {
+            long d = Simcore.measureDelay(parts[0], "http://cp.cloudflare.com/", PING_TIMEOUT_MS);
+            return (d <= 0 && parts[1] != null) ? pingViaFullCore(parts[0], parts[1]) : d;
+        });
+    }
+
     @JavascriptInterface
     public void cancelPingBatch() {
-        pingBatchCancelled = true;
+        pingBatchGen.incrementAndGet();
     }
 
     private void emitPingItem(String nodeId, long ms, int idx, int total, String taskId) {

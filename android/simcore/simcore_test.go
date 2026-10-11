@@ -4,9 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	commlog "github.com/xtls/xray-core/common/log"
+	"github.com/xtls/xray-core/common/platform"
 )
 
 // Минимальный конфиг: SOCKS-инбаунд + прямое исходящее (freedom).
@@ -112,6 +117,78 @@ func TestMeasureDelayDirect(t *testing.T) {
 	t.Logf("delay %d ms", ms)
 	if ms > 8000 {
 		t.Fatalf("слишком большая задержка: %d", ms)
+	}
+}
+
+// Временный экземпляр для замера не должен оставлять боевой туннель без журнала: app/log каждого нового
+// экземпляра регистрирует себя общим обработчиком xray, а при закрытии экземпляра перестаёт писать.
+func TestMeasureDelayKeepsLiveLog(t *testing.T) {
+	logPath := filepath.Join(t.TempDir(), "live.log")
+	cfg := fmt.Sprintf(`{
+  "log": {"loglevel": "warning", "error": %q},
+  "inbounds": [{"tag":"in","protocol":"socks","listen":"127.0.0.1","port":%d,"settings":{"udp":false}}],
+  "outbounds": [{"tag":"direct","protocol":"freedom"}]
+}`, logPath, freePort(t))
+	inst, err := buildInstance(cfg)
+	if err != nil {
+		t.Fatalf("buildInstance: %v", err)
+	}
+	if err := inst.Start(); err != nil {
+		t.Fatalf("Start: %v", err)
+	}
+	mu.Lock()
+	liveInst = inst
+	mu.Unlock()
+	defer func() {
+		mu.Lock()
+		liveInst = nil
+		mu.Unlock()
+		_ = inst.Close()
+	}()
+
+	// Сам замер заведомо неудачный (порт закрыт): важны подъём и закрытие временного экземпляра.
+	_ = MeasureDelay(socksConfig(freePort(t)), "http://127.0.0.1:1/", 500)
+
+	const marker = "marker-after-measure"
+	commlog.Record(&commlog.GeneralMessage{Severity: commlog.Severity_Warning, Content: marker})
+	deadline := time.Now().Add(3 * time.Second)
+	for time.Now().Before(deadline) {
+		if b, _ := os.ReadFile(logPath); strings.Contains(string(b), marker) {
+			return
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	t.Fatal("после замера журнал боевого экземпляра молчит")
+}
+
+// Пока запускается ядро (startMu занят), замер не стартует и не трогает xray.tun.fd: иначе боевой туннель
+// прочитал бы пустую переменную и поднялся без TUN-дескриптора.
+func TestMeasureWaitsForCoreStart(t *testing.T) {
+	envTun := platform.NormalizeEnvName(platform.TunFdKey)
+	startMu.Lock() // идёт запуск боевого ядра
+	if err := os.Setenv(envTun, "42"); err != nil {
+		startMu.Unlock()
+		t.Fatal(err)
+	}
+	defer os.Unsetenv(envTun)
+
+	done := make(chan int64, 1)
+	go func() { done <- MeasureDelay(socksConfig(freePort(t)), "http://127.0.0.1:1/", 300) }()
+
+	time.Sleep(300 * time.Millisecond)
+	got := os.Getenv(envTun)
+	finished := len(done) > 0
+	startMu.Unlock()
+	if got != "42" {
+		t.Fatalf("замер изменил %s во время запуска ядра: %q", envTun, got)
+	}
+	if finished {
+		t.Fatal("замер не дождался окончания запуска ядра")
+	}
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("замер не завершился после окончания запуска ядра")
 	}
 }
 

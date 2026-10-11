@@ -26,6 +26,8 @@ import (
 	"syscall"
 	"time"
 
+	applog "github.com/xtls/xray-core/app/log"
+	commlog "github.com/xtls/xray-core/common/log"
 	xnet "github.com/xtls/xray-core/common/net"
 	"github.com/xtls/xray-core/common/platform"
 	"github.com/xtls/xray-core/core"
@@ -66,18 +68,26 @@ var (
 	setupOnce sync.Once
 	// liveInst — экземпляр боевого туннеля (запущен с TUN-дескриптором), пока он работает.
 	liveInst *core.Instance
+	// startMu — экземпляры ядра запускаются по одному. Дескриптор TUN передаётся ядру через переменную
+	// окружения процесса (xray.tun.fd), и читает её TUN-инбаунд только при запуске экземпляра. Временный
+	// экземпляр для замера пинга эту переменную снимает: без блокировки он мог сделать это между её установкой
+	// и запуском боевого ядра, и туннель поднимался с дескриптором 0 — «подключено», а трафик не идёт.
+	startMu sync.Mutex
 )
 
 // usesDialerProxy: в конфиге есть outbound с непустым sockopt.dialerProxy (цепочка fragment/noises).
 var usesDialerProxy = regexp.MustCompile(`"dialerProxy"\s*:\s*"[^"]`)
 
-// restoreLiveDialer возвращает общий сетевой слой xray боевому туннелю.
+// restoreLive возвращает боевому туннелю общее для процесса состояние xray, которое перезаписал другой экземпляр.
 //
-// В xray DNS-клиент и менеджер исходящих для sockopt (domainStrategy, dialerProxy) — переменные пакета
+// DNS-клиент и менеджер исходящих для sockopt (domainStrategy, dialerProxy) — переменные пакета
 // transport/internet: core.New каждого нового экземпляра перезаписывает их своими. Временный экземпляр
 // для замера пинга, поднятый рядом с работающим VPN, оставлял туннелю свои (уже закрытые) DNS и
 // исходящие — новые соединения туннеля после этого зависали по таймауту.
-func restoreLiveDialer() {
+//
+// Обработчик журнала (common/log) тоже один на процесс: app/log нового экземпляра регистрирует себя, а при
+// закрытии экземпляра перестаёт писать. После первого же замера журнал боевого ядра молчал до перезапуска VPN.
+func restoreLive() {
 	mu.Lock()
 	inst := liveInst
 	mu.Unlock()
@@ -88,6 +98,9 @@ func restoreLiveDialer() {
 	om, _ := inst.GetFeature(outbound.ManagerType()).(outbound.Manager)
 	if dc != nil && om != nil {
 		internet.InitSystemDialer(dc, om)
+	}
+	if lh, _ := inst.GetFeature((*applog.Instance)(nil)).(*applog.Instance); lh != nil {
+		commlog.RegisterHandler(lh)
 	}
 }
 
@@ -261,6 +274,9 @@ func (c *Core) Start(config string, tunFd int32) (err error) {
 	setupOnce.Do(setup)
 	c.emit(StatusStarting, "запуск xray "+core.Version())
 
+	startMu.Lock()
+	defer startMu.Unlock()
+
 	envTun := platform.NormalizeEnvName(platform.TunFdKey)
 	if tunFd > 0 {
 		if err := os.Setenv(envTun, strconv.Itoa(int(tunFd))); err != nil {
@@ -279,29 +295,43 @@ func (c *Core) Start(config string, tunFd int32) (err error) {
 		config = cfg
 	}
 
-	inst, err := buildInstance(config)
+	inst, err := startInstance(config, tunFd > 0)
 	if err != nil {
 		c.emit(StatusError, err.Error())
 		return err
 	}
-	if err := inst.Start(); err != nil {
-		_ = inst.Close()
-		c.emit(StatusError, err.Error())
-		return fmt.Errorf("старт ядра: %w", err)
-	}
 	c.inst = inst
 	c.running = true
-	if tunFd > 0 {
-		mu.Lock()
-		liveInst = inst
-		mu.Unlock()
-	} else if !usesDialerProxy.MatchString(config) {
-		// Вспомогательный экземпляр (замер через SOCKS) без dialerProxy-цепочки: общий слой можно
-		// вернуть туннелю сразу, не дожидаясь остановки.
-		restoreLiveDialer()
-	}
 	c.emit(StatusStarted, "ядро запущено")
 	return nil
+}
+
+// startInstance создаёт и запускает экземпляр ядра. Вызывать под startMu.
+//
+// live — боевой туннель (запущен с TUN-дескриптором): запоминаем его как владельца общего состояния xray.
+// Остальные экземпляры — вспомогательные (замер пинга): если такой не запустился или у него нет
+// dialerProxy-цепочки, общее состояние возвращаем туннелю сразу, не дожидаясь остановки.
+func startInstance(config string, live bool) (*core.Instance, error) {
+	inst, err := buildInstance(config)
+	if err == nil {
+		if err = inst.Start(); err != nil {
+			_ = inst.Close()
+			err = fmt.Errorf("старт ядра: %w", err)
+		}
+	}
+	if live {
+		if err == nil {
+			mu.Lock()
+			liveInst = inst
+			mu.Unlock()
+		}
+	} else if err != nil || !usesDialerProxy.MatchString(config) {
+		restoreLive()
+	}
+	if err != nil {
+		return nil, err
+	}
+	return inst, nil
 }
 
 // Stop останавливает ядро (повторный вызов безопасен).
@@ -321,7 +351,7 @@ func (c *Core) Stop() {
 	_ = c.inst.Close()
 	c.inst = nil
 	if !wasLive {
-		restoreLiveDialer()
+		restoreLive()
 	}
 	c.running = false
 	c.emit(StatusStopped, "ядро остановлено")
@@ -333,6 +363,14 @@ func (c *Core) IsRunning() bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.running
+}
+
+// startMeasureInstance поднимает временный экземпляр для замера (без TUN).
+func startMeasureInstance(config string) (*core.Instance, error) {
+	startMu.Lock()
+	defer startMu.Unlock()
+	_ = os.Unsetenv(platform.NormalizeEnvName(platform.TunFdKey))
+	return startInstance(config, false)
 }
 
 // MeasureDelay поднимает временный экземпляр ядра с переданным конфигом и измеряет
@@ -348,23 +386,15 @@ func MeasureDelay(config string, url string, timeoutMs int64) (ms int64) {
 		timeoutMs = 5000
 	}
 	setupOnce.Do(setup)
-	_ = os.Unsetenv(platform.NormalizeEnvName(platform.TunFdKey))
 
-	inst, err := buildInstance(config)
+	inst, err := startMeasureInstance(config)
 	if err != nil {
-		return -1
-	}
-	if err := inst.Start(); err != nil {
-		_ = inst.Close()
 		return -1
 	}
 	defer func() {
 		_ = inst.Close()
-		restoreLiveDialer()
+		restoreLive()
 	}()
-	if !usesDialerProxy.MatchString(config) {
-		restoreLiveDialer()
-	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutMs)*time.Millisecond)
 	defer cancel()

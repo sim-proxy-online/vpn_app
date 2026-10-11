@@ -49,13 +49,44 @@ function formatDate(ts?: number): string {
   return new Date(ts * 1000).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+// Панель видна только на широком экране (Tailwind `lg`).
+const WIDE_LAYOUT_QUERY = '(min-width: 1024px)';
+
+/** Широкий ли экран. Без matchMedia (старый WebView, тесты) считаем, что да — как было раньше. */
+function useWideLayout(): boolean {
+  const supported = typeof window !== 'undefined' && typeof window.matchMedia === 'function';
+  const [wide, setWide] = useState(() => !supported || window.matchMedia(WIDE_LAYOUT_QUERY).matches);
+  useEffect(() => {
+    if (!supported) return;
+    const mq = window.matchMedia(WIDE_LAYOUT_QUERY);
+    const onChange = () => setWide(mq.matches);
+    onChange();
+    if (mq.addEventListener) mq.addEventListener('change', onChange); else mq.addListener(onChange);
+    return () => { if (mq.removeEventListener) mq.removeEventListener('change', onChange); else mq.removeListener(onChange); };
+  }, [supported]);
+  return wide;
+}
+
+// Замеры и отметка «уже мерили при открытии» живут весь сеанс приложения, а не пока открыт экран: при возврате на
+// главную панель монтируется заново, и без этого все серверы профиля перемерялись бы при каждом переходе между разделами.
+const sessionPings: Record<string, number> = {};
+const autoPingedProfiles = new Set<string>();
+
 /**
  * Desktop-only panel for the Home screen: shows the active subscription
  * profile (traffic, status, actions) together with its server list and
  * inline ping — so the user lands on servers immediately at launch without
- * navigating to the Profiles tab. Hidden on mobile via the parent's `lg:` gate.
+ * navigating to the Profiles tab.
+ *
+ * На узком экране панель не монтируется вовсе. Раньше она только пряталась стилем (`hidden lg:flex`), а её эффекты
+ * работали: на телефоне при каждом открытии главной невидимо мерились все серверы профиля — временными ядрами рядом
+ * с боевым туннелем.
  */
-export default function HomeProfilePanel({
+export default function HomeProfilePanel(props: HomeProfilePanelProps) {
+  return useWideLayout() ? <HomeProfilePanelContent {...props} /> : null;
+}
+
+function HomeProfilePanelContent({
   profiles, activeProfileId, activeNodeId,
   onSelectNode, onSetActive, onUpdateProfile, onSaveProfile, onGoToProfiles,
 }: HomeProfilePanelProps) {
@@ -63,10 +94,9 @@ export default function HomeProfilePanel({
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [showRenew, setShowRenew] = useState(false);
-  const [pingMap, setPingMap] = useState<Record<string, number>>({});
+  const [pingMap, setPingMap] = useState<Record<string, number>>(() => ({ ...sessionPings }));
   const [pingingSet, setPingingSet] = useState<Set<string>>(new Set());
   const cancelBatchRef = useRef<(() => void) | null>(null);
-  const autoPingedRef = useRef<string | null>(null);
 
   // Прогреваем ядро заранее, чтобы первый пинг не «думал» на инициализации libxray.
   useEffect(() => { nativeWarmupCore(); }, []);
@@ -85,6 +115,7 @@ export default function HomeProfilePanel({
     cancelBatchRef.current = startPingBatch(
       nodes,
       (id, ms) => {
+        sessionPings[id] = ms;
         setPingMap(prev => ({ ...prev, [id]: ms }));
         setPingingSet(prev => { const s = new Set(prev); s.delete(id); return s; });
       },
@@ -97,19 +128,19 @@ export default function HomeProfilePanel({
     pingAll([node]);
   }, [pingAll, pingingSet]);
 
-  // Авто-пинг всех серверов при старте (и при смене активного профиля) — один
-  // раз на профиль. Небольшая задержка даёт ядру прогреться (nativeWarmupCore),
-  // чтобы первый замер не «думал» на инициализации libxray.
+  // Авто-пинг всех серверов при открытии приложения (и при смене активного профиля) — один раз на профиль за сеанс.
+  // Небольшая задержка даёт ядру прогреться (nativeWarmupCore), чтобы первый замер не «думал» на инициализации libxray.
+  const profileId = profile?.id;
+  const profileNodes = profile?.nodes;
   useEffect(() => {
-    if (!profile || profile.nodes.length === 0) return;
-    if (autoPingedRef.current === profile.id) return;
-    autoPingedRef.current = profile.id;
+    if (!profileId || !profileNodes || profileNodes.length === 0) return;
+    if (autoPingedProfiles.has(profileId)) return;
     // subscription-ping-onopen-enabled=0 от провайдера отключает авто-пинг при открытии (по умолчанию он включён).
     try { if (JSON.parse(localStorage.getItem('sim-ping-on-open') ?? 'true') === false) return; } catch { /* значение по умолчанию */ }
-    const nodes = profile.nodes;
-    const t = setTimeout(() => { pingAll(nodes); }, 1000);
+    // Отметку ставим при самом замере: если с экрана ушли раньше, замер состоится при следующем открытии.
+    const t = setTimeout(() => { autoPingedProfiles.add(profileId); pingAll(profileNodes); }, 1000);
     return () => clearTimeout(t);
-  }, [profile, pingAll]);
+  }, [profileId, profileNodes, pingAll]);
 
   const handleUpdate = useCallback(async () => {
     if (!profile || isUpdating) return;

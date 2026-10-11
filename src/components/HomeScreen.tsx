@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import ConnectMedallion from './ConnectMedallion';
 import Flag from './Flag';
 import { withAlpha } from '../utils/color';
@@ -55,6 +55,21 @@ function formatTime(seconds: number): string {
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
+// Последний замер пинга на главном экране. Живёт весь сеанс приложения: экран монтируется заново при каждом возврате
+// из другого раздела, и без этого каждый возврат при выключенном VPN поднимал бы временное ядро ради того же числа.
+const HOME_PING_FRESH_MS = 60_000;
+let lastHomePing: { nodeId: string; connected: boolean; ms: number; at: number } | null = null;
+
+function recentHomePing(nodeId: string | undefined, connected: boolean): number | undefined {
+  const p = lastHomePing;
+  return p && p.nodeId === nodeId && p.connected === connected && Date.now() - p.at < HOME_PING_FRESH_MS ? p.ms : undefined;
+}
+
+/** Запоминаем только удачный замер: «нет ответа» при следующем открытии экрана проверяется заново. */
+function rememberHomePing(nodeId: string, connected: boolean, ms: number): void {
+  lastHomePing = ms > 0 ? { nodeId, connected, ms, at: Date.now() } : null;
+}
+
 /** Чип входа в диагностический чат — одинаковый в обоих состояниях (защищён/нет). */
 const DIAG_CHIP_CLS = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold border border-white/10 bg-white/[0.04] text-gray-300 active:scale-95 transition-transform';
 
@@ -92,24 +107,40 @@ export default function HomeScreen({
   // Направление последнего свайпа — для анимации появления новой карточки.
   const [swipeDir, setSwipeDir] = useState(0);
 
-  // Живой пинг выбранного сервера: меряем сразу при смене (в т.ч. со свайпа).
-  const [pingMs, setPingMs] = useState<number | undefined>(selectedNode?.ping);
+  // Живой пинг выбранного сервера: меряем при смене сервера (в т.ч. со свайпа) и когда соединение установилось или
+  // снято. Пока оно меняется (подключение, проверка, переподключение, отключение), не меряем: при выключенном VPN
+  // замер поднимает временное ядро, и оно стартовало бы одновременно с боевым.
+  const [pingMs, setPingMs] = useState<number | undefined>(() => recentHomePing(selectedNode?.id, isConnected) ?? selectedNode?.ping);
   const [pinging, setPinging] = useState(false);
+  const pingNodeIdRef = useRef(selectedNode?.id);
+  const pingStateRef = useRef<ConnectionState | null>(null);
   useEffect(() => {
-    if (!selectedNode) { setPingMs(undefined); setPinging(false); return; }
+    const sameState = pingStateRef.current === connectionState;
+    pingStateRef.current = connectionState;
+    if (!selectedNode) { pingNodeIdRef.current = undefined; setPingMs(undefined); setPinging(false); return; }
     const node = selectedNode;
+    if (pingNodeIdRef.current !== node.id) {
+      pingNodeIdRef.current = node.id;
+      setPingMs(node.ping);   // у нового сервера показываем его прошлое значение, пока идёт замер
+    }
+    if (connectionState !== 'connected' && connectionState !== 'disconnected') { setPinging(false); return; }
+    // Свежий замер этого же сервера в этом же состоянии не повторяем: главный экран монтируется заново при каждом
+    // возврате из другого раздела.
+    const recent = recentHomePing(node.id, isConnected);
+    if (recent !== undefined) { setPingMs(recent); setPinging(false); return; }
     let cancelled = false;
-    setPingMs(node.ping);   // показываем прошлое значение, пока идёт замер
     setPinging(true);
-    // Дебаунс: быстрые свайпы отменяют предыдущий замер, ядро не плодим.
+    // Дебаунс: быстрые свайпы отменяют предыдущий замер, ядро не плодим. Сразу после отключения (и при запуске
+    // приложения) ждём дольше: авто-подключение, авто-переключение и быстрое переключение поднимают туннель заново
+    // через полсекунды — замер тогда отменяется, не успев запустить временное ядро.
     const t = setTimeout(() => {
       nativePingNode(node, 'proxy', isConnected, true)
-        .then((ms) => { if (!cancelled) setPingMs(ms); })
+        .then((ms) => { rememberHomePing(node.id, isConnected, ms); if (!cancelled) setPingMs(ms); })
         .catch(() => { if (!cancelled) setPingMs(-1); })
         .finally(() => { if (!cancelled) setPinging(false); });
-    }, 250);
+    }, !isConnected && !sameState ? 1500 : 250);
     return () => { cancelled = true; clearTimeout(t); };
-  }, [selectedNode?.id, isConnected]);
+  }, [selectedNode?.id, connectionState]);
 
   // Смена сервера свайпом: листаем по кругу список allNodes относительно текущего.
   const changeServer = (delta: number) => {

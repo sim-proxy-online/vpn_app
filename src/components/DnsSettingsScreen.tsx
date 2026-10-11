@@ -4,7 +4,6 @@ import {
   ArrowLeft, Globe, Plus, Trash2,
   Settings2, Zap, Server, Database
 } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 
 interface DnsServer {
   id: string;
@@ -23,7 +22,6 @@ interface DnsHost {
 }
 
 export default function DnsSettingsScreen({ onBack }: { onBack: () => void }) {
-  const { isDark } = useTheme();
 
   // States
   const [dnsServers, setDnsServers] = useState<DnsServer[]>([]);
@@ -131,7 +129,7 @@ export default function DnsSettingsScreen({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className={`flex flex-col h-full ${isDark ? 'bg-[#0a0a1a]' : 'bg-[#f8fafc]'}`}>
+    <div className={`flex flex-col h-full bg-[#0a0a1a]`}>
       {/* Header */}
       <div className="flex items-center gap-4 p-4 pt-10 sm:pt-12 pb-3 shrink-0 border-b border-[#2a2a5a22]">
         <button onClick={onBack} className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-gray-400 hover:text-[var(--accent)] transition-colors">
@@ -160,8 +158,8 @@ export default function DnsSettingsScreen({ onBack }: { onBack: () => void }) {
               </div>
               <button onClick={toggleFakeDns}
                 className={`relative w-[44px] h-[24px] rounded-full transition-all duration-300 ${fakeDns ? 'bg-[var(--accent)]' : 'bg-[#1a1a3a]'}`}>
-                <motion.div className="absolute top-[2px] w-5 h-5 rounded-full bg-white shadow-md"
-                  animate={{ left: fakeDns ? 21 : 3 }} transition={{ type: 'spring', damping: 20 }} />
+                <motion.div className="absolute top-[2px] left-[3px] w-5 h-5 rounded-full bg-white shadow-md"
+                  initial={false} animate={{ x: fakeDns ? 18 : 0 }} transition={{ type: 'spring', damping: 20 }} />
               </button>
             </div>
 

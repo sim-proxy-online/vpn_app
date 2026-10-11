@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUp, ArrowDown, Zap, TrendingUp } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 import { nativeGetStats, VpnStats } from '../native/bridge';
 
 interface StatsWidgetProps {
@@ -9,7 +8,6 @@ interface StatsWidgetProps {
 }
 
 export default function StatsWidget({ isConnected }: StatsWidgetProps) {
-  const { isDark } = useTheme();
   const [stats, setStats] = useState<VpnStats | null>(null);
   const [speedHistory, setSpeedHistory] = useState<number[]>([]);
 
@@ -45,13 +43,11 @@ export default function StatsWidget({ isConnected }: StatsWidgetProps) {
   };
 
 
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]'
-    : 'bg-gradient-to-br from-[#e8f0ff] to-[#f0f2f5]';
+  const bgClass = 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]';
 
-  const borderClass = isDark ? 'border-[#2a2a5e]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
-  const labelClass = isDark ? 'text-[#9090b0]' : 'text-gray-500';
+  const borderClass = 'border-[#2a2a5e]';
+  const textClass = 'text-[#e0e0ff]';
+  const labelClass = 'text-[#9090b0]';
 
   if (!isConnected) {
     return (
@@ -149,7 +145,7 @@ export default function StatsWidget({ isConnected }: StatsWidgetProps) {
 
       {/* Speed Graph */}
       {speedHistory.length > 1 && (
-        <div className="pt-3 border-t" style={{ borderColor: isDark ? '#2a2a5e' : '#d0d8e0' }}>
+        <div className="pt-3 border-t" style={{ borderColor: 'var(--line)' }}>
           <div className={`text-xs ${labelClass} mb-2`}>Скорость загрузки (последние 20 сек)</div>
           <div className="flex items-end gap-1 h-10">
             {speedHistory.map((speed, i) => (

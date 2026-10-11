@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "./theme-light.css";
+@import "./theme-depth.css";
 
 /* ── Акцентный цвет темы ──
    Базовый акцент + альфа-варианты (hex8) + каналы для rgba-свечений.
@@ -20,6 +22,138 @@
   --accent-a44: #00f0ff44;
   --accent-a66: #00f0ff66;
   --accent-a88: #00f0ff88;
+}
+
+/* ── Нейтральная палитра темы ──
+   Фон, поверхности, линии и текст. Значения в :root — тёмная тема, ниже — светлая.
+   Как красить новый интерфейс, чтобы он работал в обеих темах:
+     • утилитами Tailwind «под тёмную тему» (text-white, text-gray-400, bg-white/5, border-white/10, text-green-400 …):
+       в светлой теме палитра зеркалится автоматически (см. theme-light.css), развилки isDark не нужны;
+     • во встроенных стилях — этими переменными: var(--bg), var(--surface), var(--line),
+       rgba(var(--ink-rgb), 0.05) вместо rgba(255,255,255,0.05);
+     • яркие цвета из кода (статусы, протоколы) для текста и значков — через onTheme() из utils/color.ts. */
+:root {
+  --bg: #0a0a1a;
+  --bg2: #050510;
+  --surface: #12122a;
+  --surface-rgb: 18, 18, 42;
+  --line: #2a2a5a33;
+  --text: #e5e5e5;
+  --text2: #999999;
+  --text3: #555555;
+  /* «Чернила»: цвет полупрозрачных подложек и линий поверх фона (белый на тёмном, тёмно-синий на светлом). */
+  --ink-rgb: 255, 255, 255;
+  /* Глубина. Карточка на тёмном фоне отделяется не столько тенью (тёмное на тёмном не видно), сколько светлой
+     кромкой сверху и лёгким цветным переливом в углах; тень добавляет объём у нижнего края.
+     Кому достаются эти значения — см. theme-depth.css (поверхности по классам) и раздел «Глубина» ниже. */
+  --lift: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 14px 30px -14px rgba(0, 0, 0, 0.8);
+  --lift-xs: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 10px -4px rgba(0, 0, 0, 0.6);
+  --card: rgba(255, 255, 255, 0.04);
+  --card-line: rgba(255, 255, 255, 0.08);
+  --card-wash: radial-gradient(130% 120% at 100% 0%, rgba(var(--accent-rgb), 0.08), transparent 46%),
+               radial-gradient(120% 120% at 0% 100%, rgb(99 102 241 / 0.07), transparent 48%);
+  --chip-wash: linear-gradient(rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.025));
+  --page-wash: radial-gradient(900px 460px at 8% -6%, rgba(var(--accent-rgb), 0.09), transparent 62%),
+               radial-gradient(820px 460px at 100% 0%, rgb(99 102 241 / 0.13), transparent 58%);
+  /* Приглушённый текст (классы text-gray-500/600/700): подписи вторичные, но читаемые. Исходные серые Tailwind
+     на фоне приложения давали контраст 4 : 1, 2,4 : 1 и 1,7 : 1 — мелкие подписи терялись. */
+  --dim-1: #8b94a7;
+  --dim-2: #717b8f;
+  --dim-3: #5b6477;
+  /* Особые подложки, которые задаются во встроенных стилях. */
+  --bg-deep: #07071a;
+  --line-strong: #2a2a5a55;
+  --track: #2a2a4a;
+  --well: rgba(0, 0, 0, 0.4);
+  --card-profile: linear-gradient(135deg, #0e1e30 0%, #080d18 60%);
+  --tile-navy: linear-gradient(145deg, #152035, #0c1525);
+  --tile-green: linear-gradient(135deg, #0d2a18, #0a2015);
+  --tile-accent: linear-gradient(135deg, #0a1e2e, #081828);
+  --tile-ok: #0a1a0a;
+  --tile-ok-line: #0a3a1a;
+  --tile-bad: #2a110a;
+  --tile-bad-line: #5a1a0a;
+  /* Текст и значки на заливке акцентом. */
+  --on-accent: #000000;
+  --toggle-on: linear-gradient(135deg, var(--accent), #00c4d6);
+  /* Рамка карточки сервера по результату замера. */
+  --ok-line: rgba(0, 232, 122, 0.4);
+  --bad-line: rgba(255, 59, 92, 0.45);
+  /* Медальон с Петровичем и приметы его настроения (ConnectMedallion, MascotMood, MascotScene). */
+  --medal: radial-gradient(circle at 50% 35%, #1b2250 0%, #0c1030 70%);
+  --medal-cold: radial-gradient(circle at 50% 35%, #1b2250 0%, #0c1030 70%);
+  --medal-drop: 0 14px 40px -10px #000000aa;
+  --knob: #0a0a1a;
+  --knob-drop: 0 6px 16px #000000aa;
+  --bubble: #10143a;
+  --bubble-soft: #10143acc;
+  --bubble-drop: 0 4px 14px #000000aa;
+  --bubble-text: #cfe8ff;
+  --snow: #eaf6ff;
+  --snow-edge: none;
+  --snow-glow: none;
+  --twinkle: #fff1a8;
+  --twinkle-glow: #ffe27a;
+  --cold-filter: grayscale(0.3) saturate(0.85) brightness(0.84) contrast(0.96);
+  --sweep-blend: screen;
+}
+[data-theme="light"] {
+  --bg: #f2f4f8;
+  --bg2: #e7ebf2;
+  --surface: #ffffff;
+  --surface-rgb: 255, 255, 255;
+  --line: rgb(15 23 42 / 0.1);
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --ink-rgb: 15, 23, 42;
+  --lift: 0 1px 2px rgb(15 23 42 / 0.05), 0 10px 28px -8px rgb(15 23 42 / 0.14);
+  /* Глубина: карточки белые и приподнятые, с лёгким цветным переливом в углу (как в личном кабинете). */
+  --lift-xs: 0 1px 2px rgb(15 23 42 / 0.06), 0 2px 6px -2px rgb(15 23 42 / 0.08);
+  --card: #ffffff;
+  --card-line: rgb(15 23 42 / 0.05);
+  --chip-wash: none;
+  --dim-1: #64748b;
+  --dim-2: #6d7a90;
+  --dim-3: #96a1b4;
+  --card-wash: radial-gradient(130% 120% at 100% 0%, rgba(var(--accent-rgb), 0.07), transparent 46%),
+               radial-gradient(120% 120% at 0% 100%, rgb(99 102 241 / 0.045), transparent 48%);
+  --page-wash: radial-gradient(900px 460px at 8% -6%, rgba(var(--accent-rgb), 0.11), transparent 62%),
+               radial-gradient(820px 460px at 100% 0%, rgb(99 102 241 / 0.08), transparent 58%);
+  --bg-deep: transparent;
+  --line-strong: rgb(15 23 42 / 0.14);
+  --track: #cbd2de;
+  --well: rgb(15 23 42 / 0.06);
+  --card-profile: radial-gradient(120% 130% at 100% 0%, rgba(var(--accent-rgb), 0.12), transparent 50%), radial-gradient(110% 120% at 0% 100%, rgb(99 102 241 / 0.07), transparent 52%), #ffffff;
+  --tile-navy: linear-gradient(145deg, #eef2f9, #e2e8f2);
+  --tile-green: linear-gradient(135deg, #e2f6ea, #d6f0e1);
+  --tile-accent: linear-gradient(135deg, var(--accent-a20), var(--accent-a10));
+  --tile-ok: #e8f6ec;
+  --tile-ok-line: #b9e3c6;
+  --tile-bad: #fdecea;
+  --tile-bad-line: #f3c0b8;
+  --on-accent: #ffffff;
+  --toggle-on: var(--accent);
+  --ok-line: rgb(0 150 90 / 0.28);
+  --bad-line: rgb(224 0 40 / 0.32);
+  /* Медальон — светлая «монета»: белый круг с мягкой тенью; у замёрзшего Петровича круг льдисто-голубой. */
+  --medal: radial-gradient(circle at 50% 26%, #ffffff 0%, #eff4fb 60%, #dde7f5 100%);
+  --medal-cold: radial-gradient(circle at 50% 26%, #f7fbff 0%, #deecfb 58%, #c7ddf6 100%);
+  --medal-drop: 0 2px 4px rgb(15 23 42 / 0.08), 0 20px 38px -14px rgb(15 23 42 / 0.34);
+  --knob-drop: 0 8px 16px -6px rgb(15 23 42 / 0.35);
+  --bubble: #ffffff;
+  --bubble-soft: rgb(255 255 255 / 0.94);
+  --bubble-drop: 0 4px 12px -3px rgb(15 23 42 / 0.28);
+  --bubble-text: #2563a8;
+  --snow: #ffffff;
+  --snow-edge: drop-shadow(0 0 1.5px rgb(37 99 168 / 0.7));
+  /* Снежинки движутся: фильтр на каждой — лишний слой отрисовки, тень даёт тот же контур дешевле. */
+  --snow-glow: 0 0 2px rgb(37 99 168 / 0.75);
+  --twinkle: #f5a800;
+  --twinkle-glow: #ffcf40;
+  --cold-filter: grayscale(0.22) saturate(0.9) brightness(0.97);
+  --sweep-blend: multiply;
+  color-scheme: light;
 }
 
 /* ── Локальные шрифты (офлайн, без запросов к fonts.googleapis.com) ──
@@ -84,7 +218,20 @@
 .sim-dots { animation: sim-dots 1.2s ease-in-out infinite; }
 .sim-drop { animation: sim-drop 2.2s ease-in infinite; }
 .sim-wobble { animation: sim-wobble 1.6s ease-in-out infinite; }
+/* ── Появление экранов и шторок ──
+   Экран не въезжает из-за края, а сразу стоит на своём месте и коротко сдвигается. Замер на телефоне (Helio G99):
+   при въезде из-за края каждая выехавшая полоса экрана дорисовывалась в том же кадре, и пятая часть кадров
+   перехода опаздывала. Здесь экран рисуется один раз, дальше меняется только transform — это работа композитора.
+   Прозрачность не анимируется: для неё на каждый кадр нужен отдельный проход отрисовки на весь экран.
+   Уходит экран мгновенно, как и переключаются вкладки.
+   Режим backwards: после появления transform снова свободен (иначе вложенные окна position: fixed
+   позиционировались бы от экрана раздела, а не от окна приложения). */
+@keyframes slide-in-right { from { transform: translateX(24px); } }
+@keyframes slide-in-up { from { transform: translateY(28px); } }
+.slide-in-right { animation: slide-in-right 0.2s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.slide-in-up { animation: slide-in-up 0.22s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
 @media (prefers-reduced-motion: reduce) {
+  .slide-in-right, .slide-in-up { animation: none; }
   .sim-radar, .sim-sweep, .sim-breathe, .sim-shiver, .sim-sway, .sim-shake, .sim-snow, .sim-twinkle, .sim-dots, .sim-drop, .sim-wobble { animation: none !important; }
 }
 
@@ -105,47 +252,126 @@ body {
   position: relative;
 }
 
-/* ── Dark theme (default) ── */
-[data-theme="dark"] body, body { background: #0a0a1a; color: #e5e5e5; }
-[data-theme="dark"] .t-bg { background: #0a0a1a; }
-[data-theme="dark"] .t-bg2 { background: #050510; }
-[data-theme="dark"] .t-card { background: linear-gradient(135deg, rgba(18,18,42,0.8), rgba(26,26,58,0.6)); border-color: rgba(42,42,90,0.5); }
-[data-theme="dark"] .t-surface { background: #12122a; }
-[data-theme="dark"] .t-border { border-color: #2a2a5a33; }
-[data-theme="dark"] .t-text { color: #e5e5e5; }
-[data-theme="dark"] .t-text2 { color: #999; }
-[data-theme="dark"] .t-text3 { color: #555; }
-[data-theme="dark"] .t-input { background: #0a0a1a; border-color: #2a2a5a; color: white; }
+/* ── Классы темы ── */
+body { background: var(--bg); color: var(--text); }
+.t-bg { background: var(--bg); }
+.t-bg2 { background: var(--bg2); }
+.t-surface { background: var(--surface); }
+.t-border { border-color: var(--line); }
+.t-text { color: var(--text); }
+.t-text2 { color: var(--text2); }
+.t-text3 { color: var(--text3); }
+.t-card { background: linear-gradient(135deg, rgba(18,18,42,0.8), rgba(26,26,58,0.6)); border-color: rgba(42,42,90,0.5); }
+.t-input { background: #0a0a1a; border-color: #2a2a5a; color: white; }
 
-/* ── Light theme ── */
-[data-theme="light"] body { background: #f0f2f5; color: #1a1a2e; }
-[data-theme="light"] .t-bg { background: #f0f2f5; }
-[data-theme="light"] .t-bg2 { background: #e8eaed; }
-[data-theme="light"] .t-card { background: rgba(255,255,255,0.85); border-color: rgba(0,0,0,0.08); }
-[data-theme="light"] .t-surface { background: #ffffff; }
-[data-theme="light"] .t-border { border-color: rgba(0,0,0,0.08); }
-[data-theme="light"] .t-text { color: #1a1a2e; }
-[data-theme="light"] .t-text2 { color: #555; }
-[data-theme="light"] .t-text3 { color: #999; }
-[data-theme="light"] .t-input { background: #ffffff; border-color: #d0d5dd; color: #1a1a2e; }
+/* ── Приглушённый текст ──
+   В слое utilities, чтобы состояния (hover:text-white и т.п.) по-прежнему перекрывали базовый цвет. */
+@layer utilities {
+  .text-gray-500 { color: var(--dim-1); }
+  .text-gray-600 { color: var(--dim-2); }
+  .text-gray-700 { color: var(--dim-3); }
+  .placeholder-gray-700::placeholder { color: var(--dim-3); }
+}
 
-[data-theme="light"] .glass-card { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-[data-theme="light"] .neon-text-cyan { color: #0091a3; text-shadow: none; }
+/* ── Светлая тема: то, что не выражается зеркалом палитры ── */
+[data-theme="light"] .t-card { background: var(--surface); border-color: var(--line); box-shadow: var(--lift); }
+[data-theme="light"] .t-input { background: var(--surface); border-color: #d0d5dd; color: var(--text); }
+[data-theme="light"] .glass-card { background: rgba(255,255,255,0.94); border: 1px solid var(--line); box-shadow: var(--lift); }
+/* ── Глубина (обе темы) ──
+   Карточки и кнопки рисуются слабой подложкой. Тень, светлую кромку и перелив поверхностям, заданным классами
+   (bg-white/5, bg-[#1a1a3a33] …), даёт theme-depth.css. Здесь — то же для подложек во встроенных стилях и то, что
+   относится к конкретным элементам. Значения (--lift, --card, --card-wash …) у каждой темы свои. */
+/* Фоновый перелив — только у области содержимого и без background-attachment: fixed: с ним браузер переводит
+   всю прокрутку на главный поток, и списки на телефоне начинают дёргаться. */
+.page-wash { background-image: var(--page-wash); background-repeat: no-repeat; }
+:is(.rounded-2xl, .rounded-3xl, [class*="rounded-[2"]):is([style*="background: rgba(var(--ink-rgb)"], [style*="background-color: rgba(var(--ink-rgb)"]) {
+  background: var(--card-wash), var(--card) !important; box-shadow: var(--lift);
+}
+/* Выбранная карточка (подложка с акцентом поверх поверхности): тень и акцентное свечение. */
+.rounded-2xl[style*="--surface-rgb"] { box-shadow: var(--lift), 0 10px 26px -12px rgba(var(--accent-rgb), 0.55); }
+/* Кнопки и «пилюли» с подложкой во встроенном стиле (тонкие полосы-дорожки не в счёт). */
+:is(.rounded-xl, .rounded-full)[style*="background: rgba(var(--ink-rgb)"]:not(.h-1, .h-1\.5, .h-2, .h-\[4px\]) { box-shadow: var(--lift-xs); }
+/* Цветные плитки-действия («Быстрейший», «Скорость») и карточка подписки. */
+.rounded-2xl[style*="var(--tile-"] { box-shadow: var(--lift-xs); }
+/* Виджеты панели — карточки с градиентом from-[#1a1a3e] to-[#0f0f2e]. */
+.from-\[\#1a1a3e\] { box-shadow: var(--lift); }
+/* Выбранный пункт (подложка акцентом) приподнят так же, как соседние невыбранные, и светится своим цветом. */
+:is(.rounded-xl, .rounded-2xl).border:is(.bg-\[var\(--accent-a10\)\], .bg-\[var\(--accent-a11\)\], .bg-\[var\(--accent-a12\)\], .bg-\[var\(--accent-a15\)\]) {
+  box-shadow: var(--lift-xs), 0 6px 16px -8px rgba(var(--accent-rgb), 0.45);
+}
+/* Цветные «пилюли» состояния («Не защищено», «Умный обход») лежат на фоне так же, как нейтральные кнопки рядом. */
+.rounded-full.border:is([class*=" bg-[#"], [class*=" bg-[var(--accent-a"]) { box-shadow: var(--lift-xs); }
+/* Разделы настроек: вместо списка с разделителями каждый блок верхнего уровня — отдельная карточка.
+   Не карточки: set-plain — обёртка, внутри которой уже лежат свои карточки; fixed — окно поверх экрана
+   (диалог бэкапа рендерится прямо в списке раздела). */
+.sub-body { padding-top: 4px; }
+.sub-body > :not(.fixed) { border-width: 0; }
+.sub-body > :not(.set-plain, .fixed) {
+  margin: 10px 14px; border: 1px solid var(--card-line); border-radius: 18px;
+  background: var(--card-wash), var(--card); box-shadow: var(--lift);
+}
+.sub-body > .w-full:not(.set-plain, .fixed) { width: calc(100% - 28px); }
+
+/* ── Тёмная тема: список серверов ──
+   Карточек много, у каждой цветная рамка по пингу. Перелив, свечение и вложенная «карточка» под флагом вместе
+   дают пестроту, поэтому здесь поверхность ровная, плитка флага плоская, а выбранный сервер подсвечен слабо. */
+:root:not([data-theme="light"]) .server-card[style*="background: rgba(var(--ink-rgb)"] { background: var(--card) !important; box-shadow: var(--lift-xs); }
+:root:not([data-theme="light"]) .server-card[style*="--surface-rgb"] { box-shadow: var(--lift-xs), 0 8px 20px -14px rgba(var(--accent-rgb), 0.4); }
+:root:not([data-theme="light"]) .server-card .rounded-2xl[style*="background: rgba(var(--ink-rgb)"] { background: rgba(var(--ink-rgb), 0.06) !important; box-shadow: none; }
+
+/* ── Светлая тема: глубина ── поверхности белые, остальное — как выше */
+[data-theme="light"] .rounded-2xl[style*="--surface-rgb"] { background-color: #ffffff !important; }
+[data-theme="light"] :is(.rounded-xl, .rounded-full)[style*="background: rgba(var(--ink-rgb)"]:not(.h-1, .h-1\.5, .h-2, .h-\[4px\]) { background: #ffffff !important; }
+/* Приглушённые подписи: на светлом фоне половинная прозрачность уже не читается. */
+[data-theme="light"] .opacity-55 { opacity: 0.9; }
+/* Заливка акцентом (главные кнопки): белый текст и свечение своего цвета. */
+[data-theme="light"] .bg-\[var\(--accent\)\] { box-shadow: 0 8px 18px -6px rgba(var(--accent-rgb), 0.5); }
+[data-theme="light"] .text-black { color: var(--on-accent); }
+[data-theme="light"] .text-white[style*="background: var(--accent"] { color: var(--on-accent); }
+/* Кнопки со сплошной цветной заливкой и белым текстом остаются как есть: зеркало палитры для них отменяется. */
+[data-theme="light"] .text-white:is(.bg-blue-600, .from-purple-600, .from-\[\#b000ff\]) {
+  color: #ffffff;
+  --color-blue-500: oklch(62.3% 0.214 259.815); --color-blue-600: oklch(54.6% 0.245 262.881); --color-blue-700: oklch(48.8% 0.243 264.376);
+  --color-purple-500: oklch(62.7% 0.265 303.9); --color-purple-600: oklch(55.8% 0.288 302.321);
+  --color-pink-500: oklch(65.6% 0.241 354.308); --color-pink-600: oklch(59.2% 0.249 0.584);
+}
+/* Окна поверх интерфейса: вместо чёрной тени — мягкая цвета чернил. */
+[data-theme="light"] [class*="shadow-["][class*="rgba(0,0,0"] { --tw-shadow-color: rgb(15 23 42 / 0.22); }
+/* Нижняя панель навигации: просто белая, с линией сверху — без тени, полупрозрачности и размытия подложки.
+   Замер на телефоне (Helio G99): с большой тенью у панели прокрутка под ней в светлой теме давала 11–19
+   опоздавших кадров из 135 (и с размытием, и без него), с непрозрачной панелью без тени — 0–3.
+   В тёмной теме у панели тени нет, размытие там на плавность не влияет и оставлено. */
+[data-theme="light"] .backdrop-blur-2xl.border-t {
+  backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none; background-color: #ffffff;
+}
+
+/* Ползунки переключателей остаются белыми (белый в светлой теме — цвет чернил). */
+[data-theme="light"] .bg-white { background-color: #ffffff; }
+/* Неоновое свечение текста на светлом фоне только размывает буквы. */
+[data-theme="light"] .neon-text-cyan { color: var(--accent); text-shadow: none; }
+[data-theme="light"] .neon-text-white-cyan { color: var(--text); text-shadow: none; }
 [data-theme="light"] .neon-text-purple { color: #7b00b0; text-shadow: none; }
-[data-theme="light"] .neon-text-green { color: #009951; text-shadow: none; }
-[data-theme="light"] .neon-border-cyan { border-color: #00c4d6; box-shadow: 0 1px 4px #00c4d622; }
+[data-theme="light"] .neon-text-green { color: #047857; text-shadow: none; }
+[data-theme="light"] .neon-border-cyan { border-color: var(--accent); box-shadow: 0 1px 4px var(--accent-a22); }
 [data-theme="light"] .neon-border-purple { border-color: #9b30ff; box-shadow: 0 1px 4px #9b30ff22; }
-[data-theme="light"] .grid-bg { background-image: linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px); }
+[data-theme="light"] .grid-bg { background-image: linear-gradient(rgb(15 23 42 / 0.03) 1px, transparent 1px), linear-gradient(90deg, rgb(15 23 42 / 0.03) 1px, transparent 1px); }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #2a2a5a; border-radius: 2px; }
-[data-theme="light"] ::-webkit-scrollbar-thumb { background: #c0c5cc; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #2a2a5a; border-radius: 2px; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #c0c5cc; }
 
 .scrollbar-none, .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-none::-webkit-scrollbar, .scrollbar-hide::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
-.glass-card { background: linear-gradient(135deg, rgba(18,18,42,0.8), rgba(26,26,58,0.6)); backdrop-filter: blur(20px); border: 1px solid rgba(42,42,90,0.5); }
+/* Без backdrop-filter: размытие подложки под каждой такой карточкой — отдельный проход отрисовки на каждый кадр,
+   а под карточками почти везде ровный фон, размывать нечего. */
+.glass-card { background: linear-gradient(135deg, rgba(18,18,42,0.8), rgba(26,26,58,0.6)); border: 1px solid rgba(42,42,90,0.5); box-shadow: var(--lift); }
+/* Кнопка-значок на нижнем крае медальона; --knob-color задаёт ConnectMedallion по состоянию соединения.
+   В тёмной теме кнопка тёмная, цветные только обводка и значок: неон сплошной заливкой на тёмном фоне режет глаза.
+   В светлой — залита цветом состояния, значок и ободок белые. */
+.medal-knob { background: var(--knob); border-color: var(--knob-color); color: var(--knob-color); }
+[data-theme="light"] .medal-knob { background: var(--knob-color); border-color: #ffffff; color: #ffffff; }
 .neon-text-cyan { color: var(--accent); text-shadow: 0 0 7px var(--accent), 0 0 15px var(--accent), 0 0 25px var(--accent-a44); }
 .neon-text-white-cyan { color: #ffffff; text-shadow: 0 0 7px var(--accent), 0 0 15px var(--accent), 0 0 25px var(--accent-a44); }
 .neon-text-green { color: #00ff88; text-shadow: 0 0 7px #00ff88, 0 0 15px #00ff88, 0 0 25px #00ff8844; }

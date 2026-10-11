@@ -13,8 +13,20 @@ export const ACCENT_ALPHAS = ['08', '10', '11', '12', '15', '20', '22', '33', '4
 export function accentVars(hex: string): Record<string, string> {
   const n = parseInt(hex.slice(1), 16);
   const vars: Record<string, string> = { '--accent': hex, '--accent-rgb': `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}` };
-  for (const a of ACCENT_ALPHAS) vars[`--accent-a${a}`] = hex + a;
+  for (const a of ACCENT_ALPHAS) vars[`--accent-a${a}`] = lightTheme && parseInt(a, 16) <= TINT_MAX_ALPHA ? pastel(hex, a) : hex + a;
   return vars;
+}
+
+// Слабые варианты акцента (до a22) — это подложки выбранных пунктов и значков. В светлой теме они непрозрачные:
+// цвет, смешанный с белым. Полупрозрачная плашка на светлом фоне выглядит грязно-серой, и под ней просвечивает тень.
+const TINT_MAX_ALPHA = 0x22;
+
+/** Пастель: цвет #rrggbb поверх белого с силой, заданной альфой hex2 (слегка усиленной, чтобы оттенок был виден). */
+function pastel(hex: string, hex2: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const a = Math.min(0.24, Math.max(0.07, (parseInt(hex2, 16) / 255) * 1.6));
+  const mix = (v: number) => Math.round(v * a + 255 * (1 - a)).toString(16).padStart(2, '0');
+  return `#${mix((n >> 16) & 255)}${mix((n >> 8) & 255)}${mix(n & 255)}`;
 }
 
 // ── Динамический акцент по времени суток ────────────────────────────────────
@@ -82,6 +94,64 @@ export function accentAtHour(hex: string, hour = new Date().getHours()): string 
   const [h, s, l] = hexToHsl(hex);
   return hslToHex(h + dH, s + dS, l + dL);
 }
+
+// ── Светлая тема ─────────────────────────────────────────────────────────────
+// Цвета интерфейса подобраны под тёмный фон: неоновый зелёный, жёлтый, циан на светлом фоне не читаются.
+// В светлой теме тот же тон затемняется до читаемого контраста.
+
+/** Фон светлой темы. Должен совпадать с --bg для [data-theme="light"] в index.css. */
+export const LIGHT_BG = '#f2f4f8';
+
+function linearChannel(v: number): number {
+  const c = v / 255;
+  return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+/** Относительная яркость цвета #rrggbb по WCAG: 0 — чёрный, 1 — белый. */
+export function luminance(hex: string): number {
+  const n = parseInt(hex.slice(1), 16);
+  return 0.2126 * linearChannel((n >> 16) & 255) + 0.7152 * linearChannel((n >> 8) & 255) + 0.0722 * linearChannel(n & 255);
+}
+
+/** Контраст двух цветов #rrggbb по WCAG: от 1 (одинаковые) до 21 (чёрный на белом). */
+export function contrast(a: string, b: string): number {
+  const la = luminance(a), lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/** Тот же тон и насыщенность, но достаточно тёмный, чтобы читаться на светлом фоне (контраст не ниже min). */
+export function readableOnLight(hex: string, min = 4.5): string {
+  if (contrast(hex, LIGHT_BG) >= min) return hex;
+  const [h, s, l] = hexToHsl(hex);
+  for (let light = Math.floor(l); light >= 0; light--) {
+    const candidate = hslToHex(h, s, light);
+    if (contrast(candidate, LIGHT_BG) >= min) return candidate;
+  }
+  return '#000000';
+}
+
+let lightTheme = false;
+const readableCache = new Map<string, string>();
+
+/** Сообщает утилитам цвета, какая тема включена. Вызывает ThemeContext до отрисовки интерфейса. */
+export function setLightTheme(on: boolean): void { lightTheme = on; }
+
+/**
+ * Цвет для текста, значков и тонких линий поверх фона темы: в тёмной теме — как есть, в светлой — затемнённый до
+ * читаемого. Понимает только #rrggbb; всё остальное (var(--accent), rgba(…)) возвращает без изменений — акцент
+ * ThemeContext затемняет сам. Результат остаётся #rrggbb, к нему можно дописывать альфу (withAlpha).
+ * min — нужный контраст: 4.5 для текста; для колец, значков и полос хватает GRAPHIC_CONTRAST — цвет остаётся ярче.
+ */
+export function onTheme(color: string, min = 4.5): string {
+  if (!lightTheme || !/^#[0-9a-fA-F]{6}$/.test(color)) return color;
+  const key = `${color}/${min}`;
+  let mapped = readableCache.get(key);
+  if (!mapped) { mapped = readableOnLight(color, min); readableCache.set(key, mapped); }
+  return mapped;
+}
+
+/** Контраст для графики (кольцо медальона, значки, полосы): по WCAG достаточно 3, текстовые 4.5 делают цвет тусклым. */
+export const GRAPHIC_CONTRAST = 3;
 
 export function withAlpha(color: string, hex2: string): string {
   if (typeof color === 'string' && color.includes('var(--accent')) {

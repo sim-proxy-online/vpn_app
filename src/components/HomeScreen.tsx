@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import ConnectMedallion from './ConnectMedallion';
 import Flag from './Flag';
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme } from '../utils/color';
 import { isAutoBypassEnabled } from '../utils/autoBypass';
 import { ConnectionState, ServerNode, Protocol } from '../types';
 import { VpnStats, nativePingNode } from '../native/bridge';
@@ -26,8 +26,7 @@ interface HomeScreenProps {
   connectedTime: number;
   hasNodes: boolean;
   // Серверов нет, потому что закончился пробный период: вместо «Добавить подписку» показываем ссылку на подписку.
-  
-  isDark: boolean;
+
   vpnError?: string | null;
   onClearVpnError?: () => void;
   stats?: VpnStats | null;
@@ -78,7 +77,7 @@ function Tile({ icon, label, value, sub, color, mono }: { icon: ReactNode; label
   return (
     <div className="rounded-2xl px-3.5 py-3 border border-white/[0.08] bg-white/[0.035] min-w-0">
       <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">{icon}<span>{label}</span></div>
-      <p className={`mt-1.5 text-[15px] font-bold text-white truncate ${mono ? 'font-orbitron tabular-nums' : ''}`} style={color ? { color } : undefined}>{value}</p>
+      <p className={`mt-1.5 text-[15px] font-bold text-white truncate ${mono ? 'font-orbitron tabular-nums' : ''}`} style={color ? { color: onTheme(color) } : undefined}>{value}</p>
       {sub && <p className="text-[11px] text-gray-400 truncate">{sub}</p>}
     </div>
   );
@@ -87,7 +86,7 @@ function Tile({ icon, label, value, sub, color, mono }: { icon: ReactNode; label
 export default function HomeScreen({
   connectionState, onToggle, selectedNode, nodes, onSelectNode,
   onGoToServers, onGoToProfiles, connectedTime, hasNodes,
-  isDark, vpnError, onClearVpnError, stats, onRestart, onShowLogs, bypassHint, hideServerDetails = false,
+  vpnError, onClearVpnError, stats, onRestart, onShowLogs, bypassHint, hideServerDetails = false,
   onOpenDiagnostics, shieldActive = false
 }: HomeScreenProps) {
   const isConnected = connectionState === 'connected';
@@ -173,7 +172,7 @@ export default function HomeScreen({
       {/* Верх: название и состояние */}
       <div className="relative z-10 flex flex-col items-center w-full max-w-md pt-3">
         <h1 className="text-[24px] leading-none font-extrabold tracking-tight">
-          <span className={isDark ? 'text-white' : 'text-slate-900'}>Квадрат </span>
+          <span className={'text-white'}>Квадрат </span>
           <span style={{ color: 'var(--accent)' }}>Петровича</span>
         </h1>
 
@@ -354,7 +353,7 @@ export default function HomeScreen({
                     <p className="text-[12px] font-medium text-gray-300 truncate min-w-0 flex-1">{selectedNode.description}</p>
                   ) : (
                     <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md bg-white/[0.06] border border-white/10 shrink-0"
-                      style={{ color: protoColor }}>
+                      style={{ color: onTheme(protoColor) }}>
                       {selectedNode.protocol.toUpperCase()}
                       {!hideServerDetails && selectedNode.security && selectedNode.security !== 'none' ? ` · ${selectedNode.security.toUpperCase()}` : ''}
                     </span>
@@ -380,7 +379,7 @@ export default function HomeScreen({
                   <div className="flex items-center gap-1.5" aria-hidden>
                     {nodes.map((n, i) => (
                       <span key={n.id} className="h-1.5 rounded-full transition-all duration-300"
-                        style={{ width: i === nodeIndex ? 18 : 6, background: i === nodeIndex ? 'var(--accent)' : 'rgba(255,255,255,0.2)' }} />
+                        style={{ width: i === nodeIndex ? 18 : 6, background: i === nodeIndex ? 'var(--accent)' : 'rgba(var(--ink-rgb),0.2)' }} />
                     ))}
                   </div>
                 ) : (

@@ -39,7 +39,6 @@ describe('HomeScreen ping', () => {
         onGoToProfiles={() => {}}
         connectedTime={0}
         hasNodes
-        isDark
       />
     );
   });

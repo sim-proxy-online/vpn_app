@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 import { ServerNode } from '../types';
 
 interface ServerMapProps {
@@ -11,16 +10,13 @@ interface ServerMapProps {
 }
 
 export default function ServerMap({ servers, selectedServer, onSelectServer }: ServerMapProps) {
-  const { isDark } = useTheme();
   const [hoveredServer, setHoveredServer] = useState<ServerNode | null>(null);
 
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]'
-    : 'bg-gradient-to-br from-[#e8f0ff] to-[#f0f2f5]';
+  const bgClass = 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]';
 
-  const borderClass = isDark ? 'border-[#2a2a5e]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
-  const labelClass = isDark ? 'text-[#9090b0]' : 'text-gray-500';
+  const borderClass = 'border-[#2a2a5e]';
+  const textClass = 'text-[#e0e0ff]';
+  const labelClass = 'text-[#9090b0]';
 
   // Simple map representation - list view with geographic grouping
   const groupedByCountry = servers.reduce((acc, server) => {
@@ -51,7 +47,7 @@ export default function ServerMap({ servers, selectedServer, onSelectServer }: S
             key={country}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className={`rounded-lg p-3 ${isDark ? 'bg-white/5' : 'bg-black/5'}`}
+            className={`rounded-lg p-3 bg-white/5`}
           >
             <div className={`text-sm font-semibold mb-2 ${textClass}`}>
               {country}
@@ -66,10 +62,10 @@ export default function ServerMap({ servers, selectedServer, onSelectServer }: S
                   onMouseLeave={() => setHoveredServer(null)}
                   className={`w-full flex items-center gap-2 px-3 py-2 rounded text-xs transition-all ${
                     selectedServer?.name === server.name
-                      ? isDark ? 'bg-blue-600/30 border border-blue-400' : 'bg-blue-100 border border-blue-400'
+                      ? 'bg-blue-600/30 border border-blue-400'
                       : hoveredServer?.name === server.name
-                      ? isDark ? 'bg-white/10' : 'bg-black/10'
-                      : isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-black/5 hover:bg-black/10'
+                      ? 'bg-white/10'
+                      : 'bg-white/5 hover:bg-white/10'
                   }`}
                   whileHover={{ x: 4 }}
                 >

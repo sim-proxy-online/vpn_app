@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme, GRAPHIC_CONTRAST } from '../utils/color';
 import { MOOD_COLOR, type Mood } from '../utils/mood';
 import { MascotDisc, MoodAccessories } from './MascotMood';
 
@@ -7,7 +7,7 @@ const RING_MASK = 'radial-gradient(farthest-side, transparent calc(100% - 3px), 
 
 /** Круглый портрет Петровича с настроением (то же, что на главной кнопке, но без кнопки). */
 export function Portrait({ mood, size, accessories = true }: { mood: Mood; size: number; accessories?: boolean }) {
-  const color = MOOD_COLOR[mood];
+  const color = onTheme(MOOD_COLOR[mood], GRAPHIC_CONTRAST);
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <span
@@ -17,7 +17,7 @@ export function Portrait({ mood, size, accessories = true }: { mood: Mood; size:
       />
       <span
         className="absolute inset-[5px] rounded-full overflow-hidden flex items-center justify-center"
-        style={{ background: 'radial-gradient(circle at 50% 35%, #1b2250 0%, #0c1030 70%)', boxShadow: `inset 0 0 28px ${withAlpha(color, '30')}, 0 10px 28px -8px #000000aa` }}
+        style={{ background: mood === 'cold' ? 'var(--medal-cold)' : 'var(--medal)', boxShadow: `inset 0 0 28px ${withAlpha(color, '30')}, var(--medal-drop)` }}
       >
         <MascotDisc mood={mood} color={color} />
       </span>
@@ -52,7 +52,7 @@ export function MascotNote({ mood, title, text }: { mood: Mood; title: string; t
     >
       <Portrait mood={mood} size={52} accessories={false} />
       <div className="min-w-0 text-left">
-        <p className="text-[14px] font-bold leading-tight" style={{ color }}>{title}</p>
+        <p className="text-[14px] font-bold leading-tight" style={{ color: onTheme(color) }}>{title}</p>
         {text && <p className="mt-1 text-[12px] leading-snug text-gray-300">{text}</p>}
       </div>
     </div>

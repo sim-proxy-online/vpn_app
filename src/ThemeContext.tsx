@@ -1,7 +1,15 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { accentVars, accentAtHour, dayPart, type DayPart } from './utils/color';
+import { createContext, useContext, useState, useEffect, useLayoutEffect, ReactNode } from 'react';
+import { accentVars, accentAtHour, dayPart, readableOnLight, setLightTheme, LIGHT_BG, type DayPart } from './utils/color';
 
-type Theme = 'dark' | 'light';
+export type Theme = 'dark' | 'light';
+
+const THEME_KEY = 'sim-theme';
+const DARK_BG = '#0a0a1a';
+
+/** Сохранённая тема; по умолчанию и при любом другом значении — тёмная. */
+function storedTheme(): Theme {
+  try { return localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark'; } catch { return 'dark'; }
+}
 
 export const DEFAULT_ACCENT = '#00f0ff';
 
@@ -27,9 +35,14 @@ function normalizeHex(hex: string): string {
   return /^#[0-9a-fA-F]{6}$/.test(h) ? h.toLowerCase() : DEFAULT_ACCENT;
 }
 
-function applyAccent(hex: string) {
+/**
+ * Акцент подобран под тёмный фон (неоновый циан, жёлтый…). В светлой теме берётся тот же тон темнее, чтобы им можно
+ * было писать текст на светлом фоне; чёрный текст на заливке этим цветом тоже остаётся читаемым.
+ */
+function applyAccent(hex: string, theme: Theme) {
   const root = document.documentElement;
-  for (const [name, value] of Object.entries(accentVars(normalizeHex(hex)))) root.style.setProperty(name, value);
+  const color = theme === 'light' ? readableOnLight(normalizeHex(hex)) : normalizeHex(hex);
+  for (const [name, value] of Object.entries(accentVars(color))) root.style.setProperty(name, value);
 }
 
 /** Эффективный (с учётом времени суток) акцент — то, что реально применяется. */
@@ -39,6 +52,7 @@ function effectiveAccent(base: string, auto: boolean, hour = new Date().getHours
 
 interface ThemeContextType {
   theme: Theme;
+  setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
   isDark: boolean;
   accent: string;
@@ -53,6 +67,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'dark',
+  setTheme: () => {},
   toggleTheme: () => {},
   isDark: true,
   accent: DEFAULT_ACCENT,
@@ -64,8 +79,10 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const theme: Theme = 'dark';
-  const isDark = true;
+  const [theme, setTheme] = useState<Theme>(storedTheme);
+  const isDark = theme === 'dark';
+  // До отрисовки потомков: цвета, которые компоненты считают сами (onTheme), должны сразу соответствовать теме.
+  setLightTheme(!isDark);
 
   const [accent, setAccentState] = useState<string>(() => {
     try { return normalizeHex(localStorage.getItem('sim-accent') || DEFAULT_ACCENT); } catch { return DEFAULT_ACCENT; }
@@ -75,44 +92,45 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   });
   const [now, setNow] = useState<number>(() => Date.now());
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    document.body.style.background = '#0a0a1a';
-    document.body.style.colorScheme = 'dark';
+  // Тему применяем до отрисовки кадра, чтобы интерфейс не мигал прежней.
+  useLayoutEffect(() => {
+    const background = isDark ? DARK_BG : LIGHT_BG;
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.style.background = background;
+    document.body.style.colorScheme = theme;
 
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     const metaBarStyle = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-    if (metaTheme) metaTheme.setAttribute('content', '#0a0a1a');
-    if (metaBarStyle) metaBarStyle.setAttribute('content', 'black-translucent');
+    if (metaTheme) metaTheme.setAttribute('content', background);
+    if (metaBarStyle) metaBarStyle.setAttribute('content', isDark ? 'black-translucent' : 'default');
 
-    try { localStorage.setItem('sim-theme', 'dark'); } catch {}
-  }, []);
+    try { localStorage.setItem(THEME_KEY, theme); } catch {}
+  }, [theme, isDark]);
 
   useEffect(() => {
-    applyAccent(accent);
     try { localStorage.setItem('sim-accent', accent); } catch {}
   }, [accent]);
 
-  // Авто-акцент по времени суток: применяем эффективный цвет и раз в минуту
-  // проверяем, не сменился ли час (на границе суток цвет плавно меняется).
-  useEffect(() => {
-    if (!accentAuto) { applyAccent(accent); return; }
-    applyAccent(effectiveAccent(accent, true, new Date(now).getHours()));
+  // Акцент зависит от темы (в светлой он темнее) и, если включено, от времени суток: применяем эффективный цвет
+  // и раз в минуту проверяем, не сменился ли час (на границе суток цвет плавно меняется).
+  useLayoutEffect(() => {
+    if (!accentAuto) { applyAccent(accent, theme); return; }
+    applyAccent(effectiveAccent(accent, true, new Date(now).getHours()), theme);
     const timer = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(timer);
-  }, [accentAuto, accent, now]);
+  }, [accentAuto, accent, now, theme]);
 
   useEffect(() => {
     try { localStorage.setItem('sim-accent-auto', accentAuto ? '1' : '0'); } catch {}
   }, [accentAuto]);
 
-  const toggleTheme = () => {};
+  const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
   const setAccent = (hex: string) => setAccentState(normalizeHex(hex));
   const resetAccent = () => setAccentState(DEFAULT_ACCENT);
   const setAccentAuto = (on: boolean) => setAccentAutoState(on);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark, accent, setAccent, resetAccent, accentAuto, setAccentAuto, dayPart: dayPart(new Date(now).getHours()) }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isDark, accent, setAccent, resetAccent, accentAuto, setAccentAuto, dayPart: dayPart(new Date(now).getHours()) }}>
       {children}
     </ThemeContext.Provider>
   );

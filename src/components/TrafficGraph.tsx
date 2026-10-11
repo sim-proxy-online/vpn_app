@@ -42,7 +42,7 @@ export default function TrafficGraph({ uploadSpeed, downloadSpeed, isRunning }: 
       ctx.clearRect(0, 0, width, height);
 
       // Grid lines
-      ctx.strokeStyle = isDark ? '#2a2a5a33' : '#d0d8e033';
+      ctx.strokeStyle = isDark ? '#2a2a5a33' : '#0f172a1a';
       ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
         const y = padding + (graphHeight / 4) * i;

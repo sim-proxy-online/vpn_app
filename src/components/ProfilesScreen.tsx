@@ -9,7 +9,7 @@ import { fetchSubscription } from '../utils/subscriptionFetch';
 import { stripLeadingEmoji } from '../utils/nodeName';
 import { MascotScene } from './MascotScene';
 import { SUBSCRIPTION_URL } from '../utils/constants';
-import { accentVars, withAlpha } from '../utils/color';
+import { accentVars, withAlpha, onTheme } from '../utils/color';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Globe, Trash2, RefreshCw,
@@ -470,11 +470,11 @@ export default function ProfilesScreen({
             <motion.div key={profile.id}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               // Фирменный цвет провайдера (color-profile): всё внутри карточки, что берёт var(--accent), красится им
-              style={profile.managed?.accent ? accentVars(profile.managed.accent) as React.CSSProperties : undefined}
+              style={profile.managed?.accent ? accentVars(onTheme(profile.managed.accent)) as React.CSSProperties : undefined}
             >
               {/* Gradient border wrapper */}
               <div className="p-[1px] rounded-[20px] bg-[var(--accent)]/15 shadow-[0_0_14px_rgba(var(--accent-rgb),0.05)]">
-              <div className="rounded-[19px] overflow-hidden" style={{ background: 'linear-gradient(135deg, #0e1e30 0%, #080d18 60%)' }}>
+              <div className="rounded-[19px] overflow-hidden" style={{ background: 'var(--card-profile)' }}>
               {/* Card Main */}
               <div className="p-5">
                 {/* Header */}
@@ -482,7 +482,7 @@ export default function ProfilesScreen({
                   className="flex items-center gap-4 mb-5 cursor-pointer"
                   onClick={() => { if (!profile.managed?.alwaysExpanded) setExpandedProfileId(expandedProfileId === profile.id ? null : profile.id); }}
                 >
-                  <div className="w-[62px] h-[62px] rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(145deg, #152035, #0c1525)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div className="w-[62px] h-[62px] rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'var(--tile-navy)', border: '1px solid rgba(var(--ink-rgb),0.07)' }}>
                     {profile.url
                       ? <Globe size={30} strokeWidth={1.4} className="text-[var(--accent)]" style={{ filter: 'drop-shadow(0 0 4px var(--accent-a44))', opacity: 0.85 }} />
                       : <Database size={28} className="text-[var(--accent)]" strokeWidth={1.8} />}
@@ -496,7 +496,7 @@ export default function ProfilesScreen({
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border" style={{ background: 'rgba(0,0,0,0.4)', borderColor: 'rgba(255,255,255,0.08)' }}>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border" style={{ background: 'var(--well)', borderColor: 'rgba(var(--ink-rgb),0.08)' }}>
                       <div className={`w-2 h-2 rounded-full ${
                         profile.status === 'healthy' ? 'bg-[#00e676]' :
                         profile.status === 'expired' ? 'bg-[#ff4444]' :
@@ -526,7 +526,7 @@ export default function ProfilesScreen({
                   return (
                   <div className="mb-5 space-y-3">
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(var(--ink-rgb),0.03)', border: '1px solid rgba(var(--ink-rgb),0.06)' }}>
                         <div className="flex items-center gap-1.5 mb-2">
                           <Activity size={11} className="text-gray-500" />
                           <span className="text-[8px] font-bold uppercase tracking-widest text-gray-500">Трафик</span>
@@ -535,7 +535,7 @@ export default function ProfilesScreen({
                           {formatBytes(profile.traffic.download + profile.traffic.upload)} / {profile.traffic.total > 0 ? formatBytes(profile.traffic.total) : '∞'}
                         </p>
                       </div>
-                      <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div className="p-3.5 rounded-2xl" style={{ background: 'rgba(var(--ink-rgb),0.03)', border: '1px solid rgba(var(--ink-rgb),0.06)' }}>
                         <div className="flex items-center gap-1.5 mb-2">
                           <Calendar size={11} className="text-gray-500" />
                           <span className="text-[8px] font-bold uppercase tracking-widest text-gray-500">Истекает</span>
@@ -546,7 +546,7 @@ export default function ProfilesScreen({
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <div className="h-[6px] w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <div className="h-[6px] w-full rounded-full overflow-hidden" style={{ background: 'rgba(var(--ink-rgb),0.05)' }}>
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${barPct}%` }}
@@ -614,7 +614,7 @@ export default function ProfilesScreen({
                   <button
                     onClick={() => { setEditingProfile(profile); setScreen('edit-profile'); }}
                     className="p-2.5 rounded-2xl text-gray-400 active:scale-95 transition-all"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ background: 'rgba(var(--ink-rgb),0.04)', border: '1px solid rgba(var(--ink-rgb),0.08)' }}
                   >
                     <Settings size={15} />
                   </button>
@@ -622,7 +622,7 @@ export default function ProfilesScreen({
                     <button
                       onClick={() => nativeOpenUrl(profile.supportUrl!)}
                       className="p-2.5 rounded-2xl text-gray-400 active:scale-95 transition-all"
-                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                      style={{ background: 'rgba(var(--ink-rgb),0.04)', border: '1px solid rgba(var(--ink-rgb),0.08)' }}
                     >
                       <Globe size={15} />
                     </button>
@@ -661,7 +661,7 @@ export default function ProfilesScreen({
                         const hidden = settingsHidden(profile);
                         const ping = pingMap[node.id];
                         const isPinging = pingingSet.has(node.id);
-                        const pColor = pingColor(ping);
+                        const pColor = onTheme(pingColor(ping));
 
                         return (
                           <button
@@ -755,8 +755,7 @@ export default function ProfilesScreen({
           <div className="fixed inset-0 z-[100] flex items-end justify-center">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setScreen('list')} className="absolute inset-0 bg-black/70 backdrop-blur-md" />
             <motion.div
-              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="w-full max-w-lg bg-[#0d0d1f] border-t border-white/10 rounded-t-[40px] p-8 pb-12 z-[101] shadow-2xl"
+              className="slide-in-up w-full max-w-lg bg-[#0d0d1f] border-t border-white/10 rounded-t-[40px] p-8 pb-12 z-[101] shadow-2xl"
             >
               <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-10" />
               <h2 className="text-xl font-black text-white mb-8 uppercase italic tracking-tight">Добавить серверы</h2>
@@ -847,8 +846,7 @@ export default function ProfilesScreen({
           const allEntries = [...tab.domains.map((v: string) => ({ v, key: tab.domainKey })), ...tab.ips.map((v: string) => ({ v, key: tab.ipKey }))];
           return (
             <motion.div
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 200 }}
-              className="fixed inset-0 z-[160] bg-[#0a0a1a] flex flex-col"
+              className="slide-in-right fixed inset-0 z-[160] bg-[#0a0a1a] flex flex-col"
             >
               <header className="px-4 pt-12 pb-4 flex items-center gap-3 border-b border-white/5 shrink-0">
                 <button onClick={() => setScreen('edit-profile')} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 active:scale-90">
@@ -865,8 +863,8 @@ export default function ProfilesScreen({
                   <button key={t.id} onClick={() => setRoutingTab(t.id)}
                     className="flex-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
                     style={routingTab === t.id
-                      ? { background: `${t.color}20`, border: `1px solid ${t.color}40`, color: t.color }
-                      : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#6b7280' }}>
+                      ? { background: `${t.color}20`, border: `1px solid ${t.color}40`, color: onTheme(t.color) }
+                      : { background: 'rgba(var(--ink-rgb),0.03)', border: '1px solid rgba(var(--ink-rgb),0.08)', color: '#6b7280' }}>
                     {t.label} <span className="opacity-60">({t.domains.length + t.ips.length})</span>
                   </button>
                 ))}
@@ -895,7 +893,7 @@ export default function ProfilesScreen({
                   <div key={`${key}-${idx}`} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/5">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-[7px] font-black uppercase px-1.5 py-0.5 rounded border"
-                        style={isIpEntry(v) ? { color: '#f59e0b', borderColor: '#f59e0b40', background: '#f59e0b10' } : { color: '#60a5fa', borderColor: '#60a5fa40', background: '#60a5fa10' }}>
+                        style={isIpEntry(v) ? { color: onTheme('#f59e0b'), borderColor: '#f59e0b40', background: '#f59e0b10' } : { color: onTheme('#60a5fa'), borderColor: '#60a5fa40', background: '#60a5fa10' }}>
                         {isIpEntry(v) ? 'IP' : 'DOM'}
                       </span>
                       <span className="text-[11px] font-mono text-gray-300 truncate">{v}</span>
@@ -927,8 +925,7 @@ export default function ProfilesScreen({
       <AnimatePresence>
         {screen === 'edit-profile' && editingProfile && (
           <motion.div
-            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 200 }}
-            className="fixed inset-0 z-[150] bg-[#0a0a1a] flex flex-col"
+            className="slide-in-right fixed inset-0 z-[150] bg-[#0a0a1a] flex flex-col"
           >
             <header className="px-4 pt-12 pb-4 flex items-center justify-between border-b border-white/5">
               <div className="flex items-center gap-3">
@@ -970,7 +967,7 @@ export default function ProfilesScreen({
                     <span
                       className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border"
                       style={{
-                        color: PANEL_META[editingProfile.panelType as PanelType].color,
+                        color: onTheme(PANEL_META[editingProfile.panelType as PanelType].color),
                         borderColor: `${withAlpha(PANEL_META[editingProfile.panelType as PanelType].color, '40')}`,
                         background: `${withAlpha(PANEL_META[editingProfile.panelType as PanelType].color, '15')}`,
                       }}
@@ -1050,7 +1047,7 @@ export default function ProfilesScreen({
                   <div className="p-6 rounded-2xl bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center justify-center gap-3 text-center">
                     <Route size={24} className="text-gray-700" />
                     <p className="text-[9px] font-black uppercase tracking-widest text-gray-600">Нет профиля маршрутизации</p>
-                    <p className="text-[8px] text-gray-700">Импортируй через sim://routing/add/... или happ://routing/add/...</p>
+                    <p className="text-[8px] text-gray-500">Импортируй через sim://routing/add/... или happ://routing/add/...</p>
                   </div>
                 )}
               </section>

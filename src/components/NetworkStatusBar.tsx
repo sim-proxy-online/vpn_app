@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wifi, WifiOff, Smartphone, Zap } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 import { nativeGetCurrentNetwork, nativeGetNetworkInfo, nativeIsNetworkAvailable } from '../native/bridge';
 
 export default function NetworkStatusBar() {
-  const { isDark } = useTheme();
   const [networkType, setNetworkType] = useState<string>('NONE');
   const [networkInfo, setNetworkInfo] = useState<string>('');
   const [isAvailable, setIsAvailable] = useState(false);
@@ -64,8 +62,8 @@ export default function NetworkStatusBar() {
   };
 
   const color = getNetworkColor();
-  const bgClass = isDark ? 'bg-white/5' : 'bg-black/5';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
+  const bgClass = 'bg-white/5';
+  const textClass = 'text-[#e0e0ff]';
 
   return (
     <motion.div

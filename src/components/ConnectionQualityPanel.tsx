@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { withAlpha } from '../utils/color';
 import { motion } from 'framer-motion';
 import { TrendingDown, Activity } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 import { nativeGetConnectionQuality, nativeMeasurePing, ConnectionQuality } from '../native/bridge';
 
 interface ConnectionQualityPanelProps {
@@ -16,7 +15,6 @@ export default function ConnectionQualityPanel({
   testServer = '8.8.8.8',
   testPort = 443,
 }: ConnectionQualityPanelProps) {
-  const { isDark } = useTheme();
   const [quality, setQuality] = useState<ConnectionQuality | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -74,12 +72,10 @@ export default function ConnectionQualityPanel({
     return labels[qualityLevel] || 'Неизвестно';
   };
 
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]'
-    : 'bg-gradient-to-br from-[#e8f0ff] to-[#f0f2f5]';
-  const borderClass = isDark ? 'border-[#2a2a5e]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
-  const labelClass = isDark ? 'text-[#9090b0]' : 'text-gray-500';
+  const bgClass = 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]';
+  const borderClass = 'border-[#2a2a5e]';
+  const textClass = 'text-[#e0e0ff]';
+  const labelClass = 'text-[#9090b0]';
 
   if (!isConnected || !quality) {
     return (
@@ -179,8 +175,6 @@ export default function ConnectionQualityPanel({
         className={`w-full py-2 rounded-lg text-sm font-semibold transition-all ${
           loading
             ? 'bg-white/10 text-gray-500 cursor-not-allowed'
-            : isDark
-            ? 'bg-gradient-to-r from-[var(--accent)] to-[#00ff88] text-black hover:shadow-lg'
             : 'bg-gradient-to-r from-[var(--accent)] to-[#00ff88] text-black hover:shadow-lg'
         }`}
         style={loading ? {} : { boxShadow: '0 0 20px rgba(var(--accent-rgb),0.3)' }}

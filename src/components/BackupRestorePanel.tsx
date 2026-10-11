@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Download, Upload, Lock, X, KeyRound, Check } from 'lucide-react';
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme } from '../utils/color';
 import {
   exportBackup, pickTextFile, applyBackup, decryptBackup,
   isEncryptedBackup, type BackupPayload,
@@ -14,7 +14,7 @@ function ActionRow({ icon, iconColor, label, desc, onClick }: {
   return (
     <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#ffffff03] transition-colors text-left">
       <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{ background: withAlpha(iconColor, '10'), color: iconColor }}>{icon}</div>
+        style={{ background: withAlpha(iconColor, '10'), color: onTheme(iconColor) }}>{icon}</div>
       <div className="flex-1 min-w-0">
         <p className="text-white text-[13px] font-medium leading-tight">{label}</p>
         <p className="text-gray-500 text-[10px] mt-0.5 leading-tight">{desc}</p>

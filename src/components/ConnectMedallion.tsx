@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Power, Check, Loader2 } from 'lucide-react';
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme, GRAPHIC_CONTRAST } from '../utils/color';
 import { ConnectionState } from '../types';
 import { MOOD_COLOR, moodFor, type Mood } from '../utils/mood';
 import { MascotDisc, MoodAccessories } from './MascotMood';
@@ -55,6 +55,8 @@ export default function ConnectMedallion({ state, onToggle, hint, error = false 
   const mood = moodFor(state, error);
   const isConfused = mood === 'confused';
   const color = stateColor(state, mood);
+  // Кольцо, радар и кнопка-значок: в светлой теме тот же тон темнее, иначе жёлтый и зелёный теряются на светлом фоне.
+  const paint = onTheme(color, GRAPHIC_CONTRAST);
   const text = isConfused ? TEXT_ERROR : TEXT[state];
 
   const handleClick = () => {
@@ -66,7 +68,7 @@ export default function ConnectMedallion({ state, onToggle, hint, error = false 
   };
 
   const ringBackground = isConnected || isProcessing || isConfused
-    ? `conic-gradient(from 0deg, ${color}, ${withAlpha(color, isConfused ? '66' : '22')} 35%, ${color} 70%, ${withAlpha(color, isConfused ? '66' : '22')} 100%)`
+    ? `conic-gradient(from 0deg, ${paint}, ${withAlpha(paint, isConfused ? '66' : '22')} 35%, ${paint} 70%, ${withAlpha(paint, isConfused ? '66' : '22')} 100%)`
     : `conic-gradient(from 210deg, ${BRAND_GOLD}, ${BRAND_BLUE}, var(--accent), ${BRAND_GOLD})`;
 
   return (
@@ -82,8 +84,8 @@ export default function ConnectMedallion({ state, onToggle, hint, error = false 
         {/* Радар: пока идёт запуск, от медальона расходятся кольца */}
         {isProcessing && (
           <>
-            <span aria-hidden className="absolute inset-0 rounded-full border-2 pointer-events-none sim-radar" style={{ borderColor: withAlpha(color, '99') }} />
-            <span aria-hidden className="absolute inset-0 rounded-full border-2 pointer-events-none sim-radar" style={{ borderColor: withAlpha(color, '99'), animationDelay: '1.2s' }} />
+            <span aria-hidden className="absolute inset-0 rounded-full border-2 pointer-events-none sim-radar" style={{ borderColor: withAlpha(paint, '99') }} />
+            <span aria-hidden className="absolute inset-0 rounded-full border-2 pointer-events-none sim-radar" style={{ borderColor: withAlpha(paint, '99'), animationDelay: '1.2s' }} />
           </>
         )}
 
@@ -104,26 +106,24 @@ export default function ConnectMedallion({ state, onToggle, hint, error = false 
           <span
             className="absolute inset-[9px] rounded-full overflow-hidden flex items-center justify-center"
             style={{
-              background: `radial-gradient(circle at 50% 35%, #1b2250 0%, #0c1030 70%)`,
+              background: mood === 'cold' ? 'var(--medal-cold)' : 'var(--medal)',
               boxShadow: mood === 'cold'
-                ? 'inset 0 0 42px rgba(140,200,255,0.30), 0 14px 40px -10px #000000aa'
-                : `inset 0 0 36px ${withAlpha(color, isConnected || isConfused ? '40' : '18')}, 0 14px 40px -10px #000000aa`,
+                ? 'inset 0 0 42px rgba(140,200,255,0.30), var(--medal-drop)'
+                : `inset 0 0 36px ${withAlpha(color, isConnected || isConfused ? '40' : '18')}, var(--medal-drop)`,
             }}
           >
-            <MascotDisc mood={mood} color={color} />
+            <MascotDisc mood={mood} color={paint} />
           </span>
 
           {/* Приметы настроения за пределами круга: облачко мысли, вопрос с каплей, «брр» */}
-          <MoodAccessories mood={mood} color={mood === 'thinking' ? color : MOOD_COLOR[mood]} />
+          <MoodAccessories mood={mood} color={mood === 'thinking' ? paint : MOOD_COLOR[mood]} />
 
-          {/* Кнопка-значок на нижнем крае кольца */}
+          {/* Кнопка-значок на нижнем крае кольца (цвета — .medal-knob в index.css) */}
           <span
-            className="absolute left-1/2 -bottom-4 -translate-x-1/2 w-[58px] h-[58px] rounded-full flex items-center justify-center border-[3px]"
+            className="medal-knob absolute left-1/2 -bottom-4 -translate-x-1/2 w-[58px] h-[58px] rounded-full flex items-center justify-center border-[3px]"
             style={{
-              background: '#0a0a1a',
-              borderColor: color,
-              color,
-              boxShadow: `0 0 22px ${withAlpha(color, '66')}, 0 6px 16px #000000aa`,
+              ['--knob-color' as string]: paint,
+              boxShadow: `0 0 22px ${withAlpha(color, '66')}, var(--knob-drop)`,
             }}
           >
             {isProcessing ? <Loader2 size={24} className="animate-spin" /> : isConnected ? <Check size={26} strokeWidth={3} /> : <Power size={25} strokeWidth={2.4} />}
@@ -132,7 +132,7 @@ export default function ConnectMedallion({ state, onToggle, hint, error = false 
       </div>
 
       <div className="text-center z-10 max-w-[300px] min-h-[64px] pt-2">
-        <p className="text-[26px] leading-none font-extrabold tracking-tight" style={{ color }}>
+        <p className="text-[26px] leading-none font-extrabold tracking-tight" style={{ color: onTheme(color) }}>
           {text.title}
         </p>
         <p className="mt-2 text-[13px] leading-snug text-gray-300">

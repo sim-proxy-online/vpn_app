@@ -134,9 +134,7 @@ export default function BatteryPermSheet({ onDone, trigger = 'reactive' }: Props
       />
 
       <motion.div
-        initial={{ y: '100%' }} animate={{ y: 0 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="relative w-full max-w-md mx-auto rounded-t-3xl bg-[#0e0e1e] border-t border-x border-white/10 px-6 pt-5 pb-[calc(32px+env(safe-area-inset-bottom,0px))]"
+        className="slide-in-up relative w-full max-w-md mx-auto rounded-t-3xl bg-[#0e0e1e] border-t border-x border-white/10 px-6 pt-5 pb-[calc(32px+env(safe-area-inset-bottom,0px))]"
       >
         {/* Ручка */}
         <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-6" />

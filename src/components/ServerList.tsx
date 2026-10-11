@@ -8,7 +8,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { nativeWarmupCore, startPingBatch } from '../native/bridge';
 import { settingsHidden } from '../utils/profileView';
 import { stripLeadingEmoji } from '../utils/nodeName';
-import { accentVars } from '../utils/color';
+import { accentVars, onTheme } from '../utils/color';
 import Flag from './Flag';
 import PingPill from './PingPill';
 import { MascotScene } from './MascotScene';
@@ -44,10 +44,10 @@ function loadBarColor(pct: number): string {
 
 function securityBadgeStyle(sec: string): { bg: string; color: string; border: string } {
   switch (sec.toLowerCase()) {
-    case 'reality': return { bg: '#00ff8818', color: '#00d974', border: '#00ff8840' };
-    case 'tls':     return { bg: '#2d7dff18', color: '#5599ff', border: '#2d7dff40' };
-    case 'xtls':    return { bg: '#b000ff18', color: '#c84fff', border: '#b000ff40' };
-    default:        return { bg: '#ffffff10', color: '#888',    border: '#ffffff20' };
+    case 'reality': return { bg: '#00ff8818', color: onTheme('#00d974'), border: '#00ff8840' };
+    case 'tls':     return { bg: '#2d7dff18', color: onTheme('#5599ff'), border: '#2d7dff40' };
+    case 'xtls':    return { bg: '#b000ff18', color: onTheme('#c84fff'), border: '#b000ff40' };
+    default:        return { bg: 'rgba(var(--ink-rgb),0.063)', color: onTheme('#888888'), border: 'rgba(var(--ink-rgb),0.125)' };
   }
 }
 
@@ -180,29 +180,29 @@ export default function ServerList({
   }, [displayNodes, pingResults]);
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden" style={{ background: '#07071a' }}>
+    <div className="flex flex-col h-full w-full overflow-hidden" style={{ background: 'var(--bg-deep)' }}>
 
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-12 pb-4 shrink-0">
         <button onClick={onBack} className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center border border-white/10 text-[var(--accent)] active:scale-90 transition-all shrink-0"
-          style={{ background: 'rgba(255,255,255,0.05)' }}>
+          style={{ background: 'rgba(var(--ink-rgb),0.05)' }}>
           <ArrowLeft size={20} />
         </button>
         <h2 className="font-orbitron text-white text-[18px] font-bold tracking-wide flex-1">Серверы</h2>
         <div className="relative">
           <button onClick={() => setShowBatchMenu(!showBatchMenu)}
             className="w-10 h-10 rounded-xl flex items-center justify-center border border-white/10 text-gray-400 active:scale-90 transition-all"
-            style={{ background: 'rgba(255,255,255,0.05)' }}>
+            style={{ background: 'rgba(var(--ink-rgb),0.05)' }}>
             <MoreVertical size={17} />
           </button>
           <AnimatePresence>
             {showBatchMenu && (
               <motion.div initial={{ opacity: 0, scale: 0.9, y: 5 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 5 }}
                 className="absolute right-0 top-11 w-52 rounded-2xl p-1.5 z-[60] shadow-2xl"
-                style={{ background: '#12122a', border: '1px solid #2a2a5a55' }}>
+                style={{ background: 'var(--surface)', border: '1px solid var(--line-strong)' }}>
                 <button onClick={() => { setShowOnlyWorking(!showOnlyWorking); setShowBatchMenu(false); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-xs transition-colors"
-                  style={{ color: showOnlyWorking ? 'var(--accent)' : '#cdd5e0' }}>
+                  style={{ color: showOnlyWorking ? 'var(--accent)' : onTheme('#cdd5e0') }}>
                   {showOnlyWorking ? <Eye size={14} /> : <EyeOff size={14} />}
                   {showOnlyWorking ? 'Все серверы' : 'Только рабочие'}
                 </button>
@@ -225,7 +225,7 @@ export default function ServerList({
       <div className="px-4 pb-3 grid grid-cols-2 gap-2.5 shrink-0">
         <button onClick={selectFastest} disabled={autoPicking}
           className="flex items-center gap-2.5 px-3 py-3 rounded-2xl transition-all active:scale-[0.97]"
-          style={{ background: 'linear-gradient(135deg, #0d2a18, #0a2015)', border: '1px solid rgba(0,232,122,0.2)' }}>
+          style={{ background: 'var(--tile-green)', border: '1px solid rgba(0,232,122,0.2)' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
             style={{ background: 'rgba(0,232,122,0.15)', border: '1px solid rgba(0,232,122,0.25)' }}>
             <Zap size={16} fill="currentColor" className={`text-[#00e87a] ${autoPicking ? 'animate-pulse' : ''}`} />
@@ -239,7 +239,7 @@ export default function ServerList({
         </button>
         <button onClick={isPingAll ? stopPing : pingAll}
           className="flex items-center gap-2.5 px-3 py-3 rounded-2xl transition-all active:scale-[0.97]"
-          style={{ background: 'linear-gradient(135deg, #0a1e2e, #081828)', border: '1px solid rgba(var(--accent-rgb),0.2)' }}>
+          style={{ background: 'var(--tile-accent)', border: '1px solid rgba(var(--accent-rgb),0.2)' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
             style={{ background: 'rgba(var(--accent-rgb),0.12)', border: '1px solid rgba(var(--accent-rgb),0.25)' }}>
             <RefreshCw size={16} className={`text-[var(--accent)] ${isPingAll ? 'animate-spin' : ''}`} />
@@ -258,10 +258,10 @@ export default function ServerList({
       {/* Auto-switch toggle */}
       <div className="px-4 pb-3 shrink-0">
         <div className="flex items-center justify-between px-4 py-3 rounded-2xl"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          style={{ background: 'rgba(var(--ink-rgb),0.03)', border: '1px solid rgba(var(--ink-rgb),0.07)' }}>
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: autoSwitch ? 'rgba(var(--accent-rgb),0.15)' : 'rgba(255,255,255,0.06)' }}>
+              style={{ background: autoSwitch ? 'rgba(var(--accent-rgb),0.15)' : 'rgba(var(--ink-rgb),0.06)' }}>
               <ArrowLeftRight size={14} className={autoSwitch ? 'text-[var(--accent)]' : 'text-gray-500'} />
             </div>
             <div>
@@ -271,7 +271,7 @@ export default function ServerList({
           </div>
           <button onClick={() => onAutoSwitchChange?.(!autoSwitch)}
             className="w-11 h-6 rounded-full relative flex items-center px-0.5 transition-all shrink-0"
-            style={{ background: autoSwitch ? 'var(--accent)' : '#2a2a4a' }}>
+            style={{ background: autoSwitch ? 'var(--accent)' : 'var(--track)' }}>
             <div className="absolute transition-all duration-200 w-5 h-5 bg-white rounded-full shadow-sm"
               style={{ left: autoSwitch ? 'calc(100% - 22px)' : '2px' }} />
           </button>
@@ -293,8 +293,8 @@ export default function ServerList({
                 }`}
                 style={{
                   // Фирменный цвет провайдера (color-profile) красит выбранную вкладку его подписки
-                  ...(p.managed?.accent ? accentVars(p.managed.accent) : {}),
-                  ...(p.id !== localProfileId ? { background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' } : {}),
+                  ...(p.managed?.accent ? accentVars(onTheme(p.managed.accent)) : {}),
+                  ...(p.id !== localProfileId ? { background: 'rgba(var(--ink-rgb),0.04)', borderColor: 'rgba(var(--ink-rgb),0.1)' } : {}),
                 } as React.CSSProperties}
               >
                 {p.name}
@@ -332,23 +332,23 @@ export default function ServerList({
               return (
                 <div
                   key={node.id}
-                  className="rounded-2xl overflow-hidden"
+                  className="server-card rounded-2xl overflow-hidden"
                   style={{
                     background: isActive
-                      ? 'linear-gradient(135deg, rgba(var(--accent-rgb),0.08), rgba(18,18,42,0.9))'
+                      ? 'linear-gradient(135deg, rgba(var(--accent-rgb),0.08), rgba(var(--surface-rgb),0.9))'
                       : isSelected
-                      ? 'linear-gradient(135deg, rgba(var(--accent-rgb),0.05), rgba(18,18,42,0.8))'
-                      : 'rgba(255,255,255,0.03)',
+                      ? 'linear-gradient(135deg, rgba(var(--accent-rgb),0.05), rgba(var(--surface-rgb),0.8))'
+                      : 'rgba(var(--ink-rgb),0.03)',
                     border: `1px solid ${
                       isActive
                         ? 'rgba(var(--accent-rgb),0.35)'
                         : pingState.status === 'ok'
-                        ? 'rgba(0,232,122,0.40)'
+                        ? 'var(--ok-line)'
                         : pingState.status === 'fail'
-                        ? 'rgba(255,59,92,0.45)'
+                        ? 'var(--bad-line)'
                         : isSelected
                         ? 'rgba(var(--accent-rgb),0.18)'
-                        : 'rgba(255,255,255,0.07)'
+                        : 'rgba(var(--ink-rgb),0.07)'
                     }`,
                   }}
                   onClick={() => { onSelect(node); if (!isConnected) onBack(); }}
@@ -360,9 +360,9 @@ export default function ServerList({
                       style={{
                         background: isActive
                           ? 'rgba(var(--accent-rgb),0.12)'
-                          : 'rgba(255,255,255,0.06)',
+                          : 'rgba(var(--ink-rgb),0.06)',
                       }}>
-                      <Flag flag={node.flag} name={node.name} size={30} className="drop-shadow-sm" />
+                      <Flag flag={node.flag} name={node.name} size={30} />
                     </div>
 
                     {/* Info */}
@@ -370,25 +370,25 @@ export default function ServerList({
                       {/* Row 1: name + badges */}
                       <div className="flex items-center gap-2 min-w-0">
                         <p className="text-[14px] font-bold leading-tight truncate"
-                          style={{ color: isActive ? 'var(--accent)' : 'white' }}>
+                          style={{ color: isActive ? 'var(--accent)' : 'rgb(var(--ink-rgb))' }}>
                           {stripLeadingEmoji(node.name)}
                         </p>
                         {isPremium && (
                           <span className="shrink-0 text-[9px] font-black px-1.5 py-[2px] rounded-md"
-                            style={{ background: 'rgba(176,0,255,0.2)', color: '#d06aff', border: '1px solid rgba(176,0,255,0.4)' }}>
+                            style={{ background: 'rgba(176,0,255,0.2)', color: onTheme('#d06aff'), border: '1px solid rgba(176,0,255,0.4)' }}>
                             + PRO
                           </span>
                         )}
                         {isBest && !isPremium && (
                           <span className="shrink-0 flex items-center gap-1 text-[9px] font-black px-1.5 py-[2px] rounded-md"
-                            style={{ background: 'rgba(255,140,0,0.18)', color: '#ffb340', border: '1px solid rgba(255,140,0,0.35)' }}>
+                            style={{ background: 'rgba(255,140,0,0.18)', color: onTheme('#ffb340'), border: '1px solid rgba(255,140,0,0.35)' }}>
                             ⚡ HOT
                           </span>
                         )}
                       </div>
 
                       {/* Row 2: описание от провайдера (serverDescription) вместо протокола; hide-settings прячет защиту, протокол остаётся (как в Happ) */}
-                      <p className="text-[12px] mt-[3px] font-medium truncate" style={{ color: node.description ? '#b6c7de' : '#8fa6c4' }}>
+                      <p className="text-[12px] mt-[3px] font-medium truncate" style={{ color: onTheme(node.description ? '#b6c7de' : '#8fa6c4') }}>
                         {node.description || protocolLabel}
                       </p>
 
@@ -407,7 +407,7 @@ export default function ServerList({
                           )}
                           {/* Load bar: только по измеренному пингу */}
                           {loadPct > 0 && (
-                            <div className="flex-1 h-[4px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                            <div className="flex-1 h-[4px] rounded-full overflow-hidden" style={{ background: 'rgba(var(--ink-rgb),0.07)' }}>
                               <div className="h-full rounded-full transition-all duration-700"
                                 style={{ width: `${loadPct}%`, background: lc, boxShadow: `0 0 6px ${lc}66` }} />
                             </div>

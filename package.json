@@ -17,6 +17,7 @@
     "test:desktop:e2e": "node tests/desktop/e2e.cjs",
     "test:watch": "vitest",
     "checksums": "node scripts/checksums.mjs",
+    "theme:light": "node scripts/gen-light-theme.mjs",
     "sync-ios": "npx cap sync ios && node scripts/ios-register-plugin.mjs",
     "desktop:msix": "npm run build && npx electron-builder --win dir --x64 --config desktop/electron-builder.yml --publish never && powershell -NoProfile -ExecutionPolicy Bypass -File desktop/store/build-msix.ps1",
     "electron:build": "npm run build && npx electron-builder --win --config desktop/electron-builder.yml"

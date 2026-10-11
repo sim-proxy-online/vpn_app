@@ -6,6 +6,8 @@
     <meta name="theme-color" content="#0a0a1a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- Светлая тема применяется до загрузки приложения, чтобы экран не мигал тёмным. -->
+    <script>try{if(localStorage.getItem('sim-theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}</script>
     <title>Квадрат Петровича</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="./icon.png">

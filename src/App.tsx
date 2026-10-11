@@ -1836,7 +1836,7 @@ export default function App() {
     }
   };
 
-  const bg = isDark ? 'bg-[#0a0a1a]' : 'bg-[#f0f2f5]';
+  const bg = 'bg-[#0a0a1a]';
 
   return (
     <motion.div
@@ -1879,7 +1879,7 @@ export default function App() {
             else if (info.offset.x > threshold) handleSwipe('right');
           }}
         >
-          <div className={`flex-1 min-h-0 ${bg} pb-[calc(72px+env(safe-area-inset-bottom,0px))] lg:pb-0 relative`}>
+          <div className={`page-wash flex-1 min-h-0 ${bg} pb-[calc(72px+env(safe-area-inset-bottom,0px))] lg:pb-0 relative`}>
             {/* Мгновенное переключение разделов без анимации перехода: на бюджетном
                 WebView AnimatePresence mode="popLayout" держал оба экрана и считал
                 layout-анимацию → подвисание при переходах. У экранов есть свои анимации. */}
@@ -1914,7 +1914,7 @@ export default function App() {
                     />
                     {/* Правая часть с кнопкой закреплена и не скроллится — крутится только список серверов слева */}
                     <div className="flex-1 min-w-0 h-full overflow-hidden">
-                      <HomeScreen connectionState={connectionState} onToggle={handleToggle} selectedNode={selectedNode} nodes={allNodes} onSelectNode={setSelectedNode} onGoToServers={() => setScreen('servers')} onGoToProfiles={() => setScreen('profiles')} connectedTime={connectedTime} hasNodes={allNodes.length > 0} isDark={isDark} vpnError={vpnError} onClearVpnError={() => setVpnError(null)} stats={stats} bypassHint={bypassHint} hideServerDetails={!!selectedNode && settingsHidden(profiles.find(p => p.nodes.some(n => n.id === selectedNode.id)))} onOpenDiagnostics={() => setDiagnosticsOpen(true)} shieldActive={shieldActive} />
+                      <HomeScreen connectionState={connectionState} onToggle={handleToggle} selectedNode={selectedNode} nodes={allNodes} onSelectNode={setSelectedNode} onGoToServers={() => setScreen('servers')} onGoToProfiles={() => setScreen('profiles')} connectedTime={connectedTime} hasNodes={allNodes.length > 0} vpnError={vpnError} onClearVpnError={() => setVpnError(null)} stats={stats} bypassHint={bypassHint} hideServerDetails={!!selectedNode && settingsHidden(profiles.find(p => p.nodes.some(n => n.id === selectedNode.id)))} onOpenDiagnostics={() => setDiagnosticsOpen(true)} shieldActive={shieldActive} />
                     </div>
                   </div>
                 )}

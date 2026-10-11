@@ -2,6 +2,7 @@ import { Megaphone, Info, CalendarClock, ShieldCheck, SlidersHorizontal } from '
 import type { SubscriptionProfile } from '../types';
 import { expiryNotice, isTrustedProfile, trustProfile } from '../utils/appManagement';
 import { nativeOpenUrl } from '../native/bridge';
+import { onTheme } from '../utils/color';
 
 const INFO_COLORS = {
   blue: { fg: '#6cb6ff', bg: 'rgba(59,130,246,0.10)', border: 'rgba(59,130,246,0.35)' },
@@ -37,13 +38,13 @@ export default function ProviderNotice({ profile, onSave, onRenew }: { profile: 
       {m.info && info && !expiry && (
         <div className="rounded-2xl px-3.5 py-3 border" style={{ background: info.bg, borderColor: info.border }}>
           <div className="flex items-start gap-2.5">
-            <Info size={16} className="mt-0.5 shrink-0" style={{ color: info.fg }} />
+            <Info size={16} className="mt-0.5 shrink-0" style={{ color: onTheme(info.fg) }} />
             <p className="text-[13px] leading-snug text-gray-100 flex-1">{m.info.text}</p>
           </div>
           {m.info.buttonText && m.info.buttonLink && (
             <button onClick={() => nativeOpenUrl(m.info!.buttonLink!)}
               className="mt-2.5 px-3.5 py-1.5 rounded-lg text-[12px] font-bold active:scale-95 transition-transform"
-              style={{ color: info.fg, border: `1px solid ${info.border}` }}>
+              style={{ color: onTheme(info.fg), border: `1px solid ${info.border}` }}>
               {m.info.buttonText}
             </button>
           )}

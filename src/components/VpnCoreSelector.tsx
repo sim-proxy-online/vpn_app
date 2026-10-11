@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, BarChart3, Cpu } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
+import { onTheme } from '../utils/color';
 
 interface VpnCoreInfo {
   name: string;
@@ -17,7 +17,6 @@ interface VpnCoreInfo {
 }
 
 export default function VpnCoreSelector() {
-  const { isDark } = useTheme();
   const [activeCore, setActiveCore] = useState<'xray' | 'singbox'>('xray');
   const [cores] = useState<VpnCoreInfo[]>([
     {
@@ -46,12 +45,10 @@ export default function VpnCoreSelector() {
     },
   ]);
 
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]'
-    : 'bg-gradient-to-br from-[#e8f0ff] to-[#f0f2f5]';
-  const borderClass = isDark ? 'border-[#2a2a5e]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
-  const labelClass = isDark ? 'text-[#9090b0]' : 'text-gray-500';
+  const bgClass = 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]';
+  const borderClass = 'border-[#2a2a5e]';
+  const textClass = 'text-[#e0e0ff]';
+  const labelClass = 'text-[#9090b0]';
 
   return (
     <motion.div
@@ -61,7 +58,7 @@ export default function VpnCoreSelector() {
     >
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <Zap className="w-5 h-5" style={{ color: '#ffe600' }} />
+        <Zap className="w-5 h-5" style={{ color: onTheme('#ffe600') }} />
         <h3 className={`font-semibold ${textClass}`}>Выбор VPN ядра</h3>
       </div>
 
@@ -76,7 +73,7 @@ export default function VpnCoreSelector() {
             className={`relative p-4 rounded-lg border transition-all ${
               activeCore === core.id
                 ? `${borderClass} bg-gradient-to-br from-[#2a2a5e] to-[#1a1a3e]`
-                : `border-transparent ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-black/5 hover:bg-black/10'}`
+                : `border-transparent bg-white/5 hover:bg-white/10`
             }`}
           >
             {/* Active indicator */}
@@ -129,7 +126,7 @@ export default function VpnCoreSelector() {
               {/* Stats */}
               <div className="flex gap-3 mb-3 text-xs">
                 <div className="flex items-center gap-1">
-                  <Cpu className="w-3 h-3" style={{ color: '#ff6b35' }} />
+                  <Cpu className="w-3 h-3" style={{ color: onTheme('#ff6b35') }} />
                   <span className={labelClass}>{core.memory} MB</span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -193,9 +190,7 @@ export default function VpnCoreSelector() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className={`flex-1 py-2 rounded-lg ${
-            isDark
-              ? 'bg-white/10 hover:bg-white/20'
-              : 'bg-black/10 hover:bg-black/20'
+            'bg-white/10 hover:bg-white/20'
           } transition-colors`}
         >
           Отмена

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, TrendingDown, TrendingUp, CheckCircle, AlertCircle } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 
 interface ConnectionHistory {
   id: string;
@@ -15,7 +14,6 @@ interface ConnectionHistory {
 }
 
 export default function ConnectionHistory() {
-  const { isDark } = useTheme();
   const [history] = useState<ConnectionHistory[]>([
     {
       id: '1',
@@ -79,13 +77,11 @@ export default function ConnectionHistory() {
     return `${days}d назад`;
   };
 
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]'
-    : 'bg-gradient-to-br from-[#e8f0ff] to-[#f0f2f5]';
+  const bgClass = 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]';
 
-  const borderClass = isDark ? 'border-[#2a2a5e]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
-  const labelClass = isDark ? 'text-[#9090b0]' : 'text-gray-500';
+  const borderClass = 'border-[#2a2a5e]';
+  const textClass = 'text-[#e0e0ff]';
+  const labelClass = 'text-[#9090b0]';
 
   return (
     <motion.div
@@ -112,8 +108,8 @@ export default function ConnectionHistory() {
               transition={{ delay: index * 0.05 }}
               className={`p-3 rounded-lg border transition-all ${
                 item.status === 'success'
-                  ? isDark ? 'bg-green-900/10 border-green-700/30' : 'bg-green-100/30 border-green-300'
-                  : isDark ? 'bg-red-900/10 border-red-700/30' : 'bg-red-100/30 border-red-300'
+                  ? 'bg-green-900/10 border-green-700/30'
+                  : 'bg-red-900/10 border-red-700/30'
               }`}
             >
               <div className="flex items-center gap-3">

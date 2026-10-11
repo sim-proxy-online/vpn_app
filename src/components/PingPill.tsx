@@ -28,7 +28,7 @@ export default function PingPill({ ms, pending = false, size = 'md' }: PingPillP
           <span
             key={i}
             className={pending ? `sim-blink-${i + 1}` : undefined}
-            style={{ width: small ? 2 : 3, height: h, borderRadius: 2, background: pending || i < tone.level ? tone.color : 'rgba(255,255,255,0.18)' }}
+            style={{ width: small ? 2 : 3, height: h, borderRadius: 2, background: pending || i < tone.level ? tone.color : 'rgba(var(--ink-rgb),0.18)' }}
           />
         ))}
       </span>

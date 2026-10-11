@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Shield, AlertCircle, Check } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 import { nativeToggleKillSwitch, nativeIsKillSwitchEnabled } from '../native/bridge';
 
 interface KillSwitchToggleProps {
@@ -10,7 +9,6 @@ interface KillSwitchToggleProps {
 }
 
 export default function KillSwitchToggle({ enabled, onToggle }: KillSwitchToggleProps) {
-  const { isDark } = useTheme();
   const [warningVisible, setWarningVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
@@ -54,16 +52,12 @@ export default function KillSwitchToggle({ enabled, onToggle }: KillSwitchToggle
     }
   };
 
-  const bgClass = isDark
-    ? enabled
-      ? 'bg-[#1a3a2a88] border-[#00ff8833]'
-      : 'bg-[#1a1a3a88] border-[#2a2a5a44]'
-    : enabled
-    ? 'bg-emerald-50 border-emerald-200'
-    : 'bg-gray-50 border-gray-200';
+  const bgClass = enabled
+    ? 'bg-[#1a3a2a88] border-[#00ff8833]'
+    : 'bg-[#1a1a3a88] border-[#2a2a5a44]';
 
-  const textClass = isDark ? 'text-white' : 'text-[#0f172a]';
-  const labelClass = isDark ? 'text-gray-400' : 'text-gray-500';
+  const textClass = 'text-white';
+  const labelClass = 'text-gray-400';
 
   return (
     <div className="space-y-3">
@@ -79,9 +73,8 @@ export default function KillSwitchToggle({ enabled, onToggle }: KillSwitchToggle
               }`}
               style={enabled ? { boxShadow: '0 0 15px #00ff8811' } : {}}
             >
-              <Shield
-                className={`w-6 h-6 ${enabled ? 'animate-pulse' : ''}`}
-              />
+              {/* Без бесконечной пульсации: из-за неё открытый раздел перерисовывался ~90 раз в секунду впустую. */}
+              <Shield className="w-6 h-6" />
             </div>
             <div>
               <div className={`font-bold text-[15px] ${textClass}`}>Kill Switch</div>
@@ -100,7 +93,7 @@ export default function KillSwitchToggle({ enabled, onToggle }: KillSwitchToggle
             className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
               enabled
                 ? 'bg-[#00ff88]'
-                : isDark ? 'bg-[#2a2a5a]' : 'bg-gray-300'
+                : 'bg-[#2a2a5a]'
             } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <motion.div
@@ -126,13 +119,13 @@ export default function KillSwitchToggle({ enabled, onToggle }: KillSwitchToggle
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className={`rounded-lg border ${
-            isDark ? 'border-green-700/50 bg-green-900/20' : 'border-green-300 bg-green-100/50'
+            'border-green-700/50 bg-green-900/20'
           } p-3 flex gap-2`}
         >
           <Check className={`w-5 h-5 flex-shrink-0 ${
-            isDark ? 'text-green-400' : 'text-green-600'
+            'text-green-400'
           }`} />
-          <div className={`text-sm ${isDark ? 'text-green-200' : 'text-green-800'}`}>
+          <div className={`text-sm text-green-200`}>
             <strong>Kill Switch активирован!</strong> Весь трафик будет заблокирован, если VPN отключится.
           </div>
         </motion.div>
@@ -145,13 +138,13 @@ export default function KillSwitchToggle({ enabled, onToggle }: KillSwitchToggle
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className={`rounded-lg border ${
-            isDark ? 'border-orange-700/50 bg-orange-900/20' : 'border-orange-300 bg-orange-100/50'
+            'border-orange-700/50 bg-orange-900/20'
           } p-3 flex gap-2`}
         >
           <AlertCircle className={`w-5 h-5 flex-shrink-0 ${
-            isDark ? 'text-orange-400' : 'text-orange-600'
+            'text-orange-400'
           }`} />
-          <div className={`text-sm ${isDark ? 'text-orange-200' : 'text-orange-800'}`}>
+          <div className={`text-sm text-orange-200`}>
             Kill Switch теперь <strong>отключен</strong>. Интернет работает без VPN.
           </div>
         </motion.div>
@@ -159,8 +152,8 @@ export default function KillSwitchToggle({ enabled, onToggle }: KillSwitchToggle
 
       {/* Info */}
       <div className={`rounded-lg ${
-        isDark ? 'bg-blue-900/20 border border-blue-700/30' : 'bg-blue-100/50 border border-blue-300'
-      } p-3 text-sm ${isDark ? 'text-blue-200' : 'text-blue-800'}`}>
+        'bg-blue-900/20 border border-blue-700/30'
+      } p-3 text-sm text-blue-200`}>
         <strong>🛡️ Как это работает:</strong>
         <ul className="mt-2 space-y-1 ml-4 list-disc text-xs">
           <li>При разрыве VPN соединения весь интернет блокируется</li>

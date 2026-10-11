@@ -1,7 +1,6 @@
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme } from '../utils/color';
 import { MapPin, Zap } from 'lucide-react';
 import { ServerNode, Protocol } from '../types';
-import { useTheme } from '../ThemeContext';
 import Flag from './Flag';
 
 interface ServerCardProps {
@@ -23,7 +22,6 @@ const securityIcons: Record<string, string> = {
 };
 
 export default function ServerCard({ node, isSelected, isConnected, onSelect }: ServerCardProps) {
-  const { isDark } = useTheme();
   const protoColor = protoColors[node.protocol] || 'var(--accent)';
   const isCurrentConnection = isConnected && isSelected;
 
@@ -42,16 +40,10 @@ export default function ServerCard({ node, isSelected, isConnected, onSelect }: 
       onClick={() => onSelect(node)}
       className={`relative w-full rounded-2xl border overflow-hidden transition-all group active:scale-[0.98] ${
         isCurrentConnection
-          ? isDark
-            ? 'border-green-500/50 bg-gradient-to-r from-green-900/20 to-green-800/10'
-            : 'border-green-400/50 bg-gradient-to-r from-green-100 to-green-50'
+          ? 'border-green-500/50 bg-gradient-to-r from-green-900/20 to-green-800/10'
           : isSelected
-          ? isDark
-            ? 'border-cyan-500/30 bg-gradient-to-r from-cyan-900/20 to-cyan-800/10'
-            : 'border-cyan-400/30 bg-gradient-to-r from-cyan-100 to-cyan-50'
-          : isDark
-          ? 'border-gray-700/30 hover:border-gray-600/50 hover:bg-gray-900/20'
-          : 'border-gray-300/30 hover:border-gray-400/50 hover:bg-gray-200/20'
+          ? 'border-cyan-500/30 bg-gradient-to-r from-cyan-900/20 to-cyan-800/10'
+          : 'border-gray-700/30 hover:border-gray-600/50 hover:bg-gray-900/20'
       }`}
     >
       {/* Background Glow */}
@@ -69,7 +61,7 @@ export default function ServerCard({ node, isSelected, isConnected, onSelect }: 
           <Flag flag={node.flag} name={node.name} size={30} className="filter drop-shadow-sm" />
           <div className="text-center">
             <div className={`text-[9px] font-bold px-2 py-1 rounded-full ${
-              isDark ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-300/50 text-gray-700'
+              'bg-gray-700/50 text-gray-300'
             }`}>
               {node.protocol.toUpperCase()}
             </div>
@@ -78,10 +70,10 @@ export default function ServerCard({ node, isSelected, isConnected, onSelect }: 
 
         {/* Middle - Server details */}
         <div className="flex-1 text-left min-w-0">
-          <p className={`font-semibold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`font-semibold truncate text-white`}>
             {node.name}
           </p>
-          <div className={`flex items-center gap-1 mt-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+          <div className={`flex items-center gap-1 mt-1 text-xs text-gray-400`}>
             <MapPin size={12} className="flex-shrink-0" />
             <span className="font-mono truncate">{node.address}</span>
             {node.port !== 443 && <span>:{node.port}</span>}
@@ -90,12 +82,12 @@ export default function ServerCard({ node, isSelected, isConnected, onSelect }: 
           {/* Security & Transport info */}
           <div className="flex items-center gap-2 mt-2 text-[10px] flex-wrap">
             {node.security && node.security !== 'none' && (
-              <span className={`px-2 py-1 rounded ${isDark ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-200/50 text-blue-700'}`}>
+              <span className={`px-2 py-1 rounded bg-blue-900/30 text-blue-300`}>
                 {securityIcons[node.security] || '🔐'} {node.security.toUpperCase()}
               </span>
             )}
             {node.transport && node.transport !== 'tcp' && (
-              <span className={`px-2 py-1 rounded ${isDark ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-200/50 text-purple-700'}`}>
+              <span className={`px-2 py-1 rounded bg-purple-900/30 text-purple-300`}>
                 {node.transport.toUpperCase()}
               </span>
             )}
@@ -103,7 +95,7 @@ export default function ServerCard({ node, isSelected, isConnected, onSelect }: 
 
           {/* Server description if available */}
           {node.serverDescription && (
-            <p className={`text-[9px] mt-2 line-clamp-2 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+            <p className={`text-[9px] mt-2 line-clamp-2 text-gray-500`}>
               📝 {node.serverDescription}
             </p>
           )}
@@ -113,15 +105,15 @@ export default function ServerCard({ node, isSelected, isConnected, onSelect }: 
         <div className="flex flex-col items-end justify-between min-w-fit">
           {/* Ping */}
           <div className="flex flex-col items-center gap-1">
-            <span style={{ color: quality.color }} className="text-lg font-bold">
+            <span style={{ color: onTheme(quality.color) }} className="text-lg font-bold">
               {quality.text}
             </span>
             {node.ping ? (
-              <span className={`text-[11px] font-mono font-bold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              <span className={`text-[11px] font-mono font-bold text-gray-400`}>
                 {node.ping}ms
               </span>
             ) : (
-              <span className={`text-[9px] ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>—</span>
+              <span className={`text-[9px] text-gray-600`}>—</span>
             )}
           </div>
 
@@ -132,7 +124,7 @@ export default function ServerCard({ node, isSelected, isConnected, onSelect }: 
               style={{
                 background: `${withAlpha(protoColor, '20')}`,
                 border: `1px solid ${protoColor}`,
-                color: protoColor,
+                color: onTheme(protoColor),
               }}
             >
               <Zap size={12} />

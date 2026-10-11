@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme } from '../utils/color';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Smartphone, Search, Shield, Zap, X, CheckCircle2 } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 import { nativeGetSplitTunnelApps, nativeSetSplitTunnelApp, SplitTunnelApp } from '../native/bridge';
 
 // ── Пресет «Российские сервисы → Напрямую» ────────────────────────────────
@@ -94,7 +93,6 @@ const RU_BYPASS_PRESET: { id: string; name: string }[] = [
 const PRESET_ID_SET = new Set(RU_BYPASS_PRESET.map(p => p.id));
 
 export default function SplitTunnelSettings() {
-  const { isDark } = useTheme();
   const [apps, setApps] = useState<SplitTunnelApp[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -173,9 +171,9 @@ export default function SplitTunnelSettings() {
     return app.name.toLowerCase().includes(q) || app.id.toLowerCase().includes(q);
   });
 
-  const borderClass = isDark ? 'border-[#2a2a5a44]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-white' : 'text-[#0f172a]';
-  const labelClass = isDark ? 'text-gray-500' : 'text-gray-400';
+  const borderClass = 'border-[#2a2a5a44]';
+  const textClass = 'text-white';
+  const labelClass = 'text-gray-500';
 
   const modes = [
     { id: 'always', icon: <Shield size={10} />, label: 'VPN',    color: '#00ff88' },
@@ -310,7 +308,7 @@ export default function SplitTunnelSettings() {
                   className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all ${
                     isPreset && app.mode === 'never'
                       ? 'border-[#cc000022] bg-[#cc000008]'
-                      : `${borderClass} ${isDark ? 'bg-white/[0.02]' : 'bg-black/[0.01]'} hover:bg-white/[0.05]`
+                      : `${borderClass} bg-white/[0.02] hover:bg-white/[0.05]`
                   }`}
                 >
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-[#1a1a3a] border border-white/5 shadow-inner relative">
@@ -348,7 +346,7 @@ export default function SplitTunnelSettings() {
                           style={active ? {
                             background: `${withAlpha(m.color, '15')}`,
                             border: `1px solid ${withAlpha(m.color, '33')}`,
-                            color: m.color
+                            color: onTheme(m.color)
                           } : {}}
                         >
                           {m.icon}

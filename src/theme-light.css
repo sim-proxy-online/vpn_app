@@ -1,0 +1,263 @@
+/* Сгенерировано scripts/gen-light-theme.mjs — не править вручную (npm run theme:light). */
+
+/* Зеркало палитры Tailwind: оттенки, подобранные под тёмный фон, читаются на светлом. */
+[data-theme="light"] {
+  --color-white: rgb(15 23 42);
+  --color-gray-50: oklch(13% 0.028 261.692);
+  --color-gray-100: oklch(21% 0.034 264.665);
+  --color-gray-200: oklch(27.8% 0.033 256.848);
+  --color-gray-300: oklch(37.3% 0.034 259.733);
+  --color-gray-400: oklch(44.6% 0.03 256.802);
+  --color-gray-500: oklch(55.1% 0.027 264.364);
+  --color-gray-600: oklch(70.7% 0.022 261.325);
+  --color-gray-700: oklch(87.2% 0.01 258.338);
+  --color-gray-800: oklch(92.8% 0.006 264.531);
+  --color-gray-900: oklch(96.7% 0.003 264.542);
+  --color-gray-950: oklch(98.5% 0.002 247.839);
+  --color-slate-50: oklch(12.9% 0.042 264.695);
+  --color-slate-100: oklch(20.8% 0.042 265.755);
+  --color-slate-200: oklch(27.9% 0.041 260.031);
+  --color-slate-300: oklch(37.2% 0.044 257.287);
+  --color-slate-400: oklch(44.6% 0.043 257.281);
+  --color-slate-500: oklch(55.4% 0.046 257.417);
+  --color-slate-600: oklch(70.4% 0.04 256.788);
+  --color-slate-700: oklch(86.9% 0.022 252.894);
+  --color-slate-800: oklch(92.9% 0.013 255.508);
+  --color-slate-900: oklch(96.8% 0.007 247.896);
+  --color-slate-950: oklch(98.4% 0.003 247.858);
+  --color-red-50: oklch(25.8% 0.092 26.042);
+  --color-red-100: oklch(39.6% 0.141 25.723);
+  --color-red-200: oklch(44.4% 0.177 26.899);
+  --color-red-300: oklch(50.5% 0.213 27.518);
+  --color-red-400: oklch(50.5% 0.213 27.518);
+  --color-red-500: oklch(57.7% 0.245 27.325);
+  --color-red-600: oklch(70.4% 0.191 22.216);
+  --color-red-700: oklch(80.8% 0.114 19.571);
+  --color-red-800: oklch(88.5% 0.062 18.334);
+  --color-red-900: oklch(93.6% 0.032 17.717);
+  --color-red-950: oklch(97.1% 0.013 17.38);
+  --color-orange-50: oklch(26.6% 0.079 36.259);
+  --color-orange-100: oklch(40.8% 0.123 38.172);
+  --color-orange-200: oklch(47% 0.157 37.304);
+  --color-orange-300: oklch(55.3% 0.195 38.402);
+  --color-orange-400: oklch(55.3% 0.195 38.402);
+  --color-orange-500: oklch(64.6% 0.222 41.116);
+  --color-orange-600: oklch(75% 0.183 55.934);
+  --color-orange-700: oklch(83.7% 0.128 66.29);
+  --color-orange-800: oklch(90.1% 0.076 70.697);
+  --color-orange-900: oklch(95.4% 0.038 75.164);
+  --color-orange-950: oklch(98% 0.016 73.684);
+  --color-amber-50: oklch(27.9% 0.077 45.635);
+  --color-amber-100: oklch(41.4% 0.112 45.904);
+  --color-amber-200: oklch(47.3% 0.137 46.201);
+  --color-amber-300: oklch(55.5% 0.163 48.998);
+  --color-amber-400: oklch(55.5% 0.163 48.998);
+  --color-amber-500: oklch(66.6% 0.179 58.318);
+  --color-amber-600: oklch(82.8% 0.189 84.429);
+  --color-amber-700: oklch(87.9% 0.169 91.605);
+  --color-amber-800: oklch(92.4% 0.12 95.746);
+  --color-amber-900: oklch(96.2% 0.059 95.617);
+  --color-amber-950: oklch(98.7% 0.022 95.277);
+  --color-yellow-50: oklch(28.6% 0.066 53.813);
+  --color-yellow-100: oklch(42.1% 0.095 57.708);
+  --color-yellow-200: oklch(47.6% 0.114 61.907);
+  --color-yellow-300: oklch(55.4% 0.135 66.442);
+  --color-yellow-400: oklch(55.4% 0.135 66.442);
+  --color-yellow-500: oklch(68.1% 0.162 75.834);
+  --color-yellow-600: oklch(85.2% 0.199 91.936);
+  --color-yellow-700: oklch(90.5% 0.182 98.111);
+  --color-yellow-800: oklch(94.5% 0.129 101.54);
+  --color-yellow-900: oklch(97.3% 0.071 103.193);
+  --color-yellow-950: oklch(98.7% 0.026 102.212);
+  --color-green-50: oklch(26.6% 0.065 152.934);
+  --color-green-100: oklch(39.3% 0.095 152.535);
+  --color-green-200: oklch(44.8% 0.119 151.328);
+  --color-green-300: oklch(52.7% 0.154 150.069);
+  --color-green-400: oklch(52.7% 0.154 150.069);
+  --color-green-500: oklch(62.7% 0.194 149.214);
+  --color-green-600: oklch(79.2% 0.209 151.711);
+  --color-green-700: oklch(87.1% 0.15 154.449);
+  --color-green-800: oklch(92.5% 0.084 155.995);
+  --color-green-900: oklch(96.2% 0.044 156.743);
+  --color-green-950: oklch(98.2% 0.018 155.826);
+  --color-emerald-50: oklch(26.2% 0.051 172.552);
+  --color-emerald-100: oklch(37.8% 0.077 168.94);
+  --color-emerald-200: oklch(43.2% 0.095 166.913);
+  --color-emerald-300: oklch(50.8% 0.118 165.612);
+  --color-emerald-400: oklch(50.8% 0.118 165.612);
+  --color-emerald-500: oklch(59.6% 0.145 163.225);
+  --color-emerald-600: oklch(76.5% 0.177 163.223);
+  --color-emerald-700: oklch(84.5% 0.143 164.978);
+  --color-emerald-800: oklch(90.5% 0.093 164.15);
+  --color-emerald-900: oklch(95% 0.052 163.051);
+  --color-emerald-950: oklch(97.9% 0.021 166.113);
+  --color-cyan-50: oklch(30.2% 0.056 229.695);
+  --color-cyan-100: oklch(39.8% 0.07 227.392);
+  --color-cyan-200: oklch(45% 0.085 224.283);
+  --color-cyan-300: oklch(52% 0.105 223.128);
+  --color-cyan-400: oklch(52% 0.105 223.128);
+  --color-cyan-500: oklch(60.9% 0.126 221.723);
+  --color-cyan-600: oklch(78.9% 0.154 211.53);
+  --color-cyan-700: oklch(86.5% 0.127 207.078);
+  --color-cyan-800: oklch(91.7% 0.08 205.041);
+  --color-cyan-900: oklch(95.6% 0.045 203.388);
+  --color-cyan-950: oklch(98.4% 0.019 200.873);
+  --color-blue-50: oklch(28.2% 0.091 267.935);
+  --color-blue-100: oklch(37.9% 0.146 265.522);
+  --color-blue-200: oklch(42.4% 0.199 265.638);
+  --color-blue-300: oklch(48.8% 0.243 264.376);
+  --color-blue-400: oklch(48.8% 0.243 264.376);
+  --color-blue-500: oklch(54.6% 0.245 262.881);
+  --color-blue-600: oklch(70.7% 0.165 254.624);
+  --color-blue-700: oklch(80.9% 0.105 251.813);
+  --color-blue-800: oklch(88.2% 0.059 254.128);
+  --color-blue-900: oklch(93.2% 0.032 255.585);
+  --color-blue-950: oklch(97% 0.014 254.604);
+  --color-purple-50: oklch(29.1% 0.149 302.717);
+  --color-purple-100: oklch(38.1% 0.176 304.987);
+  --color-purple-200: oklch(43.8% 0.218 303.724);
+  --color-purple-300: oklch(49.6% 0.265 301.924);
+  --color-purple-400: oklch(49.6% 0.265 301.924);
+  --color-purple-500: oklch(55.8% 0.288 302.321);
+  --color-purple-600: oklch(71.4% 0.203 305.504);
+  --color-purple-700: oklch(82.7% 0.119 306.383);
+  --color-purple-800: oklch(90.2% 0.063 306.703);
+  --color-purple-900: oklch(94.6% 0.033 307.174);
+  --color-purple-950: oklch(97.7% 0.014 308.299);
+  --color-pink-50: oklch(28.4% 0.109 3.907);
+  --color-pink-100: oklch(40.8% 0.153 2.432);
+  --color-pink-200: oklch(45.9% 0.187 3.815);
+  --color-pink-300: oklch(52.5% 0.223 3.958);
+  --color-pink-400: oklch(52.5% 0.223 3.958);
+  --color-pink-500: oklch(59.2% 0.249 0.584);
+  --color-pink-600: oklch(71.8% 0.202 349.761);
+  --color-pink-700: oklch(82.3% 0.12 346.018);
+  --color-pink-800: oklch(89.9% 0.061 343.231);
+  --color-pink-900: oklch(94.8% 0.028 342.258);
+  --color-pink-950: oklch(97.1% 0.014 343.198);
+}
+
+/* Цвета, заданные в классах напрямую. */
+[data-theme="light"] .bg-\[\#00000033\] { background-color: rgb(15 23 42 / 0.024); }
+[data-theme="light"] .bg-\[\#00e08a12\] { background-color: rgb(226 251 242); }
+[data-theme="light"] .bg-\[\#00e676\] { background-color: rgb(0 214 110); }
+[data-theme="light"] .bg-\[\#00ff8815\] { background-color: rgb(221 255 239); }
+[data-theme="light"] .bg-\[\#00ff88\] { background-color: rgb(0 214 114); }
+[data-theme="light"] .bg-\[\#00ff88\]\/20 { background-color: rgb(194 255 226); }
+[data-theme="light"] .bg-\[\#07071a\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#0a0a1a55\] { background-color: rgb(15 23 42 / 0.04); }
+[data-theme="light"] .bg-\[\#0a0a1a\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#0a0a1a\]\/40 { background-color: rgb(15 23 42 / 0.048); }
+[data-theme="light"] .bg-\[\#0a0a1a\]\/80 { background-color: rgb(242 244 248 / 0.8); }
+[data-theme="light"] .bg-\[\#0b0e24\]\/95 { background-color: rgb(255 255 255); }
+[data-theme="light"] .bg-\[\#0b1220\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#0b1220\]\/95 { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#0c1030\] { background-color: rgb(255 255 255); }
+[data-theme="light"] .bg-\[\#0d0d1a\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#0d0d1f\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#0d0d22\] { background-color: rgb(255 255 255); }
+[data-theme="light"] .bg-\[\#0d1a0d\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#0d1a12\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#0e0e1e\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#111\] { background-color: rgb(242 244 248); }
+[data-theme="light"] .bg-\[\#12122a\] { background-color: rgb(255 255 255); }
+[data-theme="light"] .bg-\[\#1a1a3a22\] { background-color: rgb(15 23 42 / 0.02); }
+[data-theme="light"] .bg-\[\#1a1a3a33\] { background-color: rgb(15 23 42 / 0.024); }
+[data-theme="light"] .bg-\[\#1a1a3a55\] { background-color: rgb(15 23 42 / 0.04); }
+[data-theme="light"] .bg-\[\#1a1a3a88\] { background-color: rgb(15 23 42 / 0.064); }
+[data-theme="light"] .bg-\[\#1a1a3a\] { background-color: rgb(231 235 242); }
+[data-theme="light"] .bg-\[\#1a3a2a88\] { background-color: rgb(231 248 240 / 0.533); }
+[data-theme="light"] .bg-\[\#2a0a0a\] { background-color: rgb(248 231 231); }
+[data-theme="light"] .bg-\[\#2a2a5a44\] { background-color: rgb(15 23 42 / 0.032); }
+[data-theme="light"] .bg-\[\#2a2a5a\] { background-color: rgb(203 210 222); }
+[data-theme="light"] .bg-\[\#b000ff15\] { background-color: rgb(245 221 255); }
+[data-theme="light"] .bg-\[\#cc000008\] { background-color: rgb(251 237 237); }
+[data-theme="light"] .bg-\[\#cc00000a\] { background-color: rgb(251 237 237); }
+[data-theme="light"] .bg-\[\#cc000020\] { background-color: rgb(245 204 204); }
+[data-theme="light"] .bg-\[\#cc000030\] { background-color: rgb(243 194 194); }
+[data-theme="light"] .bg-\[\#ff006615\] { background-color: rgb(255 221 235); }
+[data-theme="light"] .bg-\[\#ff44440a\] { background-color: rgb(255 242 242); }
+[data-theme="light"] .bg-\[\#ff444415\] { background-color: rgb(255 230 230); }
+[data-theme="light"] .bg-\[\#ff4444\]\/20 { background-color: rgb(255 210 210); }
+[data-theme="light"] .bg-\[\#ff9d4d12\] { background-color: rgb(255 244 235); }
+[data-theme="light"] .bg-\[\#ffcc00\] { background-color: rgb(224 180 0); }
+[data-theme="light"] .bg-\[\#ffd23f12\] { background-color: rgb(255 250 233); }
+[data-theme="light"] .bg-\[\#ffe600\] { background-color: rgb(209 189 0); }
+[data-theme="light"] .bg-\[\#ffffff03\] { background-color: rgb(15 23 42 / 0.02); }
+[data-theme="light"] .bg-\[\#ffffff04\] { background-color: rgb(15 23 42 / 0.025); }
+[data-theme="light"] .bg-\[\#ffffff05\] { background-color: rgb(15 23 42 / 0.031); }
+[data-theme="light"] .bg-\[\#ffffff08\] { background-color: rgb(15 23 42 / 0.05); }
+[data-theme="light"] .bg-black\/20 { background-color: rgb(15 23 42 / 0.03); }
+[data-theme="light"] .bg-black\/30 { background-color: rgb(15 23 42 / 0.045); }
+[data-theme="light"] .bg-black\/40 { background-color: rgb(15 23 42 / 0.06); }
+[data-theme="light"] .bg-black\/50 { background-color: rgb(15 23 42 / 0.075); }
+[data-theme="light"] .bg-black\/60 { background-color: rgb(15 23 42 / 0.33); }
+[data-theme="light"] .bg-black\/70 { background-color: rgb(15 23 42 / 0.385); }
+[data-theme="light"] .bg-black\/80 { background-color: rgb(15 23 42 / 0.44); }
+[data-theme="light"] .bg-black\/90 { background-color: rgb(15 23 42 / 0.48); }
+[data-theme="light"] .border-\[\#00e08a44\] { border-color: rgb(0 189 116 / 0.373); }
+[data-theme="light"] .border-\[\#00ff8822\] { border-color: rgb(0 189 101 / 0.187); }
+[data-theme="light"] .border-\[\#00ff8833\] { border-color: rgb(0 189 101 / 0.28); }
+[data-theme="light"] .border-\[\#00ff88\]\/20 { border-color: rgb(0 189 101 / 0.28); }
+[data-theme="light"] .border-\[\#1a1a3a66\] { border-color: rgb(15 23 42 / 0.14); }
+[data-theme="light"] .border-\[\#2a2a5a22\] { border-color: rgb(15 23 42 / 0.06); }
+[data-theme="light"] .border-\[\#2a2a5a33\] { border-color: rgb(15 23 42 / 0.09); }
+[data-theme="light"] .border-\[\#2a2a5a44\] { border-color: rgb(15 23 42 / 0.12); }
+[data-theme="light"] .border-\[\#2a2a5a55\] { border-color: rgb(15 23 42 / 0.14); }
+[data-theme="light"] .border-\[\#2a2a5a\] { border-color: rgb(15 23 42 / 0.14); }
+[data-theme="light"] .border-\[\#2a2a5e\] { border-color: rgb(15 23 42 / 0.14); }
+[data-theme="light"] .border-\[\#e9c46a66\] { border-color: rgb(209 157 31 / 0.56); }
+[data-theme="light"] .border-\[\#e9c46a88\] { border-color: rgb(209 157 31 / 0.747); }
+[data-theme="light"] .border-\[\#ff9d4d44\] { border-color: rgb(255 131 31 / 0.373); }
+[data-theme="light"] .border-\[\#ffd23f55\] { border-color: rgb(204 156 0 / 0.467); }
+[data-theme="light"] .border-\[\#ffffff0a\] { border-color: rgb(15 23 42 / 0.063); }
+[data-theme="light"] .border-\[\#ffffff10\] { border-color: rgb(15 23 42 / 0.1); }
+[data-theme="light"] .divide-\[\#1a1a3a66\] > :not(:last-child) { border-color: rgb(15 23 42 / 0.14); }
+[data-theme="light"] .divide-\[\#2a2a5a11\] > :not(:last-child) { border-color: rgb(15 23 42 / 0.06); }
+[data-theme="light"] .from-\[\#0a0a1a\] { --tw-gradient-from: rgb(242 244 248); }
+[data-theme="light"] .from-\[\#1a1a3e\] { --tw-gradient-from: rgb(255 255 255); }
+[data-theme="light"] .from-\[\#2a2a5e\] { --tw-gradient-from: rgb(231 235 242); }
+[data-theme="light"] .from-\[\#ffcc00\] { --tw-gradient-from: rgb(168 135 0); }
+[data-theme="light"] .hover\:bg-\[\#00ff88\]\/10:hover { background-color: rgb(214 255 236); }
+[data-theme="light"] .hover\:bg-\[\#00ff88\]\/30:hover { background-color: rgb(194 255 226); }
+[data-theme="light"] .hover\:bg-\[\#12122a88\]:hover { background-color: rgb(15 23 42 / 0.064); }
+[data-theme="light"] .hover\:bg-\[\#cc000030\]:hover { background-color: rgb(243 194 194); }
+[data-theme="light"] .hover\:bg-\[\#ff006611\]:hover { background-color: rgb(255 228 239); }
+[data-theme="light"] .hover\:bg-\[\#ff4444\]\/30:hover { background-color: rgb(255 210 210); }
+[data-theme="light"] .hover\:bg-\[\#ffe60011\]:hover { background-color: rgb(255 252 228); }
+[data-theme="light"] .hover\:bg-\[\#ffffff03\]:hover { background-color: rgb(15 23 42 / 0.02); }
+[data-theme="light"] .hover\:bg-\[\#ffffff05\]:hover { background-color: rgb(15 23 42 / 0.031); }
+[data-theme="light"] .hover\:border-\[\#2a2a5a44\]:hover { border-color: rgb(15 23 42 / 0.12); }
+[data-theme="light"] .hover\:border-\[\#2a2a5a88\]:hover { border-color: rgb(15 23 42 / 0.14); }
+[data-theme="light"] .hover\:text-\[\#00ffff\]:hover { color: rgb(0 122 122); }
+[data-theme="light"] .hover\:text-\[\#b000ff\]:hover { color: rgb(172 0 250); }
+[data-theme="light"] .text-\[\#00cc66\] { color: rgb(0 128 64); }
+[data-theme="light"] .text-\[\#00e08a\] { color: rgb(0 128 79); }
+[data-theme="light"] .text-\[\#00e87a\] { color: rgb(0 128 67); }
+[data-theme="light"] .text-\[\#00ff88\] { color: rgb(0 128 68); }
+[data-theme="light"] .text-\[\#9090b0\] { color: rgb(71 85 105); }
+[data-theme="light"] .text-\[\#a8b8ff\] { color: rgb(56 93 255); }
+[data-theme="light"] .text-\[\#b000ff\] { color: rgb(172 0 250); }
+[data-theme="light"] .text-\[\#e0e0e0\] { color: rgb(15 23 42 / 1); }
+[data-theme="light"] .text-\[\#e0e0ff\] { color: rgb(15 23 42 / 1); }
+[data-theme="light"] .text-\[\#ff0066\] { color: rgb(219 0 88); }
+[data-theme="light"] .text-\[\#ff4444\] { color: rgb(224 0 0); }
+[data-theme="light"] .text-\[\#ff5252\] { color: rgb(224 0 0); }
+[data-theme="light"] .text-\[\#ff5c5c\] { color: rgb(224 0 0); }
+[data-theme="light"] .text-\[\#ff6666\] { color: rgb(224 0 0); }
+[data-theme="light"] .text-\[\#ff6b35\] { color: rgb(204 55 0); }
+[data-theme="light"] .text-\[\#ff7b7b\] { color: rgb(224 0 0); }
+[data-theme="light"] .text-\[\#ff8888\] { color: rgb(224 0 0); }
+[data-theme="light"] .text-\[\#ff9c9c\] { color: rgb(224 0 0); }
+[data-theme="light"] .text-\[\#ffb36b\] { color: rgb(173 84 0); }
+[data-theme="light"] .text-\[\#ffd23f\] { color: rgb(138 105 0); }
+[data-theme="light"] .text-\[\#ffe58a\] { color: rgb(138 107 0); }
+[data-theme="light"] .text-\[\#ffe600\] { color: rgb(122 110 0); }
+[data-theme="light"] .to-\[\#0070ff\]\/10 { --tw-gradient-to: rgb(214 232 255); }
+[data-theme="light"] .to-\[\#00ff88\] { --tw-gradient-to: rgb(0 158 84); }
+[data-theme="light"] .to-\[\#0f0f2e\] { --tw-gradient-to: rgb(255 255 255); }
+[data-theme="light"] .to-\[\#1a0a2e\] { --tw-gradient-to: rgb(255 255 255); }
+[data-theme="light"] .to-\[\#1a1a3e\] { --tw-gradient-to: rgb(255 255 255); }
+
+/* Поверхности: подложка карточки на скруглённом элементе — белая (тень и перелив даёт theme-depth.css). */
+[data-theme="light"] :is(:is(.rounded-2xl, .rounded-3xl, .rounded-\[19px\], .rounded-\[20px\], .rounded-\[26px\], .rounded-\[28px\], .rounded-\[32px\], .rounded-\[36px\]):is(.bg-\[\#00000033\], .bg-\[\#0a0a1a55\], .bg-\[\#0a0a1a\]\/40, .bg-\[\#0c1030\], .bg-\[\#0d0d22\], .bg-\[\#12122a\], .bg-\[\#1a1a3a22\], .bg-\[\#1a1a3a33\], .bg-\[\#1a1a3a55\], .bg-\[\#1a1a3a88\], .bg-\[\#2a2a5a44\], .bg-\[\#ffffff03\], .bg-\[\#ffffff04\], .bg-\[\#ffffff05\], .bg-\[\#ffffff08\], .bg-white\/10, .bg-white\/20, .bg-white\/5, .bg-white\/\[0\.02\], .bg-white\/\[0\.035\], .bg-white\/\[0\.03\], .bg-white\/\[0\.04\], .bg-white\/\[0\.05\], .bg-white\/\[0\.06\], .bg-white\/\[0\.07\]):not([class*="shadow-"]), .rounded-xl:is(.bg-\[\#00000033\], .bg-\[\#0a0a1a55\], .bg-\[\#0a0a1a\]\/40, .bg-\[\#0c1030\], .bg-\[\#0d0d22\], .bg-\[\#12122a\], .bg-\[\#1a1a3a22\], .bg-\[\#1a1a3a33\], .bg-\[\#1a1a3a55\], .bg-\[\#1a1a3a88\], .bg-\[\#2a2a5a44\], .bg-\[\#ffffff03\], .bg-\[\#ffffff04\], .bg-\[\#ffffff05\], .bg-\[\#ffffff08\], .bg-white\/10, .bg-white\/20, .bg-white\/5, .bg-white\/\[0\.02\], .bg-white\/\[0\.035\], .bg-white\/\[0\.03\], .bg-white\/\[0\.04\], .bg-white\/\[0\.05\], .bg-white\/\[0\.06\], .bg-white\/\[0\.07\]):not([class*="shadow-"]), .rounded-full.border:is(.bg-\[\#00000033\], .bg-\[\#0a0a1a55\], .bg-\[\#0a0a1a\]\/40, .bg-\[\#0c1030\], .bg-\[\#0d0d22\], .bg-\[\#12122a\], .bg-\[\#1a1a3a22\], .bg-\[\#1a1a3a33\], .bg-\[\#1a1a3a55\], .bg-\[\#1a1a3a88\], .bg-\[\#2a2a5a44\], .bg-\[\#ffffff03\], .bg-\[\#ffffff04\], .bg-\[\#ffffff05\], .bg-\[\#ffffff08\], .bg-white\/10, .bg-white\/20, .bg-white\/5, .bg-white\/\[0\.02\], .bg-white\/\[0\.035\], .bg-white\/\[0\.03\], .bg-white\/\[0\.04\], .bg-white\/\[0\.05\], .bg-white\/\[0\.06\], .bg-white\/\[0\.07\]):not([class*="shadow-"])) { background-color: #ffffff; }

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3 } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 
 interface TrafficStats {
   protocol: string;
@@ -12,7 +11,6 @@ interface TrafficStats {
 }
 
 export default function TrafficAnalysis() {
-  const { isDark } = useTheme();
   const [trafficStats] = useState<TrafficStats[]>([
     { protocol: 'HTTPS', bytesIn: 450000000, bytesOut: 50000000, packetCount: 1250, percentage: 65 },
     { protocol: 'HTTP', bytesIn: 150000000, bytesOut: 20000000, packetCount: 450, percentage: 22 },
@@ -29,13 +27,11 @@ export default function TrafficAnalysis() {
     return (val.toFixed(2).replace(/\.00$/, '')) + ' ' + sizes[i];
   };
 
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]'
-    : 'bg-gradient-to-br from-[#e8f0ff] to-[#f0f2f5]';
+  const bgClass = 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]';
 
-  const borderClass = isDark ? 'border-[#2a2a5e]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
-  const labelClass = isDark ? 'text-[#9090b0]' : 'text-gray-500';
+  const borderClass = 'border-[#2a2a5e]';
+  const textClass = 'text-[#e0e0ff]';
+  const labelClass = 'text-[#9090b0]';
 
   const colors = ['var(--accent)', '#00ff88', '#ffe600', '#ff6b35'];
 
@@ -97,7 +93,7 @@ export default function TrafficAnalysis() {
                 />
               );
             })}
-            <circle cx="100" cy="100" r="45" fill={isDark ? '#0f0f2e' : '#f0f2f5'} />
+            <circle cx="100" cy="100" r="45" style={{ fill: 'var(--surface)' }} />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <span className={`text-[10px] uppercase tracking-tighter ${labelClass}`}>Трафик</span>
@@ -114,7 +110,7 @@ export default function TrafficAnalysis() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className={`p-3 rounded-lg ${isDark ? 'bg-white/5' : 'bg-black/5'}`}
+            className={`p-3 rounded-lg bg-white/5`}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -132,7 +128,7 @@ export default function TrafficAnalysis() {
             </div>
 
             {/* Progress bar */}
-            <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-white/10' : 'bg-black/10'}`}>
+            <div className={`w-full h-2 rounded-full overflow-hidden bg-white/10`}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${stat.percentage}%` }}

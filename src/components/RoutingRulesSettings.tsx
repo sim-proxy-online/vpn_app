@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { withAlpha } from '../utils/color';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Edit2, Download, Upload, Route } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 import {
   nativeGetRoutingRules,
   nativeAddRoutingRule,
@@ -15,7 +14,6 @@ import {
 } from '../native/bridge';
 
 export default function RoutingRulesSettings() {
-  const { isDark } = useTheme();
   const [rules, setRules] = useState<RoutingRule[]>([]);
   const [editingRule, setEditingRule] = useState<RoutingRule | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -28,9 +26,9 @@ export default function RoutingRulesSettings() {
     enabled: true,
   });
 
-  const borderClass = isDark ? 'border-[#2a2a5a44]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-white' : 'text-[#0f172a]';
-  const labelClass = isDark ? 'text-gray-500' : 'text-gray-400';
+  const borderClass = 'border-[#2a2a5a44]';
+  const textClass = 'text-white';
+  const labelClass = 'text-gray-500';
 
   // Fetch rules on mount
   useEffect(() => {
@@ -224,7 +222,7 @@ export default function RoutingRulesSettings() {
         ) : (
           rules.map((rule) => (
             <motion.div key={rule.id} layout
-              className={`flex items-center gap-3 p-2.5 rounded-2xl border ${borderClass} ${isDark ? 'bg-white/[0.02]' : 'bg-black/[0.01]'} hover:bg-white/[0.05] transition-all`}>
+              className={`flex items-center gap-3 p-2.5 rounded-2xl border ${borderClass} bg-white/[0.02] hover:bg-white/[0.05] transition-all`}>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter" style={{ backgroundColor: `${withAlpha(getActionColor(rule.action), '15')}`, color: getActionColor(rule.action), border: `1px solid ${withAlpha(getActionColor(rule.action), '33')}` }}>{getActionLabel(rule.action)}</span>

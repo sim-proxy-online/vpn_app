@@ -9,7 +9,7 @@ import RenewSubscription from './RenewSubscription';
 
 import { renewEligible } from '../utils/cabinetApi';
 import { expiryNotice } from '../utils/appManagement';
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme } from '../utils/color';
 import { settingsHidden, sortNodes } from '../utils/profileView';
 import { stripLeadingEmoji } from '../utils/nodeName';
 import { SubscriptionProfile, ServerNode } from '../types';
@@ -200,7 +200,7 @@ function HomeProfilePanelContent({
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
                 style={profile.url
-                  ? { background: 'linear-gradient(145deg, #152035, #0c1525)', border: '1px solid rgba(255,255,255,0.07)' }
+                  ? { background: 'var(--tile-navy)', border: '1px solid rgba(var(--ink-rgb),0.07)' }
                   : { backgroundColor: 'var(--accent)' }}
               >
                 {profile.url
@@ -350,7 +350,7 @@ function HomeProfilePanelContent({
             const hidden = settingsHidden(profile);
             const ping = pingMap[node.id];
             const isPinging = pingingSet.has(node.id);
-            const pColor = pingColor(ping);
+            const pColor = onTheme(pingColor(ping));
             return (
               <button
                 key={node.id}

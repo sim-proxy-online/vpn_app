@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme } from '../utils/color';
 import { motion } from 'framer-motion';
 import { Calendar, TrendingUp, TrendingDown, Clock, Globe } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 
 interface ConnectionRecord {
   id: string;
@@ -18,7 +17,6 @@ interface ConnectionRecord {
 }
 
 export default function ConnectionHistoryChart() {
-  const { isDark } = useTheme();
   const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
 
   // Mock data for demonstration
@@ -49,12 +47,10 @@ export default function ConnectionHistoryChart() {
     },
   ]);
 
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]'
-    : 'bg-gradient-to-br from-[#e8f0ff] to-[#f0f2f5]';
-  const borderClass = isDark ? 'border-[#2a2a5e]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
-  const labelClass = isDark ? 'text-[#9090b0]' : 'text-gray-500';
+  const bgClass = 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]';
+  const borderClass = 'border-[#2a2a5e]';
+  const textClass = 'text-[#e0e0ff]';
+  const labelClass = 'text-[#9090b0]';
 
   const formatBytes = (bytes: number): string => {
     if (bytes === 0) return '0 B';
@@ -110,9 +106,7 @@ export default function ConnectionHistoryChart() {
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                 timeRange === range
                   ? 'bg-[var(--accent)] text-black'
-                  : isDark
-                  ? 'bg-white/10 text-white'
-                  : 'bg-black/10 text-gray-700'
+                  : 'bg-white/10 text-white'
               }`}
             >
               {range === 'day' ? 'День' : range === 'week' ? 'Неделя' : 'Месяц'}
@@ -184,15 +178,15 @@ export default function ConnectionHistoryChart() {
                       <span className={labelClass}>{formatDuration(record.duration)}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <TrendingDown className="w-3 h-3" style={{ color: '#00ff88' }} />
+                      <TrendingDown className="w-3 h-3" style={{ color: onTheme('#00ff88') }} />
                       <span className={labelClass}>{formatBytes(record.dataDown)}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" style={{ color: '#ffe600' }} />
+                      <TrendingUp className="w-3 h-3" style={{ color: onTheme('#ffe600') }} />
                       <span className={labelClass}>{formatBytes(record.dataUp)}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Globe className="w-3 h-3" style={{ color: '#ff6b35' }} />
+                      <Globe className="w-3 h-3" style={{ color: onTheme('#ff6b35') }} />
                       <span className={labelClass}>{record.avgSpeed} Mbps</span>
                     </div>
                   </div>
@@ -207,9 +201,7 @@ export default function ConnectionHistoryChart() {
       <div className={`mt-4 pt-3 border-t ${borderClass} text-center`}>
         <button
           className={`text-xs font-semibold transition-colors ${
-            isDark
-              ? 'text-[var(--accent)] hover:text-[#00ffff]'
-              : 'text-blue-600 hover:text-blue-700'
+            'text-[var(--accent)] hover:text-[#00ffff]'
           }`}
         >
           Выгрузить отчет

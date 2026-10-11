@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Globe, FolderPlus, Zap, ChevronRight, Check } from 'lucide-react';
 import { useI18n } from '../i18n';
 import mascot from '../assets/mascot.png';
+import { withAlpha, onTheme } from '../utils/color';
 
 interface Slide {
   icon: React.ReactNode;
@@ -24,6 +25,8 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
   const [i, setI] = useState(0);
   const last = i === SLIDES.length - 1;
   const s = SLIDES[i];
+  // Цвет слайда для значка и кнопки: в светлой теме тот же тон темнее — на нём читается белый текст кнопки.
+  const tone = onTheme(s.accent);
 
   const next = () => { if (last) onDone(); else setI(i + 1); };
 
@@ -47,13 +50,13 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }} className="flex flex-col items-center">
             {s.mascot ? (
-              <div className="w-44 h-44 rounded-full flex items-center justify-center mb-8 border-2 border-[#e9c46a88] bg-[#0c1030] overflow-hidden"
-                style={{ boxShadow: '0 0 60px #2f7fe644, 0 18px 40px -12px #000000bb' }}>
+              <div className="w-44 h-44 rounded-full flex items-center justify-center mb-8 border-2 border-[#e9c46a88] overflow-hidden"
+                style={{ background: 'var(--medal)', boxShadow: '0 0 60px #2f7fe644, var(--medal-drop)' }}>
                 <img src={mascot} alt="" draggable={false} className="w-[88%] h-[88%] object-contain" />
               </div>
             ) : (
               <div className="w-24 h-24 rounded-[28px] flex items-center justify-center mb-8 border"
-                style={{ background: `${s.accent}18`, borderColor: `${s.accent}44`, color: s.accent, boxShadow: `0 0 40px ${s.accent}22` }}>
+                style={{ background: withAlpha(tone, '18'), borderColor: withAlpha(tone, '44'), color: tone, boxShadow: `0 0 40px ${withAlpha(tone, '22')}` }}>
                 {s.icon}
               </div>
             )}
@@ -68,14 +71,14 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
         {SLIDES.map((_, idx) => (
           <div key={idx}
             className="h-1.5 rounded-full transition-all duration-300"
-            style={{ width: idx === i ? 24 : 8, background: idx === i ? s.accent : '#ffffff22' }} />
+            style={{ width: idx === i ? 24 : 8, background: idx === i ? tone : 'rgba(var(--ink-rgb),0.133)' }} />
         ))}
       </div>
 
       <div className="px-8 pb-[calc(32px+env(safe-area-inset-bottom,0px))] relative z-10">
         <button onClick={next}
           className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-black text-[16px] font-extrabold active:scale-[0.98] transition-all"
-          style={{ background: s.accent, boxShadow: `0 0 24px ${s.accent}55` }}>
+          style={{ background: tone, boxShadow: `0 0 24px ${withAlpha(tone, '55')}` }}>
           {last ? (<><Check size={18} /> {t('common.start')}</>) : (<>{t('common.next')} <ChevronRight size={18} /></>)}
         </button>
       </div>

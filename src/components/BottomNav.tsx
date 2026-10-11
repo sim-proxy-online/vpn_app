@@ -24,7 +24,7 @@ export function MobileNav({ activeScreen, onNavigate }: NavProps) {
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
       {/* Background with glassmorphism and subtle border */}
-      <div className={`absolute inset-0 backdrop-blur-2xl border-t ${isDark ? 'bg-[#0a0a1a]/80 border-[var(--accent-a15)]' : 'bg-white/80 border-gray-200/50'}`} />
+      <div className={`absolute inset-0 backdrop-blur-2xl border-t bg-[#0a0a1a]/80 border-[var(--accent-a15)]`} />
 
       {/* Glow effect for the active area */}
       {isDark && (
@@ -46,7 +46,7 @@ export function MobileNav({ activeScreen, onNavigate }: NavProps) {
               <Icon size={20}
                 className={`relative z-10 transition-colors ${isActive ? 'text-[var(--accent)]' : 'text-gray-400'}`}
                 style={isActive ? { filter: 'drop-shadow(0 0 6px var(--accent))' } : {}} />
-              <span className={`relative z-10 text-[11px] font-medium transition-colors ${isActive ? 'text-[var(--accent)]' : (isDark ? 'text-gray-300' : 'text-gray-600')}`}>
+              <span className={`relative z-10 text-[11px] font-medium transition-colors ${isActive ? 'text-[var(--accent)]' : ('text-gray-300')}`}>
                 {t(item.tkey)}
               </span>
               {isActive && (
@@ -66,7 +66,7 @@ export function DesktopSidebar({ activeScreen, onNavigate }: NavProps) {
   const { isDark } = useTheme();
   const { t } = useI18n();
   return (
-    <div className={`hidden lg:flex flex-col fixed left-0 top-0 bottom-0 w-[220px] xl:w-[260px] z-50 border-r transition-all duration-300 ${isDark ? 'bg-[#0a0a1a] border-[var(--accent-a15)] shadow-[4px_0_24px_rgba(0,0,0,0.3)]' : 'bg-white border-gray-100 shadow-[4px_0_12px_rgba(0,0,0,0.05)]'}`}>
+    <div className={`hidden lg:flex flex-col fixed left-0 top-0 bottom-0 w-[220px] xl:w-[260px] z-50 border-r transition-all duration-300 bg-[#0a0a1a] border-[var(--accent-a15)] shadow-[4px_0_24px_rgba(0,0,0,0.3)]`}>
       {/* Subtle Sidebar Glow */}
       {isDark && (
         <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-[var(--accent-a22)] to-transparent" />
@@ -93,7 +93,7 @@ export function DesktopSidebar({ activeScreen, onNavigate }: NavProps) {
           const Icon = item.icon;
           return (
             <button key={item.id} onClick={() => onNavigate(item.id)}
-              className={`relative w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left ${isActive ? 'text-[var(--accent)]' : (isDark ? 'text-gray-300 hover:text-white hover:bg-[#ffffff05]' : 'text-gray-500 hover:text-gray-700 hover:bg-[#ffffff05]')}`}>
+              className={`relative w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left ${isActive ? 'text-[var(--accent)]' : ('text-gray-300 hover:text-white hover:bg-[#ffffff05]')}`}>
               {isActive && (
                 <motion.div className="absolute inset-0 rounded-xl bg-[var(--accent-a08)] border border-[var(--accent-a22)]"
                   layoutId="sidebarBg" transition={{ type: 'spring', damping: 25 }} />
@@ -112,8 +112,8 @@ export function DesktopSidebar({ activeScreen, onNavigate }: NavProps) {
 
       {/* Footer */}
       <div className="px-6 py-4 border-t border-[#2a2a5a22]">
-        <p className={`text-[11px] ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Xray Core + mihomo</p>
-        <p className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-800'} mt-0.5`}>VLESS · VMess · Trojan · Shadowsocks</p>
+        <p className={`text-[11px] text-gray-300`}>Xray Core + mihomo</p>
+        <p className={`text-[10px] text-gray-400 mt-0.5`}>VLESS · VMess · Trojan · Shadowsocks</p>
       </div>
     </div>
   );

@@ -1,13 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { withAlpha } from '../utils/color';
+import { withAlpha, onTheme, GRAPHIC_CONTRAST } from '../utils/color';
 import {
   ArrowLeft, Wifi, Globe, Smartphone, Info, ChevronDown,
   Route, Lock, Eye, Map, Download,
   Database, Upload, Trash2, Activity, Zap,
-  Monitor, Hash, Clock, Layers, FileText, Settings2, Network, Terminal, Cpu, Check, Palette, Link, ChevronRight as ChevronRightIcon, Building2, ShieldOff, Shield, ShieldCheck, Tv, Flame, Sparkles
+  Monitor, Hash, Clock, Layers, FileText, Settings2, Network, Terminal, Cpu, Check, Palette, Link, ChevronRight as ChevronRightIcon, Building2, ShieldOff, Shield, ShieldCheck, Tv, Flame, Sparkles, Moon, Sun
 } from 'lucide-react';
 import { useState, ReactNode, useEffect } from 'react';
-import { useTheme, ACCENT_PRESETS, DEFAULT_ACCENT } from '../ThemeContext';
+import { useTheme, ACCENT_PRESETS, DEFAULT_ACCENT, type Theme } from '../ThemeContext';
 import { useI18n, LANGUAGES } from '../i18n';
 import KillSwitchToggle from './KillSwitchToggle';
 import SplitTunnelSettings from './SplitTunnelSettings';
@@ -35,6 +35,11 @@ interface SettingsScreenProps {
   onShieldToggle?: (on: boolean) => Promise<boolean>;
 }
 
+const THEMES: { value: Theme; label: string; Icon: typeof Moon }[] = [
+  { value: 'dark', label: 'Тёмная', Icon: Moon },
+  { value: 'light', label: 'Светлая', Icon: Sun },
+];
+
 function usePersist<T>(key: string, init: T): [T, (v: T | ((p: T) => T)) => void] {
   const [val, setVal] = useState<T>(() => { try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : init; } catch { return init; } });
   const set = (v: T | ((p: T) => T)) => { setVal(p => { const n = typeof v === 'function' ? (v as (p: T) => T)(p) : v; try { localStorage.setItem(key, JSON.stringify(n)); } catch {} return n; }); };
@@ -45,9 +50,11 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   return (
     <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
       className={`relative w-[44px] h-[26px] rounded-full transition-all duration-300 shrink-0 ${on ? '' : 'bg-[#2a2a5a]'}`}
-      style={on ? { background: 'linear-gradient(135deg, var(--accent), #00c4d6)', boxShadow: '0 0 12px var(--accent-a44), 0 2px 8px #00000033' } : {}}>
-      <motion.div className="absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-md"
-        animate={{ left: on ? 21 : 3 }} transition={{ type: 'spring', damping: 22, stiffness: 400 }} />
+      style={on ? { background: 'var(--toggle-on)', boxShadow: '0 0 12px var(--accent-a44), 0 2px 8px #00000033' } : {}}>
+      {/* Ползунок двигается через transform (x), а не left: left заставлял пересчитывать раскладку в каждом кадре.
+          initial={false} — при открытии раздела ползунки сразу стоят на месте, а не «доезжают» всей пачкой. */}
+      <motion.div className="absolute top-[3px] left-[3px] w-5 h-5 rounded-full bg-white shadow-md"
+        initial={false} animate={{ x: on ? 18 : 0 }} transition={{ type: 'spring', damping: 22, stiffness: 400 }} />
     </button>
   );
 }
@@ -56,7 +63,7 @@ function Row({ icon, iconColor, label, desc, right }: { icon: ReactNode; iconCol
   return (
     <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-[#ffffff03] transition-colors">
       <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{ background: withAlpha(iconColor || 'var(--accent)', '10'), color: iconColor || 'var(--accent)' }}>{icon}</div>
+        style={{ background: withAlpha(iconColor || 'var(--accent)', '10'), color: onTheme(iconColor || 'var(--accent)') }}>{icon}</div>
       <div className="flex-1 min-w-0">
         <p className="text-white text-[13px] font-medium leading-tight">{label}</p>
         {desc && <p className="text-gray-500 text-[10px] mt-0.5 leading-tight">{desc}</p>}
@@ -146,7 +153,7 @@ function NavRow({
         style={{
           background: `linear-gradient(135deg, ${withAlpha(iconColor, '25')}, ${withAlpha(iconColor, '10')})`,
           border: `1px solid ${withAlpha(iconColor, '35')}`,
-          color: iconColor,
+          color: onTheme(iconColor),
           boxShadow: `0 2px 12px ${withAlpha(iconColor, '18')}`,
         }}>
         {icon}
@@ -156,8 +163,8 @@ function NavRow({
           <p className="text-white text-[14px] font-semibold leading-tight">{title}</p>
           {badge && (
             <span className="flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full"
-              style={{ background: withAlpha(bc, '18'), color: bc, border: `1px solid ${withAlpha(bc, '30')}` }}>
-              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: bc }} />
+              style={{ background: withAlpha(bc, '18'), color: onTheme(bc), border: `1px solid ${withAlpha(bc, '30')}` }}>
+              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: onTheme(bc, GRAPHIC_CONTRAST) }} />
               {badge}
             </span>
           )}
@@ -174,9 +181,9 @@ function SubScreen({ title, icon, iconColor, onBack, children }: {
   title: string; icon: ReactNode; iconColor: string; onBack: () => void; children: ReactNode;
 }) {
   return (
-    <motion.div className="absolute inset-0 flex flex-col bg-[#07071a] z-10"
-      initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-      transition={{ type: 'spring', damping: 28, stiffness: 300 }}>
+    <motion.div className="slide-in-right absolute inset-0 flex flex-col bg-[#07071a] z-10"
+      // Появление — CSS-анимация .slide-in-right (index.css): экран целиком на месте с первого кадра.
+    >
       {/* Sub-header */}
       <div className="flex items-center gap-3 px-4 pt-12 pb-4 shrink-0 border-b border-white/5">
         <button onClick={onBack}
@@ -184,12 +191,14 @@ function SubScreen({ title, icon, iconColor, onBack, children }: {
           <ArrowLeft size={20} />
         </button>
         <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: withAlpha(iconColor, '20'), color: iconColor }}>
+          style={{ background: withAlpha(iconColor, '20'), color: onTheme(iconColor) }}>
           {icon}
         </div>
         <h2 className="font-orbitron text-[18px] font-bold text-white tracking-wide">{title}</h2>
       </div>
-      <div className="flex-1 overflow-y-auto pb-20 divide-y divide-[#1a1a3a66]">
+      {/* Каждый блок верхнего уровня — отдельная карточка (см. .sub-body в index.css);
+          set-plain — обёртка, внутри которой свои карточки. */}
+      <div className="sub-body flex-1 overflow-y-auto pb-20 divide-y divide-[#1a1a3a66]">
         {children}
       </div>
     </motion.div>
@@ -197,7 +206,7 @@ function SubScreen({ title, icon, iconColor, onBack, children }: {
 }
 
 export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShieldToggle }: SettingsScreenProps) {
-  const { accent, setAccent, resetAccent, accentAuto, setAccentAuto, dayPart } = useTheme();
+  const { theme, setTheme, accent, setAccent, resetAccent, accentAuto, setAccentAuto, dayPart } = useTheme();
   const { lang, setLang } = useI18n();
   const [sysInfo, setSysInfo] = useState<any>(null);
   const [coreVersions, setCoreVersions] = useState<CoreVersion | null>(null);
@@ -336,7 +345,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
 
   const BasicContent = (
     <>
-      <div className="px-4 py-3">
+      <div className="set-plain px-4 py-3">
         <KillSwitchToggle enabled={killSwitch} onToggle={setKillSwitch} />
       </div>
       <Row icon={<Wifi size={15} />} iconColor="#00ff88" label="Авто-подключение" desc="Подключаться при запуске приложения" right={<Toggle on={autoConnect} onToggle={() => { const next = !autoConnect; setAutoConnect(next); nativeSetAutoConnect(next).catch(console.error); }} />} />
@@ -351,6 +360,21 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
   const DesignContent = (
     <>
       <div className="px-4 py-3.5">
+        <p className="text-white text-[13px] font-medium mb-2.5">Тема</p>
+        <div className="flex gap-2" role="radiogroup" aria-label="Тема">
+          {THEMES.map(({ value, label, Icon }) => (
+            <button key={value} onClick={() => setTheme(value)} role="radio" aria-checked={theme === value}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border text-[12px] font-bold transition-all active:scale-95 ${
+                theme === value
+                  ? 'bg-[var(--accent-a12)] border-[var(--accent-a44)] text-[var(--accent)]'
+                  : 'bg-[#12122a] border-[#2a2a5a44] text-gray-400'
+              }`}>
+              <Icon size={15} /> {label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="px-4 py-3.5 border-t border-[#1a1a3a66]">
         <p className="text-white text-[13px] font-medium mb-2.5">Язык · Language</p>
         <div className="flex gap-2">
           {LANGUAGES.map(l => (
@@ -386,7 +410,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
                 style={{
                   backgroundColor: p.value,
                   boxShadow: active ? `0 0 14px ${withAlpha(p.value, 'aa')}` : `0 0 6px ${withAlpha(p.value, '55')}`,
-                  outline: active ? '2px solid #ffffff' : '2px solid transparent',
+                  outline: active ? '2px solid rgb(var(--ink-rgb))' : '2px solid transparent',
                   outlineOffset: '2px',
                 }}>
                 {active && <Check size={14} className="absolute inset-0 m-auto text-black/80" strokeWidth={3} />}
@@ -422,7 +446,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
 
   const TrafficContent = (
     <>
-      <div className="px-4 py-3 space-y-4">
+      <div className="set-plain px-4 py-3 space-y-4">
         <div className="bg-[#1a1a3a33] rounded-xl border border-[#2a2a5a22] overflow-hidden">
           <Row icon={<Building2 size={15} />} iconColor="#ff6a00" label="Банки и госпорталы напрямую" desc="Госуслуги, Сбер, Тинькофф, ВТБ, ФНС и др. без VPN" right={<Toggle on={ruDirect} onToggle={() => setRuDirect(!ruDirect)} />} />
           <Row icon={<ShieldCheck size={15} />} iconColor="#00e08a" label="Иммунитет" desc="Фильтр без смены IP: реклама, трекеры и утечки блокируются даже когда VPN выключен" right={<Toggle on={shield} onToggle={handleShieldToggle} />} />
@@ -457,7 +481,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
           <AnimatePresence>
             {torMode !== 'off' && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="mx-2 mb-2 p-3 rounded-xl" style={{ background: torAvailable === false ? '#2a110a' : '#0a1a0a', border: `1px solid ${torAvailable === false ? '#5a1a0a' : '#0a3a1a'}` }}>
+                <div className="mx-2 mb-2 p-3 rounded-xl" style={{ background: torAvailable === false ? 'var(--tile-bad)' : 'var(--tile-ok)', border: `1px solid ${torAvailable === false ? 'var(--tile-bad-line)' : 'var(--tile-ok-line)'}` }}>
                   {torAvailable === null ? (
                     <p className="text-[11px] text-gray-400">Требуется приложение Orbot (Tor для Android)</p>
                   ) : torAvailable ? (
@@ -500,7 +524,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
             {ROUTES.map(r => (
               <button key={r.id} onClick={() => setRouting(r.id)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left ${routing === r.id ? 'bg-[var(--accent-a11)] border-[var(--accent-a33)]' : 'bg-[#0a0a1a55] border-transparent hover:border-[#2a2a5a44]'}`}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: withAlpha(r.c, '15'), color: r.c }}>{r.i}</div>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: withAlpha(r.c, '15'), color: onTheme(r.c) }}>{r.i}</div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-[12px] font-semibold ${routing === r.id ? 'text-white' : 'text-gray-400'}`}>{r.n}</p>
                   <p className="text-gray-600 text-[9px] mt-0.5 leading-tight">{r.d}</p>
@@ -572,7 +596,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: 'rgba(0,196,214,0.10)', color: '#00c4d6' }}>
+              style={{ background: 'rgba(0,196,214,0.10)', color: onTheme('#00c4d6') }}>
               <Network size={15} />
             </div>
             <div>
@@ -600,7 +624,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
                     <span className="text-[11px] font-bold text-white">{ispDetection.ispName}</span>
                     <span className="text-gray-600 text-[10px]">→</span>
                     {ispDetection.presetId ? (
-                      <span className="text-[10px] font-bold" style={{ color: '#00c4d6' }}>{ispDetection.presetLabel}</span>
+                      <span className="text-[10px] font-bold" style={{ color: onTheme('#00c4d6') }}>{ispDetection.presetLabel}</span>
                     ) : (
                       <span className="text-[10px] text-gray-500">не в базе</span>
                     )}
@@ -611,7 +635,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
                 </div>
                 <button onClick={triggerIspDetection}
                   className="shrink-0 text-[9px] font-bold px-2 py-1 rounded-lg active:scale-90 transition-all"
-                  style={{ background: 'rgba(0,196,214,0.12)', color: '#00c4d6' }}>
+                  style={{ background: 'rgba(0,196,214,0.12)', color: onTheme('#00c4d6') }}>
                   ↺
                 </button>
               </>
@@ -620,7 +644,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
                 <p className="text-[11px] text-gray-500 flex-1">Оператор не определён</p>
                 <button onClick={triggerIspDetection}
                   className="text-[9px] font-bold px-2 py-1 rounded-lg active:scale-90 transition-all"
-                  style={{ background: 'rgba(0,196,214,0.12)', color: '#00c4d6' }}>
+                  style={{ background: 'rgba(0,196,214,0.12)', color: onTheme('#00c4d6') }}>
                   Определить
                 </button>
               </>
@@ -628,7 +652,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
           </div>
         )}
       </div>
-      <div className="px-4 pt-3 pb-2 space-y-2.5">
+      <div className="set-plain px-4 pt-3 pb-2 space-y-2.5">
         <p className="text-[12px] text-gray-300 uppercase tracking-wider font-bold px-0.5">Пресеты DPI</p>
         <div className="grid grid-cols-2 gap-2">
           {DPI_PRESETS.map(p => {
@@ -638,22 +662,22 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
               <button key={p.id} onClick={() => applyPreset(p)}
                 className="relative flex flex-col gap-1 px-3 py-2.5 rounded-2xl border transition-all duration-200 active:scale-[0.97] text-left"
                 style={{
-                  background: active ? `linear-gradient(135deg, ${p.color}20, ${p.color}0a)` : 'rgba(255,255,255,0.02)',
-                  borderColor: active ? `${p.color}55` : 'rgba(255,255,255,0.07)',
-                  boxShadow: active ? `0 0 14px ${p.color}22` : 'none',
+                  background: active ? `linear-gradient(135deg, ${p.color}20, ${p.color}0a)` : 'rgba(var(--ink-rgb),0.02)',
+                  borderColor: active ? `${p.color}55` : 'rgba(var(--ink-rgb),0.07)',
+                  boxShadow: active ? `0 0 14px ${p.color}22` : undefined,
                 }}>
                 {ispAutoPreset && ispDetection?.presetId === p.id && (
                   <span className="absolute top-1.5 right-2 text-[8px] font-black px-1.5 py-0.5 rounded-full"
-                    style={{ background: `${p.color}25`, color: p.color }}>авто</span>
+                    style={{ background: `${p.color}25`, color: onTheme(p.color) }}>авто</span>
                 )}
                 {active && !ispDetection?.presetId && (
                   <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full"
                     style={{ background: p.color, boxShadow: `0 0 5px ${p.color}` }} />
                 )}
-                <PresetIcon size={20} style={{ color: p.color }} />
+                <PresetIcon size={20} style={{ color: onTheme(p.color) }} />
                 <span className="text-[13px] font-bold text-white leading-tight">{p.label}</span>
                 <span className="text-[11px] text-gray-400 leading-snug">{p.desc}</span>
-                <span className="text-[10px] font-mono mt-0.5 leading-tight" style={{ color: `${p.color}cc` }}>
+                <span className="text-[10px] font-mono mt-0.5 leading-tight" style={{ color: `${onTheme(p.color)}cc` }}>
                   {p.packets} · {p.length} · {p.interval}ms{p.noises ? ' · noise' : ''}
                 </span>
               </button>
@@ -664,9 +688,9 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
           onClick={() => { setFragEnable(false); setNoisesEnable(false); }}
           className="w-full py-2 rounded-xl border transition-all duration-200 text-[10px] font-bold uppercase tracking-widest"
           style={{
-            background: activePresetId === 'off' ? 'rgba(255,255,255,0.05)' : 'transparent',
-            borderColor: activePresetId === 'off' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.07)',
-            color: activePresetId === 'off' ? '#fff' : '#555',
+            background: activePresetId === 'off' ? 'rgba(var(--ink-rgb),0.05)' : 'transparent',
+            borderColor: activePresetId === 'off' ? 'rgba(var(--ink-rgb),0.2)' : 'rgba(var(--ink-rgb),0.07)',
+            color: activePresetId === 'off' ? 'rgb(var(--ink-rgb))' : 'var(--text2)',
           }}>
           ✕ Отключить всё
         </button>
@@ -809,7 +833,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
       </div>
       <div className="bg-[#ffffff03]">
         <button onClick={() => setLicensesOpen(o => !o)} className="w-full flex items-center gap-3 px-4 py-3 active:bg-white/5 transition-colors">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: withAlpha('#94a3b8', '15'), color: '#94a3b8' }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: withAlpha('#94a3b8', '15'), color: onTheme('#94a3b8') }}>
             <FileText size={15} />
           </div>
           <p className="text-white text-[13px] font-semibold flex-1 text-left">Лицензии и открытый код</p>
@@ -846,7 +870,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
       <Row icon={<Globe size={15} />} label="Сайт" right={
         <button onClick={() => nativeOpenUrl(SUBSCRIPTION_URL)} className="text-[11px] text-[var(--accent)] hover:underline cursor-pointer">petrovich.party</button>
       } />
-      <div className="px-4 pb-4 pt-3">
+      <div className="set-plain px-4 pb-4 pt-3">
         <button onClick={() => nativeRequestBatteryExemption()}
           className="w-full py-3 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all">
           Разрешить работу в фоне

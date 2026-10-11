@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
-import { useTheme } from '../ThemeContext';
 import { nativeStartSpeedTest, SpeedTestResult } from '../native/bridge';
 
 interface SpeedTestProps {
@@ -10,7 +9,6 @@ interface SpeedTestProps {
 }
 
 export default function SpeedTest({ isConnected, serverName }: SpeedTestProps) {
-  const { isDark } = useTheme();
   const [testing, setTesting] = useState(false);
   const [result, setResult] = useState<SpeedTestResult | null>(null);
   const [progress, setProgress] = useState(0);
@@ -41,13 +39,11 @@ export default function SpeedTest({ isConnected, serverName }: SpeedTestProps) {
     }
   };
 
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]'
-    : 'bg-gradient-to-br from-[#e8f0ff] to-[#f0f2f5]';
+  const bgClass = 'bg-gradient-to-br from-[#1a1a3e] to-[#0f0f2e]';
 
-  const borderClass = isDark ? 'border-[#2a2a5e]' : 'border-[#d0d8e0]';
-  const textClass = isDark ? 'text-[#e0e0ff]' : 'text-gray-700';
-  const labelClass = isDark ? 'text-[#9090b0]' : 'text-gray-500';
+  const borderClass = 'border-[#2a2a5e]';
+  const textClass = 'text-[#e0e0ff]';
+  const labelClass = 'text-[#9090b0]';
 
   return (
     <motion.div
@@ -57,7 +53,7 @@ export default function SpeedTest({ isConnected, serverName }: SpeedTestProps) {
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Zap className={`w-5 h-5 ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`} />
+          <Zap className={`w-5 h-5 text-yellow-400`} />
           <h3 className={`font-semibold ${textClass}`}>Тест скорости</h3>
         </div>
         {serverName && <span className={`text-xs ${labelClass}`}>{serverName}</span>}
@@ -70,12 +66,8 @@ export default function SpeedTest({ isConnected, serverName }: SpeedTestProps) {
             disabled={!isConnected || testing}
             className={`w-full py-3 rounded-lg font-semibold transition-all ${
               !isConnected || testing
-                ? isDark
-                  ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
-                  : 'bg-gray-300/50 text-gray-500 cursor-not-allowed'
-                : isDark
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500'
-                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600'
+                ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500'
             }`}
             whileHover={!testing && isConnected ? { scale: 1.02 } : {}}
             whileTap={!testing && isConnected ? { scale: 0.98 } : {}}
@@ -143,9 +135,7 @@ export default function SpeedTest({ isConnected, serverName }: SpeedTestProps) {
           <motion.button
             onClick={() => setResult(null)}
             className={`w-full py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-              isDark
-                ? 'bg-gray-700/30 hover:bg-gray-700/50 text-gray-300'
-                : 'bg-gray-300/30 hover:bg-gray-300/50 text-gray-700'
+              'bg-gray-700/30 hover:bg-gray-700/50 text-gray-300'
             }`}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

@@ -373,6 +373,8 @@ export function startPingBatch(
   // Приоритетные серверы (LTE/4G/БС/Белые/Обход) идут первыми в очереди.
   const sorted = [...nodes].sort((a, b) => (isDpiPriority(b) ? 1 : 0) - (isDpiPriority(a) ? 1 : 0));
 
+  if (isDesktopPlatform()) return startDesktopPingBatch(sorted, onItem, onDone);
+
   const settings = readPingSettings();
   const servers: Array<{ id: string; config: string }> = [];
   for (const node of sorted) {
@@ -429,6 +431,48 @@ export function startPingBatch(
     try { bridge.cancelPingBatch?.(); } catch {}
     cleanup();
   };
+}
+
+// Сколько серверов десктоп меряет одновременно: у каждого замера своё временное ядро на свободном порту.
+const DESKTOP_PING_PARALLEL = 3;
+
+// Пакетный замер на десктопе. В основном процессе его нет: мост там — Proxy, метод nativePingBatch «существует»,
+// но событий ping-batch-item / ping-batch-done никто не шлёт, и список серверов навсегда оставался в состоянии
+// «Пингую…». Поэтому очередь ведём здесь, поштучными замерами.
+function startDesktopPingBatch(
+  nodes: ServerNode[],
+  onItem: (id: string, ms: number) => void,
+  onDone: () => void
+): () => void {
+  const settings = readPingSettings();
+  let cancelled = false;
+  let next = 0;
+
+  const measure = async (node: ServerNode): Promise<number> => {
+    try {
+      const ms = MIHOMO_TCP_ONLY.has(node.protocol)
+        ? await nativePing(node.address, node.port, 5000)
+        : await nativePingProxy(JSON.stringify(buildMeasureConfig(node, settings)), 'proxy');
+      return typeof ms === 'number' ? ms : -1;
+    } catch (e: any) {
+      console.warn('[SIM-PING] desktop batch:', node.protocol, node.address, ':', e?.message);
+      return -1;
+    }
+  };
+
+  const worker = async () => {
+    while (!cancelled && next < nodes.length) {
+      const node = nodes[next++];
+      const ms = await measure(node);
+      if (cancelled) return;
+      onItem(node.id, ms);
+    }
+  };
+
+  const workers = Array.from({ length: Math.min(DESKTOP_PING_PARALLEL, nodes.length) }, worker);
+  Promise.all(workers).then(() => { if (!cancelled) onDone(); });
+
+  return () => { cancelled = true; };
 }
 
 // Pre-boot the libxray core in the background so the FIRST ping doesn't pay for

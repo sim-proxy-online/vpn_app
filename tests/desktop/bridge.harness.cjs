@@ -49,9 +49,11 @@ cp.spawnSync = (cmd, args) => { const r = fakeRun(cmd, args); return { status: r
 
 // ── фейковое ядро xray ──
 let procs = [];
-let spawnMode = 'ok'; // 'ok' | 'die'
+let spawnMode = 'ok'; // 'ok' | 'die' | 'hold' (порт не открывается, пока тест не вызовет p.open())
+let nextPid = 4000;
 cp.spawn = (exe, args) => {
   const p = new EventEmitter();
+  p.pid = nextPid++;
   p.stdout = new EventEmitter(); p.stderr = new EventEmitter();
   p.cfgPath = args[args.indexOf('-c') + 1];
   p.cfgExistedAtSpawn = fs.existsSync(p.cfgPath);
@@ -65,8 +67,11 @@ cp.spawn = (exe, args) => {
   p.kill = () => { p.killed = true; closeAll(0); };
   p.crash = () => closeAll(139);
   procs.push(p);
+  p.open = () => { p.server = net.createServer((s) => s.destroy()).listen(p.httpPort || 12334, '127.0.0.1'); };
   if (spawnMode === 'ok') {
-    p.server = net.createServer((s) => s.destroy()).listen(p.httpPort || 12334, '127.0.0.1');
+    p.open();
+  } else if (spawnMode === 'hold') {
+    /* ядро «запускается»: порт откроет сам тест */
   } else {
     setTimeout(() => { p.stderr.emit('data', Buffer.from('bad config')); closeAll(1); }, 50);
   }
@@ -243,6 +248,46 @@ async function t(name, fn) {
     await bridge.recoverFromCrash();
     assert.strictEqual(killStrayCalls, 0);
     await bridge.handlers.stopVpn();
+  });
+
+  // ── пинг при включённом VPN ──
+  const nodeCfg = (address) => JSON.stringify({
+    outbounds: [{ protocol: 'vless', tag: 'proxy', settings: { vnext: [{ address, port: 443, users: [] }] } }],
+  });
+  const nodePayload = (address) => JSON.stringify({ config: nodeCfg(address), settings: JSON.stringify({ core: 'xray' }) });
+  const isPingCore = (p) => /simproxy-desktop-ping-/.test(p.cfgPath);
+
+  await t('ping while connected: the connected server goes through the live proxy, another server gets its own core', async () => {
+    reset();
+    await bridge.handlers.startVpnWithResult(nodePayload('a.example'));
+    await bridge.handlers.pingProxyServer(nodeCfg('a.example'));
+    assert.strictEqual(procs.filter(isPingCore).length, 0, 'no temporary core for the connected server');
+    await bridge.handlers.pingProxyServer(nodeCfg('b.example'));
+    const ping = procs.filter(isPingCore);
+    assert.strictEqual(ping.length, 1, 'another server must be measured by a temporary core');
+    assert.ok(ping[0].killed, 'temporary core is stopped after the measurement');
+    assert.ok(!fs.existsSync(ping[0].cfgPath), 'ping config with keys must be deleted');
+    await bridge.handlers.stopVpn();
+  });
+
+  await t('ping core in flight is not killed as a stray core by connect/disconnect', async () => {
+    reset();
+    spawnMode = 'hold';
+    const pending = bridge.handlers.pingProxyServer(nodeCfg('b.example')); // VPN выключен -> временное ядро
+    while (!procs.some(isPingCore)) await sleep(20);
+    const ping = procs.find(isPingCore);
+    spawnMode = 'ok';
+    await bridge.handlers.startVpnWithResult(nodePayload('a.example'));
+    const sweep = calls.filter((c) => isKillStray(c[0], c.slice(1))).map((c) => c[c.length - 1]);
+    assert.ok(sweep.length >= 1);
+    for (const cmd of sweep) assert.ok(cmd.includes(`-notin @(${ping.pid})`), 'sweep must skip the ping core: ' + cmd);
+    assert.ok(!ping.killed, 'ping core must survive the connect');
+    ping.open(); // порт открылся -> замер завершается сам
+    await pending;
+    assert.ok(ping.killed, 'ping core is stopped by its own measurement');
+    await bridge.handlers.stopVpn();
+    const after = calls.filter((c) => isKillStray(c[0], c.slice(1))).pop();
+    assert.ok(!after[after.length - 1].includes('-notin'), 'no ping cores left -> plain sweep');
   });
 
   await t('no simproxy-desktop-*.json left in %TEMP% by these runs', async () => {

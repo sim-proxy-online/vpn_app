@@ -50,6 +50,7 @@ let mihomoProc = null;     // второе ядро (mihomo/Clash.Meta) для h
 let activeCore = 'xray';   // какое ядро сейчас поднято: 'xray' | 'mihomo'
 let activeProxyPort = HTTP_PORT; // порт, на который указывает системный прокси
 let connected = false;
+let activeEndpoint = null; // "адрес:порт" сервера, к которому подключены (xray); null — неизвестен
 let startedAt = 0;
 let lastError = '';
 const logBuf = [];
@@ -279,9 +280,22 @@ const KILL_STRAY_ARGS = [
     "Where-Object { $_.CommandLine -like '*simproxy-desktop*' -or $_.CommandLine -like '*simproxy-mihomo*' } | " +
     'ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }',
 ];
+// Временные ядра замера пинга, запущенные этим процессом (pid). Их конфиг тоже несёт маркер 'simproxy-desktop',
+// но это не осиротевшие ядра: если добивать их при подключении и отключении, серверы, которые в этот момент
+// мерились, получали бы ложное «нет ответа».
+const pingPids = new Set();
+function killStrayArgs() {
+  if (!pingPids.size) return KILL_STRAY_ARGS;
+  const args = KILL_STRAY_ARGS.slice();
+  args[args.length - 1] = args[args.length - 1].replace(
+    "-like '*simproxy-mihomo*' }",
+    `-like '*simproxy-mihomo*' } | Where-Object { $_.ProcessId -notin @(${[...pingPids].join(',')}) }`
+  );
+  return args;
+}
 async function killStrayCores() {
   if (process.platform !== 'win32') return;
-  await runAsync('powershell', KILL_STRAY_ARGS, 8000);
+  await runAsync('powershell', killStrayArgs(), 8000);
 }
 function killStrayCoresSync() {
   if (process.platform !== 'win32') return;
@@ -479,6 +493,7 @@ function onCoreExit(name, proc, code, markEarlyExit) {
   if (name === 'xray') xrayProc = null; else mihomoProc = null;
   const wasConnected = connected;
   connected = false;
+  activeEndpoint = null;
   if (wasConnected) {
     log(name + ' died while connected -> clearing system proxy');
     setSystemProxyAsync(false).catch(() => {});
@@ -580,6 +595,7 @@ async function startVpnCore(payload) {
       return { ok: false, error: lastError };
     }
     connected = true;
+    activeEndpoint = proxyEndpoint(config);
     startedAt = Date.now();
     resetTraffic();
     lastError = '';
@@ -610,6 +626,7 @@ function killCores() {
 
 async function stopVpnCore() {
   connected = false;
+  activeEndpoint = null;
   // Сначала снимаем системный прокси, потом гасим ядро — иначе трафик приложений
   // уйдёт в мёртвый порт.
   await setSystemProxyAsync(false);
@@ -986,6 +1003,7 @@ async function measureDelay(rawConfig, _url) {
     });
     let exited = false;
     proc.on('exit', () => { exited = true; });
+    if (Number.isInteger(proc.pid)) pingPids.add(proc.pid);
     if (proc.stdout) proc.stdout.on('data', () => {});
     if (proc.stderr) proc.stderr.on('data', () => {});
 
@@ -1016,8 +1034,23 @@ async function measureDelay(rawConfig, _url) {
     return -1;
   } finally {
     try { if (proc) proc.kill(); } catch (_) {}
+    if (proc) pingPids.delete(proc.pid);
     try { fs.unlinkSync(cfgPath); } catch (_) {}
   }
+}
+
+// "адрес:порт" первого прокси-сервера конфига xray (первый outbound с vnext или servers) — по нему отличаем сервер,
+// к которому подключены, от остальных. Тот же разбор, что на Android (extractProxyEndpoint).
+function proxyEndpoint(config) {
+  try {
+    const cfg = typeof config === 'string' ? JSON.parse(config) : config;
+    for (const ob of (cfg && cfg.outbounds) || []) {
+      const s = ob && ob.settings;
+      const srv = s && ((Array.isArray(s.vnext) && s.vnext[0]) || (Array.isArray(s.servers) && s.servers[0]));
+      if (srv && srv.address) return `${srv.address}:${srv.port}`;
+    }
+  } catch (_) { /* не JSON (YAML mihomo) — адрес неизвестен */ }
+  return null;
 }
 
 // ── HTTP fetch (subscriptions, DoH, etc.) ────────────────────────────────────
@@ -1131,8 +1164,13 @@ const handlers = {
   // When disconnected: spin up a temporary xray core from the config and measure
   // GET through it — same path as measureDelay, but called from the unified
   // nativePingProxy JS path (which replaced the split VPN-on/VPN-off logic).
+  // A different server than the connected one also gets a temporary core even while
+  // connected: the system proxy does not apply to it, so the measurement goes out
+  // directly. (It used to return the live tunnel's delay for every server.) When the
+  // connected server is unknown (mihomo), the live proxy is measured as before.
   pingProxyServer: (configJson, _mode) => {
-    if (connected) return proxyDelay(8000);
+    const endpoint = connected && activeEndpoint ? proxyEndpoint(configJson) : null;
+    if (connected && (!endpoint || endpoint === activeEndpoint)) return proxyDelay(8000);
     return measureDelay(configJson, 'http://cp.cloudflare.com/generate_204');
   },
   // Пинг «через прокси» при выключенном VPN: временное ядро + GET через него.

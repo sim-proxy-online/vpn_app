@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ServerNode, SubscriptionProfile } from '../types';
 import {
   ArrowLeft, RefreshCw, MoreVertical, Trash2,
-  XCircle, Zap, Eye, EyeOff, ArrowLeftRight,
+  XCircle, Eye, EyeOff, ArrowLeftRight,
 } from 'lucide-react';
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { nativeWarmupCore, startPingBatch } from '../native/bridge';
@@ -84,8 +84,6 @@ export default function ServerList({
   const [pingingIds, setPingingIds] = useState<Set<string>>(new Set());
   const [isPingAll, setIsPingAll] = useState(false);
   const [showOnlyWorking, setShowOnlyWorking] = useState(false);
-  const [autoPicking, setAutoPicking] = useState(false);
-  const abortRef = useRef(false);
   const cancelBatchRef = useRef<(() => void) | null>(null);
 
   useEffect(() => { nativeWarmupCore(); }, []);
@@ -98,7 +96,6 @@ export default function ServerList({
 
   const pingAll = useCallback(() => {
     if (isPingAll) return;
-    abortRef.current = false;
     setIsPingAll(true);
     setPingResults({});
     setPingingIds(new Set(displayNodes.map(n => n.id)));
@@ -116,40 +113,10 @@ export default function ServerList({
   useEffect(() => { pingAllRef.current = pingAll; }, [pingAll]);
 
   const stopPing = useCallback(() => {
-    abortRef.current = true;
     if (cancelBatchRef.current) { cancelBatchRef.current(); cancelBatchRef.current = null; }
     setIsPingAll(false);
     setPingingIds(new Set());
   }, []);
-
-  const selectFastest = useCallback(async () => {
-    if (displayNodes.length === 0 || autoPicking) return;
-    setAutoPicking(true); abortRef.current = false;
-    try {
-      const results: Record<string, number> = { ...pingResults };
-      const toPing = displayNodes.filter(n => results[n.id] === undefined);
-      if (toPing.length > 0) {
-        setIsPingAll(true);
-        setPingingIds(new Set(toPing.map(n => n.id)));
-        await new Promise<void>(resolve => {
-          cancelBatchRef.current = startPingBatch(
-            toPing,
-            (id, ms) => {
-              results[id] = ms;
-              setPingResults(prev => ({ ...prev, [id]: ms }));
-              setPingingIds(prev => { const s = new Set(prev); s.delete(id); return s; });
-            },
-            () => { cancelBatchRef.current = null; setPingingIds(new Set()); setIsPingAll(false); resolve(); }
-          );
-        });
-      }
-      if (!abortRef.current) {
-        let best: ServerNode | null = null, bestPing = Infinity;
-        for (const n of displayNodes) { const p = results[n.id]; if (typeof p === 'number' && p > 0 && p < bestPing) { bestPing = p; best = n; } }
-        if (best) { onSelect(best); if (!isConnected) onBack(); }
-      }
-    } finally { setAutoPicking(false); }
-  }, [displayNodes, autoPicking, pingResults, onSelect, isConnected, onBack]);
 
   const getPing = (node: ServerNode) => pingResults[node.id] !== undefined ? pingResults[node.id] : (node.ping ?? -1);
 
@@ -221,20 +188,26 @@ export default function ServerList({
         </div>
       </div>
 
-      {/* Action buttons */}
+      {/* Действия: авто-переключение (плитка-переключатель) и замер пинга всех серверов */}
       <div className="px-4 pb-3 grid grid-cols-2 gap-2.5 shrink-0">
-        <button onClick={selectFastest} disabled={autoPicking}
+        <button onClick={() => onAutoSwitchChange?.(!autoSwitch)}
+          role="switch" aria-checked={autoSwitch}
+          aria-label="Авто-переключение: если пинг больше 5000 мс или сервер не отвечает — на другой сервер"
           className="flex items-center gap-2.5 px-3 py-3 rounded-2xl transition-all active:scale-[0.97]"
-          style={{ background: 'var(--tile-green)', border: '1px solid rgba(0,232,122,0.2)' }}>
+          style={autoSwitch
+            ? { background: 'var(--tile-green)', border: '1px solid rgba(0,232,122,0.2)' }
+            : { background: 'rgba(var(--ink-rgb),0.03)', border: '1px solid rgba(var(--ink-rgb),0.07)' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(0,232,122,0.15)', border: '1px solid rgba(0,232,122,0.25)' }}>
-            <Zap size={16} fill="currentColor" className={`text-[#00e87a] ${autoPicking ? 'animate-pulse' : ''}`} />
+            style={autoSwitch
+              ? { background: 'rgba(0,232,122,0.15)', border: '1px solid rgba(0,232,122,0.25)' }
+              : { background: 'rgba(var(--ink-rgb),0.06)', border: '1px solid rgba(var(--ink-rgb),0.1)' }}>
+            <ArrowLeftRight size={16} className={autoSwitch ? 'text-[#00e87a]' : 'text-gray-400'} />
           </div>
           <div className="text-left min-w-0">
-            <p className="text-[#00e87a] text-[13px] font-bold leading-tight">
-              {autoPicking ? 'Подбор...' : 'Быстрейший'}
+            <p className={`text-[12px] font-bold leading-tight ${autoSwitch ? 'text-[#00e87a]' : 'text-gray-300'}`}>Авто-переключение</p>
+            <p className={`text-[10px] leading-tight mt-0.5 ${autoSwitch ? 'text-[#00e87a] opacity-55' : 'text-gray-500'}`}>
+              {autoSwitch ? 'Включено' : 'Выключено'}
             </p>
-            <p className="text-[#00e87a] text-[10px] opacity-55 leading-tight mt-0.5">Авто-подбор</p>
           </div>
         </button>
         <button onClick={isPingAll ? stopPing : pingAll}
@@ -253,29 +226,6 @@ export default function ServerList({
             </p>
           </div>
         </button>
-      </div>
-
-      {/* Auto-switch toggle */}
-      <div className="px-4 pb-3 shrink-0">
-        <div className="flex items-center justify-between px-4 py-3 rounded-2xl"
-          style={{ background: 'rgba(var(--ink-rgb),0.03)', border: '1px solid rgba(var(--ink-rgb),0.07)' }}>
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: autoSwitch ? 'rgba(var(--accent-rgb),0.15)' : 'rgba(var(--ink-rgb),0.06)' }}>
-              <ArrowLeftRight size={14} className={autoSwitch ? 'text-[var(--accent)]' : 'text-gray-500'} />
-            </div>
-            <div>
-              <p className="text-[12px] font-semibold text-white leading-tight">Авто-переключение</p>
-              <p className="text-[10px] text-gray-500 leading-tight mt-0.5">Пинг &gt;5000мс или нет ответа</p>
-            </div>
-          </div>
-          <button onClick={() => onAutoSwitchChange?.(!autoSwitch)}
-            className="w-11 h-6 rounded-full relative flex items-center px-0.5 transition-all shrink-0"
-            style={{ background: autoSwitch ? 'var(--accent)' : 'var(--track)' }}>
-            <div className="absolute transition-all duration-200 w-5 h-5 bg-white rounded-full shadow-sm"
-              style={{ left: autoSwitch ? 'calc(100% - 22px)' : '2px' }} />
-          </button>
-        </div>
       </div>
 
       {/* Profile selector */}

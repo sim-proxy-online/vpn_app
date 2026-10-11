@@ -30,8 +30,8 @@ const RU: Dict = {
   'onboard.1.text': 'Быстрый и приватный доступ в интернет. 13 протоколов, два ядра (Xray + mihomo), обход блокировок DPI.',
   'onboard.2.title': 'Добавьте подписку',
   'onboard.2.text': 'Вставьте ссылку-подписку или конфиг (vless://, vmess://…) на вкладке «Профили». Можно открыть ссылку sim:// прямо из браузера.',
-  'onboard.3.title': 'Выберите быстрейший',
-  'onboard.3.text': 'Кнопка «Подключить быстрейший» сама протестирует все серверы и выберет лучший по задержке. Помечайте любимые ⭐.',
+  'onboard.3.title': 'Проверьте серверы',
+  'onboard.3.text': 'Кнопка «Скорость» измерит задержку всех серверов. Включите «Авто-переключение» — и приложение само уйдёт с сервера, который перестал отвечать.',
   'onboard.4.title': 'Разрешения для VPN',
   'onboard.4.text': 'Для работы в фоне дайте разрешение VPN и отключите оптимизацию батареи. Это нужно, чтобы соединение не рвалось.',
 
@@ -64,8 +64,8 @@ const EN: Dict = {
   'onboard.1.text': 'Fast and private internet access. 13 protocols, dual core (Xray + mihomo), DPI bypass.',
   'onboard.2.title': 'Add a subscription',
   'onboard.2.text': 'Paste a subscription link or a config (vless://, vmess://…) on the “Profiles” tab. You can also open a sim:// link right from the browser.',
-  'onboard.3.title': 'Pick the fastest',
-  'onboard.3.text': 'The “Connect fastest” button tests all servers and picks the one with the lowest latency. Star your favorites ⭐.',
+  'onboard.3.title': 'Check your servers',
+  'onboard.3.text': 'The “Speed” button measures the latency of every server. Turn on “Auto-switch” and the app will leave a server that stops responding.',
   'onboard.4.title': 'VPN permissions',
   'onboard.4.text': 'For background operation grant the VPN permission and disable battery optimization so the connection stays alive.',
 

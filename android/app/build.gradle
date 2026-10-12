@@ -36,7 +36,7 @@ android {
         applicationId "party.petrovich.app"
         minSdk 24
         targetSdk 36
-        versionCode 47
+        versionCode 48
         versionName appVersionName
         // Ядро (xray) и туннель собираются только под ARM: x86-библиотек нет, и на x86 приложение не запустится.
         ndk { abiFilters 'arm64-v8a', 'armeabi-v7a' }

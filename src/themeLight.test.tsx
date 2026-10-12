@@ -143,7 +143,7 @@ describe('src/theme-light.css', () => {
     expect(cssText).toContain(String.raw`.bg-\[\#ff9d4d12\] { background-color: rgb(255 244 235); }`);
     expect(cssText).toContain(String.raw`.bg-black\/40 { background-color: rgb(15 23 42 / 0.06); }`);
     expect(cssText).toContain(String.raw`.bg-black\/80 { background-color: rgb(15 23 42 / 0.44); }`);
-    expect(cssText).toContain(String.raw`.bg-\[\#0b0e24\]\/95 { background-color: rgb(255 255 255); }`);
+    expect(cssText).toContain(String.raw`.bg-\[\#0b1220\]\/95 { background-color: rgb(242 244 248); }`);
   });
 });
 

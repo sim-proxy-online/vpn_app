@@ -5,7 +5,8 @@ import { withAlpha, onTheme } from '../utils/color';
 import { isAutoBypassEnabled } from '../utils/autoBypass';
 import { ConnectionState, ServerNode, Protocol } from '../types';
 import { VpnStats, nativePingNode } from '../native/bridge';
-import { MapPin, Clock, AlertTriangle, Globe, ChevronLeft, ChevronRight, ShieldOff, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react';
+import { MapPin, Clock, AlertTriangle, Globe, ChevronLeft, ChevronRight, ShieldOff, ShieldCheck, Sparkles, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../ThemeContext';
 import PingPill from './PingPill';
 import { MascotNote, MascotScene } from './MascotScene';
 import { stripLeadingEmoji } from '../utils/nodeName';
@@ -34,8 +35,6 @@ interface HomeScreenProps {
   bypassHint?: string | null;
   // Провайдер включил hide-settings: протокол и защита сервера не показываются.
   hideServerDetails?: boolean;
-  // Открыть диагностический чат «Петрович чатом» (кнопка «Помоги»).
-  onOpenDiagnostics?: () => void;
   // Режим «Иммунитет» (фильтр) поднят: вместо «Не защищено» показываем значок щита.
   shieldActive?: boolean;
 }
@@ -69,10 +68,7 @@ function rememberHomePing(nodeId: string, connected: boolean, ms: number): void 
   lastHomePing = ms > 0 ? { nodeId, connected, ms, at: Date.now() } : null;
 }
 
-/** Чип входа в диагностический чат — одинаковый в обоих состояниях (защищён/нет). */
-const DIAG_CHIP_CLS = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold border border-white/10 bg-white/[0.04] text-gray-300 active:scale-95 transition-transform';
-
-/** Плитка с показателем соединения. */
+/** Плитка показателя соединения. */
 function Tile({ icon, label, value, sub, color, mono }: { icon: ReactNode; label: string; value: string; sub?: string; color?: string; mono?: boolean }) {
   return (
     <div className="rounded-2xl px-3.5 py-3 border border-white/[0.08] bg-white/[0.035] min-w-0">
@@ -83,11 +79,26 @@ function Tile({ icon, label, value, sub, color, mono }: { icon: ReactNode; label
   );
 }
 
+/** Круглая кнопка смены темы: на тёмной солнце (переход в светлую), на светлой — луна. */
+function ThemeToggleButton() {
+  const { isDark, toggleTheme } = useTheme();
+  return (
+    <button
+      onClick={toggleTheme}
+      aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
+      title={isDark ? 'Светлая тема' : 'Тёмная тема'}
+      className="w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-gray-400 hover:text-[var(--accent)] hover:border-[var(--accent-a33)] active:scale-90 transition-all"
+    >
+      {isDark ? <Sun size={14} /> : <Moon size={14} />}
+    </button>
+  );
+}
+
 export default function HomeScreen({
   connectionState, onToggle, selectedNode, nodes, onSelectNode,
   onGoToServers, onGoToProfiles, connectedTime, hasNodes,
   vpnError, onClearVpnError, stats, onRestart, onShowLogs, bypassHint, hideServerDetails = false,
-  onOpenDiagnostics, shieldActive = false
+  shieldActive = false
 }: HomeScreenProps) {
   const isConnected = connectionState === 'connected';
   const online = useOnline();
@@ -203,14 +214,10 @@ export default function HomeScreen({
                   Нет доступа в интернет
                 </div>
               )}
-              {/* Вход в диагностический чат */}
-              {hasNodes && onOpenDiagnostics && (
-                <div className="flex justify-center mt-3">
-                  <button onClick={onOpenDiagnostics} className={DIAG_CHIP_CLS}>
-                    <Stethoscope size={13} /> Помоги
-                  </button>
-                </div>
-              )}
+              {/* Смена темы */}
+              <div className="flex justify-center mt-3">
+                <ThemeToggleButton />
+              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -233,11 +240,7 @@ export default function HomeScreen({
               <span className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold border ${autoBypass ? 'border-[var(--accent-a33)] bg-[var(--accent-a10)] text-[var(--accent)]' : 'border-white/10 bg-white/[0.04] text-gray-400'}`}>
                 <Sparkles size={13} /> Умный обход: {autoBypass ? 'вкл' : 'выкл'}
               </span>
-              {hasNodes && onOpenDiagnostics && (
-                <button onClick={onOpenDiagnostics} className={DIAG_CHIP_CLS}>
-                  <Stethoscope size={13} /> Помоги
-                </button>
-              )}
+              <ThemeToggleButton />
             </motion.div>
           )}
         </AnimatePresence>

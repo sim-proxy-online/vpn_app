@@ -6,7 +6,7 @@ import ServerList from './components/ServerList';
 import ProfilesScreen from './components/ProfilesScreen';
 import SettingsScreen from './components/SettingsScreen';
 import DashboardScreen from './components/DashboardScreen';
-import DiagnosticsChat from './components/DiagnosticsChat';
+
 import DnsSettingsScreen from './components/DnsSettingsScreen';
 import DebugScreen from './components/DebugScreen';
 import Onboarding from './components/Onboarding';
@@ -201,8 +201,6 @@ export default function App() {
   // тоггл не бэкапился и переживал полный сброс данных. Мигрируем старое значение.
   const [autoSwitch, setAutoSwitch] = useState(() =>
     (localStorage.getItem('sim-autoswitch') ?? localStorage.getItem('autoSwitch')) === 'true');
-  // Диагностический чат «Петрович чатом» открыт?
-  const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
   const autoSwitchRef = useRef(autoSwitch);
   autoSwitchRef.current = autoSwitch;
   const autoSwitchTargetRef = useRef<ServerNode | null>(null);
@@ -362,40 +360,6 @@ export default function App() {
       nativeClearDnsCache();
       setTimeout(() => handleToggleRef.current(), 600);
     }, [connectionState]);
-
-    // Действия диагностического чата «Петрович чатом». Переключение узла и перезапуск
-    // идут той же дорогой, что и авто-переключение при плохом пинге (см. выше): выбираем
-    // узел, кладём цель в autoSwitchTargetRef и гасим VPN — эффект connectionState сам
-    // поднимет туннель заново. Чат не трогает handleToggle напрямую, чтобы не спорить
-    // с его внутренними состояниями.
-    const diagSwitchNode = useCallback((node: ServerNode) => {
-      setSelectedNode(node);
-      if (connStateRef.current === 'connected') {
-        autoSwitchTargetRef.current = node;
-        nativeStopVpn('diagnostics-switch-node').catch(() => {});
-        setConnectionState('disconnected');
-        setConnectedTime(0);
-      }
-    }, []);
-    const diagRestart = useCallback(() => {
-      const node = selectedNodeRef.current;
-      if (!node) return;
-      if (connStateRef.current === 'connected') {
-        autoSwitchTargetRef.current = node;
-        nativeStopVpn('diagnostics-restart').catch(() => {});
-        setConnectionState('disconnected');
-        setConnectedTime(0);
-      } else {
-        handleToggleRef.current();
-      }
-    }, []);
-    const diagConnect = useCallback(() => { handleToggleRef.current(); }, []);
-
-    // Профиль для чата: активный, а если его нет — тот, которому принадлежит выбранный узел.
-    const diagnosticsProfile = useMemo(() =>
-      profiles.find(p => p.id === activeProfileId)
-      ?? (selectedNode ? profiles.find(p => p.nodes.some(n => n.id === selectedNode.id)) ?? null : null),
-    [profiles, activeProfileId, selectedNode]);
 
     // Авто-переключение при плохом пинге (>5000мс или таймаут). Живёт в App.tsx,
     // а не в ServerList, чтобы работало на любом экране пока VPN подключён.
@@ -1914,7 +1878,7 @@ export default function App() {
                     />
                     {/* Правая часть с кнопкой закреплена и не скроллится — крутится только список серверов слева */}
                     <div className="flex-1 min-w-0 h-full overflow-hidden">
-                      <HomeScreen connectionState={connectionState} onToggle={handleToggle} selectedNode={selectedNode} nodes={allNodes} onSelectNode={setSelectedNode} onGoToServers={() => setScreen('servers')} onGoToProfiles={() => setScreen('profiles')} connectedTime={connectedTime} hasNodes={allNodes.length > 0} vpnError={vpnError} onClearVpnError={() => setVpnError(null)} stats={stats} bypassHint={bypassHint} hideServerDetails={!!selectedNode && settingsHidden(profiles.find(p => p.nodes.some(n => n.id === selectedNode.id)))} onOpenDiagnostics={() => setDiagnosticsOpen(true)} shieldActive={shieldActive} />
+                      <HomeScreen connectionState={connectionState} onToggle={handleToggle} selectedNode={selectedNode} nodes={allNodes} onSelectNode={setSelectedNode} onGoToServers={() => setScreen('servers')} onGoToProfiles={() => setScreen('profiles')} connectedTime={connectedTime} hasNodes={allNodes.length > 0} vpnError={vpnError} onClearVpnError={() => setVpnError(null)} stats={stats} bypassHint={bypassHint} hideServerDetails={!!selectedNode && settingsHidden(profiles.find(p => p.nodes.some(n => n.id === selectedNode.id)))} shieldActive={shieldActive} />
                     </div>
                   </div>
                 )}
@@ -1936,29 +1900,7 @@ export default function App() {
             </ErrorBoundary>
           </div>
 
-          {/* Диагностический чат «Петрович чатом»: Петрович сам прогоняет чек-лист и предлагает фиксы */}
-          {diagnosticsOpen && (
-            <DiagnosticsChat
-              onClose={() => setDiagnosticsOpen(false)}
-              connectionState={connectionState}
-              selectedNode={selectedNode}
-              nodes={allNodes}
-              profile={diagnosticsProfile}
-              onConnect={diagConnect}
-              onSwitchNode={diagSwitchNode}
-              onRestart={diagRestart}
-              onShieldToggle={handleShieldToggle}
-              onUpdateProfile={async () => {
-                const id = activeProfileIdRef.current;
-                if (!id) return { ok: false };
-                // Ручное действие — force: Happ-сравнение перепроверяется сразу.
-                const ok = (await handleUpdateProfile(id, true, true)) === true;
-                return { ok, viaTunnel: ok && updateViaTunnelRef.current };
-              }}
-              shieldActive={shieldActive}
-            />
-          )}
-        </motion.div>
+          </motion.div>
 
         <MobileNav activeScreen={screen} onNavigate={setScreen} />
       </main>

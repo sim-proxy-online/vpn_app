@@ -1368,10 +1368,16 @@ export function buildXrayConfig(node: ServerNode, settings: Record<string, unkno
         statsOutboundDownlink: true
       }
     },
-    // ВАЖНО: только SOCKS inbound на localhost. НЕ добавлять inbound с
-    // protocol:"tun" — Xray-core (26.x) такой протокол не поддерживает и
-    // падает на парсинге конфига. TUN fd обрабатывает нативный обработчик
-    // внутри libxray (coreRunLoopWithTun), который мостит трафик в этот SOCKS.
+    // ВАЖНО: нужны ОБА inbound'а, не один.
+    //   socks-in — по нему приложение определяет готовность ядра
+    //     (XrayManager.parseSocksPort → waitForReady). Пока порт не открыт,
+    //     VPN не считается поднятым, поэтому сносить его нельзя даже при
+    //     «вроде бы тут нужен только TUN».
+    //   tun     — принимает сам трафик. protocol:"tun" поддержан и стоковым
+    //     Xray-core 26.x (проверено на 26.5.9 и 26.9.9 — конфиг парсится),
+    //     не только форком libxray. Имя интерфейса ядро берёт из TUN fd,
+    //     переданного в coreRunLoopWithTun(config, fd), так что руками в
+    //     конфиг ничего дописывать не нужно.
     inbounds: [
       {
         tag: "socks-in",

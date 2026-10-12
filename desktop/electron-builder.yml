@@ -1,6 +1,11 @@
 appId: party.petrovich.desktop
-productName: KvadratPetrovicha
-copyright: Квадрат Петровича
+# Отображаемое имя приложения везде в Windows (установщик, ярлык, «Установленные
+# программы», заголовок окна) — «Петрович». Сам exe и папка установки остаются
+# латиницей (KvadratPetrovicha.exe) через win.executableName ниже, чтобы не ломать
+# MSIX-манифест и ссылки на скачивание. Реестр деинсталляции завязан на appId
+# (party.petrovich.desktop), а не на имя, — обновление установленных версий не сломается.
+productName: Петрович
+copyright: Петрович
 asar: true
 afterPack: desktop/afterPack.cjs
 
@@ -42,13 +47,17 @@ extraResources:
 # ссылки из браузера открывали приложение «наверняка» (а не только после первого
 # запуска).
 protocols:
-  - name: Квадрат Петровича
+  - name: Петрович
     schemes:
       - sim
       - happ
 
 win:
   icon: icon.png
+  # Имя exe и папки установки — латиницей (KvadratPetrovicha.exe), чтобы не ломать
+  # MSIX-манифест (Executable="KvadratPetrovicha.exe") и существующие ссылки.
+  # Отображаемое имя задаёт productName выше.
+  executableName: KvadratPetrovicha
   target:
     - target: nsis
       arch:
@@ -78,14 +87,16 @@ portable:
 
 # Установщик (NSIS). Per-user (без прав администратора), с выбором папки и ярлыками.
 nsis:
+  # Ставит AppUserModelID на ярлык при обновлениях, где electron-builder его пропускает.
+  include: desktop/store/aumid.nsh
   oneClick: false
   perMachine: false
   allowElevation: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: Квадрат Петровича
-  uninstallDisplayName: Квадрат Петровича
+  shortcutName: Петрович
+  uninstallDisplayName: Петрович
   artifactName: KvadratPetrovicha-Setup-${version}.exe
   # Не удаляем профили/настройки пользователя при деинсталляции.
   deleteAppDataOnUninstall: false

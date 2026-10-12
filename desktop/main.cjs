@@ -6,6 +6,14 @@ const { getDeviceId } = require('./deviceId.cjs');
 // electron-updater is deferred (lazy require inside setupAutoUpdater) to avoid
 // it calling app.getVersion() at require-time before the app is ready.
 
+// Windows: без своего AppUserModelID Electron подписывает уведомления как «electron.app.…», и
+// в заголовке всплывающего тоста вместо «Петрович» видно эту строку. Идентификатор совпадает с
+// appId в electron-builder.yml; дружественное имя для него живёт в ветке реестра
+// HKCU\Software\Classes\AppUserModelId (её создаёт installScripts\setup-aumid.ps1).
+if (process.platform === 'win32') {
+  try { app.setAppUserModelId('party.petrovich.desktop'); } catch (_) {}
+}
+
 // Standard Windows edit shortcuts (Ctrl+C/V/X/A/Z, etc.). Without an application
 // menu Electron drops these accelerators, so editable fields would ignore the
 // keyboard. The bar stays hidden (autoHideMenuBar) — we only need the roles.
@@ -131,7 +139,7 @@ function createWindow() {
     minHeight: 700,
     backgroundColor: '#0a0a1a',
     autoHideMenuBar: true,
-    title: 'Квадрат Петровича', // never fall back to the package name in the title bar
+    title: 'Петрович', // never fall back to the package name in the title bar
     icon: path.join(__dirname, '..', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
@@ -147,7 +155,7 @@ function createWindow() {
   });
 
   // Keep the title stable even if the page sets/changes it.
-  win.on('page-title-updated', (e) => { e.preventDefault(); win.setTitle('Квадрат Петровича'); });
+  win.on('page-title-updated', (e) => { e.preventDefault(); win.setTitle('Петрович'); });
 
   // Windows clipboard UX: right-click context menu + standard edit shortcuts.
   installContextMenu(win.webContents);
@@ -307,9 +315,14 @@ ipcMain.handle('sim:call', async (e, method, args) => {
         return clipboard.readText();
       case 'openUrl':
         return args[0] ? openExternalSafe(args[0]) : false;
-      case 'showNotification':
-        try { new Notification({ title: String(args[0] ?? ''), body: String(args[1] ?? '') }).show(); } catch (_) {}
+      case 'showNotification': {
+        // Имя приложения в уведомлениях — «Петрович», как в заголовке окна и ярлыке.
+        // Рендерер шлёт старое «Квадрат Петровича» (общее с Android), здесь нормализуем.
+        const title = String(args[0] ?? '');
+        const notifTitle = title === 'Квадрат Петровича' ? 'Петрович' : title;
+        try { new Notification({ title: notifTitle, body: String(args[1] ?? '') }).show(); } catch (_) {}
         return true;
+      }
       case 'minimizeApp':
         if (win) win.minimize();
         return true;

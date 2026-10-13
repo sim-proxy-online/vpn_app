@@ -1146,10 +1146,11 @@ function getCoreVersions() {
   return Promise.all([xrayV, mihomoV]).then(([xray, mihomo]) => ({ xray, singbox: '-', mihomo }));
 }
 
-// Самообновление на desktop делает electron-updater в main.cjs: он сверяет sha512 из
-// latest.yml и ставит обновление при выходе. Прежний путь «скачать любой .exe по URL из
-// рендерера и молча запустить» удалён — без проверки хеша/подписи любая XSS в рендерере
-// (contextIsolation выключен) превращалась в запуск произвольного кода.
+// Самообновление установленной версии на desktop делает electron-updater в main.cjs:
+// он сверяет sha512 из latest.yml и ставит обновление при выходе. Рендерер сам НЕ
+// скачивает и не запускает .exe: без проверки хеша/подписи любая XSS в рендерере
+// (contextIsolation выключен) превращалась в запуск произвольного кода. Плашка
+// обновления (см. UpdatePrompt) открывает ссылку загрузки в системном браузере.
 
 // ── Dispatch table ───────────────────────────────────────────────────────────
 // Methods the renderer may call. Unknown ones get a sane default in main.cjs.

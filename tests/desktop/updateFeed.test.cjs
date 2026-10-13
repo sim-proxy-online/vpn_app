@@ -60,6 +60,75 @@ async function t(name, fn) {
     await assert.rejects(resolveFeedUrl({ owner: 'o', repo: 'r', fetchJson: async () => { throw new Error('HTTP 403'); } }), /HTTP 403/);
   });
 
+  // --- Несколько репозиториев-источников (vpn_app + petrovich) ---
+
+  const pubRel = (tag, names, published_at) => rel(tag, names, { published_at });
+  const multiFetch = (lists) => async (u) => {
+    for (const [needle, out] of lists) {
+      if (u.includes(needle)) {
+        if (out instanceof Error) throw out;
+        return out;
+      }
+    }
+    throw new Error('unexpected url ' + u);
+  };
+
+  await t('multi-repo: picks the newest release with latest.yml across repositories', async () => {
+    const url = await resolveFeedUrl({
+      repos: [{ owner: 'o', repo: 'r1' }, { owner: 'o', repo: 'r2' }],
+      fetchJson: multiFetch([
+        ['/repos/o/r1/', [pubRel('v2.4.9', ['latest.yml'], '2026-01-10T00:00:00Z')]],
+        ['/repos/o/r2/', [pubRel('v2.5.0', ['latest.yml'], '2026-02-01T00:00:00Z')]],
+      ]),
+    });
+    assert.strictEqual(url, 'https://github.com/o/r2/releases/download/v2.5.0');
+  });
+
+  await t('multi-repo: a newer release without latest.yml is skipped, even from the other repo', async () => {
+    const url = await resolveFeedUrl({
+      repos: [{ owner: 'o', repo: 'r1' }, { owner: 'o', repo: 'r2' }],
+      fetchJson: multiFetch([
+        ['/repos/o/r1/', [pubRel('v2.4.9', ['latest.yml'], '2026-01-10T00:00:00Z')]],
+        ['/repos/o/r2/', [pubRel('v2.5.0', ['SimProxy-v2.5.0.apk'], '2026-02-01T00:00:00Z')]],
+      ]),
+    });
+    assert.strictEqual(url, 'https://github.com/o/r1/releases/download/v2.4.9');
+  });
+
+  await t('multi-repo: breaks equal dates by tag, so v2.10.0 beats v2.9.0', async () => {
+    const url = await resolveFeedUrl({
+      repos: [{ owner: 'o', repo: 'r1' }, { owner: 'o', repo: 'r2' }],
+      fetchJson: multiFetch([
+        ['/repos/o/r1/', [pubRel('v2.9.0', ['latest.yml'], '2026-02-01T00:00:00Z')]],
+        ['/repos/o/r2/', [pubRel('v2.10.0', ['latest.yml'], '2026-02-01T00:00:00Z')]],
+      ]),
+    });
+    assert.strictEqual(url, 'https://github.com/o/r2/releases/download/v2.10.0');
+  });
+
+  await t('multi-repo: one repository failing does not break the check', async () => {
+    const url = await resolveFeedUrl({
+      repos: [{ owner: 'o', repo: 'r1' }, { owner: 'o', repo: 'r2' }],
+      fetchJson: multiFetch([
+        ['/repos/o/r1/', new Error('HTTP 403')],
+        ['/repos/o/r2/', [pubRel('v2.5.0', ['latest.yml'], '2026-02-01T00:00:00Z')]],
+      ]),
+    });
+    assert.strictEqual(url, 'https://github.com/o/r2/releases/download/v2.5.0');
+  });
+
+  await t('multi-repo: returns null when no repository has latest.yml, throws when all fail', async () => {
+    const repos = [{ owner: 'o', repo: 'r1' }, { owner: 'o', repo: 'r2' }];
+    assert.strictEqual(await resolveFeedUrl({
+      repos,
+      fetchJson: multiFetch([['/repos/o/r1/', [pubRel('v2.5.0', ['a.apk'], '2026-02-01T00:00:00Z')]], ['/repos/o/r2/', []]]),
+    }), null);
+    await assert.rejects(
+      resolveFeedUrl({ repos, fetchJson: multiFetch([['/repos/o/r1/', new Error('HTTP 500')], ['/repos/o/r2/', new Error('timeout')]]) }),
+      /HTTP 500|timeout/
+    );
+  });
+
   if (process.env.LIVE === '1') {
     await t('LIVE: the real repository resolves to a release that really serves latest.yml', async () => {
       const url = await resolveFeedUrl({ owner: 'sim-proxy-online', repo: 'vpn_app' });

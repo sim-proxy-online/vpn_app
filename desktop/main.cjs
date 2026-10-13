@@ -209,9 +209,13 @@ function createWindow() {
 let desktopUpdateState = { status: 'idle', version: null, progress: 0, error: null };
 let autoUpdater = null; // populated by setupAutoUpdater() after app is ready
 
-// Репозиторий с релизами (тот же, что в publish: desktop/electron-builder.yml).
-const UPDATE_OWNER = 'sim-proxy-online';
-const UPDATE_REPO = 'vpn_app';
+// Репозитории с релизами (тот же vpn_app, что в publish: desktop/electron-builder.yml,
+// плюс новый petrovich — релизы и сайт). Проверяются оба: релиз может выйти только в
+// одном из них, и приложение должно обновиться в обоих случаях (см. updateFeed.cjs).
+const UPDATE_REPOS = [
+  { owner: 'sim-proxy-online', repo: 'vpn_app' },
+  { owner: 'sim-proxy-online', repo: 'petrovich' },
+];
 let currentFeedUrl = null;
 
 // Проверка обновлений с выбором источника: провайдер github смотрит только в ПОСЛЕДНИЙ
@@ -221,7 +225,7 @@ let currentFeedUrl = null;
 async function checkForUpdatesResolved() {
   try {
     const { resolveFeedUrl } = require('./updateFeed.cjs');
-    const url = await resolveFeedUrl({ owner: UPDATE_OWNER, repo: UPDATE_REPO });
+    const url = await resolveFeedUrl({ repos: UPDATE_REPOS });
     if (url && url !== currentFeedUrl) {
       autoUpdater.setFeedURL({ provider: 'generic', url });
       currentFeedUrl = url;
@@ -355,8 +359,10 @@ ipcMain.handle('sim:call', async (e, method, args) => {
       case 'downloadAndInstallApk':
       case 'installDownloadedApk':
       case 'downloadUpdateApk':
-        // Android-методы самообновления. На desktop обновляет electron-updater (проверка
-        // sha512 из latest.yml); скачивание и запуск .exe по URL из рендерера убраны.
+        // Android-методы самообновления. На desktop проверка идёт из рендера по
+        // GitHub-фиду (плашка открывает загрузку Setup.exe в браузере), а тихую
+        // установку установленной версии делает electron-updater (sha512 из latest.yml);
+        // скачивание и запуск .exe по URL из рендерера не поддерживается.
         return { ok: false, status: 'not_native', error: 'desktop updates are handled by electron-updater' };
       case 'requestVpnPermission':
         return true; // desktop: no per-app VPN permission

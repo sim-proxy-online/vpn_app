@@ -10,7 +10,6 @@ import {
   nativeDownloadUpdateApk,
   nativeIsUnmeteredNetwork,
   isDesktopPlatform,
-  nativeCheckForUpdatesNow,
   nativeQuitAndInstallUpdate,
   type InstallResult,
   type DesktopUpdateState,
@@ -25,9 +24,11 @@ type Phase = 'idle' | 'downloading' | 'installing' | 'need_permission' | 'error'
 
 /**
  * Обновления на всех платформах:
- *   • Desktop (Windows) — electron-updater качает дельту в фоне и ставит тихо при
- *     выходе (главный процесс). Здесь только ненавязчивая плашка «готово» с опцией
- *     перезапустить сейчас.
+ *   • Desktop (Windows) — проверяет тот же GitHub-фид (оба репозитория), что и
+ *     Android: плашка «Доступно обновление» открывает загрузку Setup.exe в браузере
+ *     (рендерер не скачивает и не запускает .exe сам — это небезопасно). Установленная
+ *     Setup.exe-версия дополнительно тихо обновляется electron-updater'ом в главном
+ *     процессе: дельта в фоне, установка при выходе.
  *   • Android — APK докачивается в фоне (на Wi-Fi) заранее; пользователь видит лишь
  *     один тап «Установить» (системный диалог обязателен для сайдлоада).
  *   • Web — деградация до открытия страницы релиза.
@@ -40,9 +41,10 @@ export default function UpdatePrompt() {
   // Desktop: обновление скачано electron-updater'ом и поставится при выходе.
   const [desktopReady, setDesktopReady] = useState<{ version: string | null } | null>(null);
 
-  // ── Авто-проверка (Android/Web). На desktop обновлением занимается electron-updater. ──
+  // ── Авто-проверка (раз в сутки). Работает и на desktop: фид тот же GitHub, что и
+  // на Android, поэтому портативная сборка (которую electron-updater поставить не
+  // может) тоже получает плашку «Доступно обновление» с загрузкой Setup.exe. ──
   useEffect(() => {
-    if (isDesktopPlatform()) return;
     if (!load('sim-autoupdate-check', true)) return;
     const last = load<number>('sim-last-update-check', 0);
     if (Date.now() - last < DAY) return;
@@ -90,12 +92,6 @@ export default function UpdatePrompt() {
   // Ручной показ (кнопка «Проверить обновление» в настройках).
   useEffect(() => {
     const onShow = (e: Event) => {
-      if (isDesktopPlatform()) {
-        // electron-updater сам качает в фоне; просто триггерим проверку, плашку
-        // покажет событие 'desktop-update' по завершении.
-        nativeCheckForUpdatesNow();
-        return;
-      }
       const detail = (e as CustomEvent).detail as UpdateInfo | undefined;
       if (detail && detail.hasUpdate) { setPhase('idle'); setPct(0); setInfo(detail); return; }
       checkForUpdate()

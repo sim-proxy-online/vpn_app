@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { checkForUpdate, pickAssetUrl, selectRelease } from './utils/UpdateChecker';
+import { checkForUpdate, mergeReleaseLists, pickAssetUrl, selectRelease } from './utils/UpdateChecker';
 
 const asset = (name: string) => ({ name, browser_download_url: `https://example.com/dl/${name}` });
 const rel = (tag: string, names: string[], extra: Record<string, unknown> = {}) =>
@@ -83,5 +83,33 @@ describe('selectRelease', () => {
 
   it('returns null for an empty list', () => {
     expect(selectRelease([], false)).toBeNull();
+  });
+});
+
+describe('mergeReleaseLists', () => {
+  const dated = (tag: string, published_at: string) => rel(tag, [`${tag}.apk`], { published_at });
+
+  it('orders releases from different repositories by published_at, newest first', () => {
+    const oldRepo = [dated('v2.9.0', '2026-09-01T00:00:00Z')];
+    const newRepo = [dated('v2.10.0', '2026-10-01T00:00:00Z')];
+    expect(mergeReleaseLists([oldRepo, newRepo]).map((r) => r.tag_name)).toEqual(['v2.10.0', 'v2.9.0']);
+  });
+
+  it('breaks equal dates by tag, so v2.10.0 beats v2.9.0 (lexicography would say otherwise)', () => {
+    const a = [dated('v2.9.0', '2026-10-01T00:00:00Z')];
+    const b = [dated('v2.10.0', '2026-10-01T00:00:00Z')];
+    expect(mergeReleaseLists([a, b]).map((r) => r.tag_name)).toEqual(['v2.10.0', 'v2.9.0']);
+  });
+
+  it('falls back to created_at when published_at is missing, and drops garbage entries', () => {
+    const a = [dated('v2.9.0', '2026-09-01T00:00:00Z')];
+    const b: any[] = [null, { tag_name: 'v2.10.0', created_at: '2026-10-01T00:00:00Z' }, {}];
+    expect(mergeReleaseLists([a, b]).map((r) => r.tag_name)).toEqual(['v2.10.0', 'v2.9.0']);
+  });
+
+  it('selectRelease over merged lists can pick a release that lives in either repository', () => {
+    const winOnly = [rel('v2.10.0', ['KvadratPetrovicha-Setup-2.10.0.exe', 'latest.yml'], { published_at: '2026-10-01T00:00:00Z' })];
+    const withApk = [rel('v2.9.0', ['KvadratPetrovicha-v2.9.0.apk'], { published_at: '2026-09-01T00:00:00Z' })];
+    expect(selectRelease(mergeReleaseLists([winOnly, withApk]), false).tag_name).toBe('v2.9.0');
   });
 });

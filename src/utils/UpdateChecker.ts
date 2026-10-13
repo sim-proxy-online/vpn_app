@@ -1,6 +1,7 @@
 /**
  * UpdateChecker — проверка новой версии через GitHub Releases API.
- * Репозиторий: sim-proxy-online/vpn_app.
+ * Источники: sim-proxy-online/vpn_app и sim-proxy-online/petrovich — списки релизов
+ * из обоих сливаются, берётся самый свежий релиз с файлом под нашу платформу.
  * Использует нативный HTTP (nativeFetchUrl), чтобы обойти CORS в WebView.
  */
 import { nativeFetchUrl, nativeGetAppVersion, isStoreBuild, type FetchResult } from '../native/bridge';
@@ -27,12 +28,15 @@ export function getCurrentVersion(): Promise<string> {
   }
   return cachedVersionPromise;
 }
-const REPO = 'sim-proxy-online/vpn_app';
+// Репозитории-источники релизов: старый (vpn_app) и новый (petrovich — релизы и сайт).
+// Проверяются оба: релиз может выйти только в одном из них, и приложение должно
+// узнать о нём независимо от того, куда он выложен.
+export const RELEASE_REPOS = ['sim-proxy-online/vpn_app', 'sim-proxy-online/petrovich'];
 // Список релизов, а не /releases/latest: в репозитории релизы выходят и для одной
 // платформы (например, только Windows-файлы), и «последний релиз» может не содержать
 // APK — тогда Android-пользователям показывалось бы обновление, которого для них нет.
-const API_RELEASES = `https://api.github.com/repos/${REPO}/releases?per_page=15`;
-export const RELEASES_PAGE = `https://github.com/${REPO}/releases/latest`;
+const apiReleases = (repo: string) => `https://api.github.com/repos/${repo}/releases?per_page=15`;
+export const RELEASES_PAGE = `https://github.com/${RELEASE_REPOS[0]}/releases/latest`;
 
 export interface UpdateInfo {
   hasUpdate: boolean;
@@ -89,15 +93,10 @@ export function selectRelease(releases: any[], desktop: boolean = isDesktop()): 
   return withAsset ?? published[0] ?? null;
 }
 
-/** Проверить наличие обновления. Бросает только при сетевой ошибке. */
-export async function checkForUpdate(): Promise<UpdateInfo> {
-  // Сборку из магазина (Microsoft Store, Google Play) обновляет магазин: ссылку на файл
-  // из GitHub ей показывать нельзя.
-  if (isStoreBuild()) {
-    const current = await getCurrentVersion();
-    return { hasUpdate: false, current, latest: current, pageUrl: RELEASES_PAGE };
-  }
-  const res = await nativeFetchUrl(API_RELEASES);
+// Один запрос списка релизов. Бросает при сетевой или форматной ошибке — её
+// гасит вызывающий: в checkForUpdate запросы идут через Promise.allSettled.
+async function fetchReleaseList(repo: string): Promise<any[]> {
+  const res = await nativeFetchUrl(apiReleases(repo));
   let body = '';
   if (typeof res === 'string') body = res;
   else if (res && typeof res === 'object') {
@@ -108,7 +107,44 @@ export async function checkForUpdate(): Promise<UpdateInfo> {
 
   let parsed: any;
   try { parsed = JSON.parse(body); } catch { throw new Error('Некорректный ответ GitHub (не JSON)'); }
-  const json: any = Array.isArray(parsed) ? selectRelease(parsed) : parsed;
+  return Array.isArray(parsed) ? parsed : [parsed];
+}
+
+/**
+ * Слияние списков релизов из разных репозиторий в один «от новых к старым».
+ * GitHub отдаёт каждый список по убыванию published_at; между репозиториями
+ * сравниваем дату публикации (created_at — запасной вариант), при равенстве —
+ * тег (посегментно: v2.10.0 > v2.9.0, лексикография соврала бы). sort стабилен:
+ * при полном равенстве сохраняется порядок репозиториев из RELEASE_REPOS.
+ */
+export function mergeReleaseLists(lists: any[][]): any[] {
+  const merged = lists.flat().filter((r) => r && typeof r === 'object' && r.tag_name);
+  return merged.sort((a, b) =>
+    (Date.parse(b.published_at || b.created_at || '') || 0) - (Date.parse(a.published_at || a.created_at || '') || 0)
+    || compareVersions(b.tag_name || '', a.tag_name || ''));
+}
+
+/** Проверить наличие обновления. Бросает только при сетевой ошибке. */
+export async function checkForUpdate(): Promise<UpdateInfo> {
+  // Сборку из магазина (Microsoft Store, Google Play) обновляет магазин: ссылку на файл
+  // из GitHub ей показывать нельзя.
+  if (isStoreBuild()) {
+    const current = await getCurrentVersion();
+    return { hasUpdate: false, current, latest: current, pageUrl: RELEASES_PAGE };
+  }
+  // Два репозитория-источника: проверяем оба и работаем, даже если ответил
+  // только один (лимит API, 404 у переименованного). Если пусто у обоих —
+  // пробрасываем первую ошибку, вызывающий остаётся на текущей версии.
+  const settled = await Promise.allSettled(RELEASE_REPOS.map(fetchReleaseList));
+  const lists = settled
+    .filter((s): s is PromiseFulfilledResult<any[]> => s.status === 'fulfilled')
+    .map((s) => s.value);
+  if (!lists.length) {
+    const failed = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected');
+    throw failed ? failed.reason : new Error('Ошибка сети');
+  }
+
+  const json: any = selectRelease(mergeReleaseLists(lists));
   if (!json) throw new Error('Релизы не найдены');
   const latestTag: string = json.tag_name || json.name || '';
   const latest = latestTag.replace(/^v/i, '');

@@ -261,14 +261,11 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
 
   const handleCheckUpdate = async () => {
     setUpdateStatus('checking');
-    if (isDesktopPlatform()) {
-      try {
-        const r = await nativeCheckForUpdatesNow();
-        setUpdateStatus(r && (r.status === 'downloading' || r.status === 'downloaded') ? 'available' : 'latest');
-      } catch { setUpdateStatus('idle'); }
-      setTimeout(() => setUpdateStatus('idle'), 3000);
-      return;
-    }
+    // На desktop electron-updater продолжает бесшовно обновлять установленный
+    // Setup.exe, но сама проверка — та же GitHub-проверка, что и на Android (заглушка
+    // «desktop handled by electron-updater» убрана: портативная сборка иначе не
+    // обновлялась вовсе, а в магазин пока не публикуем).
+    if (isDesktopPlatform()) { nativeCheckForUpdatesNow().catch(() => {}); }
     try {
       const u = await checkForUpdate();
       if (u.hasUpdate) {
@@ -280,7 +277,7 @@ export default function SettingsScreen({ onBack, isConnected, onShowLogs, onShie
       }
     } catch {
       setUpdateStatus('idle');
-      nativeOpenUrl(RELEASES_PAGE);
+      if (!isDesktopPlatform()) nativeOpenUrl(RELEASES_PAGE);
     }
   };
 

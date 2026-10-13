@@ -1,0 +1,19 @@
+{
+  "name": "Квадрат Петровича",
+  "short_name": "Петрович",
+  "description": "VPN-клиент на Xray-core и mihomo с поддержкой 13 протоколов",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a1a",
+  "theme_color": "#0a0a1a",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"]
+}

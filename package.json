@@ -3,7 +3,7 @@
   "private": true,
   "description": "Квадрат Петровича",
   "author": "Квадрат Петровича",
-  "version": "2.8.3",
+  "version": "2.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

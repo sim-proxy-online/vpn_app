@@ -4,9 +4,7 @@ import { countryName } from './publicIp';
 
 export interface PublicIpState {
   ip?: string;
-  /** Название страны по-русски. */
   country?: string;
-  /** Определить не удалось после всех попыток. */
   failed: boolean;
 }
 

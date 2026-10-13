@@ -32,6 +32,7 @@ import { fetchSubscription, friendlyUpdateError } from './utils/subscriptionFetc
 import { pickAutoConnectNode, settingsHidden } from './utils/profileView';
 import { currentOperatorProfile, refreshOperatorProfiles } from './utils/operatorProfiles';
 import { DEFAULT_FAILOVER, cooldownPassed, deviceNetworkUp, failoverApplies, initialHealth, isBalancerNode, isFastFailoverEnabled, isPriorityNode, nextDelayMs, onProbe, planFailover, recordAction, restartAllowed } from './utils/failover';
+
 import { ConnectVerifyError, applyAttempt, currentNetworkKey, describeAttempt, getPreferredStrategy, isAutoBypassEnabled, ladderApplies, planAttempts, recordSuccess, type BypassAttempt } from './utils/autoBypass';
 import { nativeStopVpn, nativeNotify, nativeRequestVpnPermission, nativeFetchUrl, nativeFetchUrlViaProxy, isNative, nativeGetStats, nativeSetStatusBarStyle, nativeStartVpnWithResult, nativeToggleKillSwitch, nativeStartNetworkMonitoring, nativeStopNetworkMonitoring, nativeMinimizeApp, nativeVibrate, VpnStats, nativeGetRoutingRules, nativeRequestAllPermissions, nativeTestProxyDelay, nativeGetPendingDeepLink, nativeTestIpLeak, nativeTestDnsLeak, nativeGetCoreLoadError, nativeGetActiveNodeId, nativeIsShieldMode, buildShieldConfig, type FetchResult, nativeStartAntiFilterBatch, refreshAntiFilterCache, nativePingNode, startPingBatch, getBestCachedPing, nativeClearDnsCache } from './native/bridge';
 

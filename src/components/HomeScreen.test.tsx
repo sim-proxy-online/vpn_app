@@ -13,8 +13,8 @@ vi.mock('../utils/usePublicIp', () => ({ usePublicIp: () => ({ failed: false }) 
 import HomeScreen from './HomeScreen';
 import { nativePingNode } from '../native/bridge';
 
-// Пинг выбранного сервера на главном экране. При выключенном VPN замер поднимает временное ядро, поэтому он не
-// должен запускаться, пока соединение меняется, и между остановкой и повторным запуском туннеля.
+// Пинг выбранного сервера на главном экране: берётся кэш node.ping из раздела «Серверы».
+// Живой замер здесь не запускается — он поднимал лишнее ядро и мешал работе VPN.
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -62,61 +62,32 @@ describe('HomeScreen ping', () => {
     vi.useRealTimers();
   });
 
-  it('waits after opening with the VPN off, then measures once', async () => {
-    render('disconnected', nodes[0]);
-    await wait(1000);
-    expect(pinged()).toEqual([]);
-    await wait(600);
-    expect(pinged()).toEqual([['one', false]]);
-  });
-
-  it('does not measure when a connection starts before the wait is over', async () => {
-    render('disconnected', nodes[0]);
-    await wait(500);
-    render('connecting', nodes[0]);
-    await wait(5000);
-    render('verifying', nodes[0]);
-    await wait(5000);
-    expect(pinged()).toEqual([]);
-  });
-
-  it('measures through the tunnel once connected', async () => {
-    render('connecting', nodes[0]);
+  it('показывает кэш пинга сервера, живой замер не запускает', async () => {
+    render('disconnected', { ...nodes[0], ping: 77 });
     await wait(3000);
-    render('connected', nodes[0]);
-    await wait(300);
-    expect(pinged()).toEqual([['one', true]]);
-  });
-
-  it('does not measure between a stop and an automatic reconnect', async () => {
-    render('connected', nodes[0]);
-    await wait(300);
-    vi.mocked(nativePingNode).mockClear();
-    render('disconnected', nodes[0]);   // авто-переключение остановило туннель…
-    await wait(600);
-    render('connecting', nodes[0]);     // …и через 600 мс поднимает его заново
-    await wait(5000);
+    expect(host.textContent).toContain('77 мс');
     expect(pinged()).toEqual([]);
   });
 
-  it('measures a newly selected server right away', async () => {
-    render('disconnected', nodes[0]);
-    await wait(1600);
-    vi.mocked(nativePingNode).mockClear();
-    render('disconnected', nodes[1]);
-    await wait(300);
-    expect(pinged()).toEqual([['two', false]]);
+  it('не запускает замер и при подключённом VPN', async () => {
+    render('connected', { ...nodes[0], ping: 40 });
+    await wait(3000);
+    expect(host.textContent).toContain('40 мс');
+    expect(pinged()).toEqual([]);
   });
 
-  it('reuses a fresh result when the screen is reopened', async () => {
+  it('при смене сервера показывает его кэш', async () => {
+    render('disconnected', { ...nodes[0], ping: 77 });
+    await wait(100);
+    render('disconnected', { ...nodes[1], ping: 15 });
+    await wait(100);
+    expect(host.textContent).toContain('15 мс');
+    expect(pinged()).toEqual([]);
+  });
+
+  it('без кэша пинга пилюля не показывается', async () => {
     render('disconnected', nodes[0]);
-    await wait(1600);
-    expect(pinged()).toEqual([['one', false]]);
-    act(() => { root.unmount(); });
-    root = createRoot(host);
-    render('disconnected', nodes[0]);
-    await wait(5000);
-    expect(pinged()).toEqual([['one', false]]);
-    expect(host.textContent).toContain('123 мс');
+    await wait(3000);
+    expect(pinged()).toEqual([]);
   });
 });

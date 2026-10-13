@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import ConnectMedallion from './ConnectMedallion';
 import Flag from './Flag';
 import { withAlpha, onTheme } from '../utils/color';
 import { isAutoBypassEnabled } from '../utils/autoBypass';
 import { ConnectionState, ServerNode, Protocol } from '../types';
-import { VpnStats, nativePingNode } from '../native/bridge';
+import { VpnStats } from '../native/bridge';
 import { MapPin, Clock, AlertTriangle, Globe, ChevronLeft, ChevronRight, ShieldOff, ShieldCheck, Sparkles, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../ThemeContext';
 import PingPill from './PingPill';
@@ -53,28 +53,13 @@ function formatTime(seconds: number): string {
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
-// Последний замер пинга на главном экране. Живёт весь сеанс приложения: экран монтируется заново при каждом возврате
-// из другого раздела, и без этого каждый возврат при выключенном VPN поднимал бы временное ядро ради того же числа.
-const HOME_PING_FRESH_MS = 60_000;
-let lastHomePing: { nodeId: string; connected: boolean; ms: number; at: number } | null = null;
-
-function recentHomePing(nodeId: string | undefined, connected: boolean): number | undefined {
-  const p = lastHomePing;
-  return p && p.nodeId === nodeId && p.connected === connected && Date.now() - p.at < HOME_PING_FRESH_MS ? p.ms : undefined;
-}
-
-/** Запоминаем только удачный замер: «нет ответа» при следующем открытии экрана проверяется заново. */
-function rememberHomePing(nodeId: string, connected: boolean, ms: number): void {
-  lastHomePing = ms > 0 ? { nodeId, connected, ms, at: Date.now() } : null;
-}
-
-/** Плитка показателя соединения. */
-function Tile({ icon, label, value, sub, color, mono }: { icon: ReactNode; label: string; value: string; sub?: string; color?: string; mono?: boolean }) {
+/** Плитка показателя соединения. labelOverride подменяет подпись в шапке, когда значение известно
+    (например, вместо «Ваш адрес» — название страны); sub остаётся запасной строкой снизу. */
+function Tile({ icon, label, labelOverride, value, color, mono }: { icon: ReactNode; label: string; labelOverride?: string; value: string; color?: string; mono?: boolean }) {
   return (
     <div className="rounded-2xl px-3.5 py-3 border border-white/[0.08] bg-white/[0.035] min-w-0">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">{icon}<span>{label}</span></div>
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">{icon}<span className="truncate">{labelOverride || label}</span></div>
       <p className={`mt-1.5 text-[15px] font-bold text-white truncate ${mono ? 'font-orbitron tabular-nums' : ''}`} style={color ? { color: onTheme(color) } : undefined}>{value}</p>
-      {sub && <p className="text-[11px] text-gray-400 truncate">{sub}</p>}
     </div>
   );
 }
@@ -117,40 +102,9 @@ export default function HomeScreen({
   // Направление последнего свайпа — для анимации появления новой карточки.
   const [swipeDir, setSwipeDir] = useState(0);
 
-  // Живой пинг выбранного сервера: меряем при смене сервера (в т.ч. со свайпа) и когда соединение установилось или
-  // снято. Пока оно меняется (подключение, проверка, переподключение, отключение), не меряем: при выключенном VPN
-  // замер поднимает временное ядро, и оно стартовало бы одновременно с боевым.
-  const [pingMs, setPingMs] = useState<number | undefined>(() => recentHomePing(selectedNode?.id, isConnected) ?? selectedNode?.ping);
-  const [pinging, setPinging] = useState(false);
-  const pingNodeIdRef = useRef(selectedNode?.id);
-  const pingStateRef = useRef<ConnectionState | null>(null);
-  useEffect(() => {
-    const sameState = pingStateRef.current === connectionState;
-    pingStateRef.current = connectionState;
-    if (!selectedNode) { pingNodeIdRef.current = undefined; setPingMs(undefined); setPinging(false); return; }
-    const node = selectedNode;
-    if (pingNodeIdRef.current !== node.id) {
-      pingNodeIdRef.current = node.id;
-      setPingMs(node.ping);   // у нового сервера показываем его прошлое значение, пока идёт замер
-    }
-    if (connectionState !== 'connected' && connectionState !== 'disconnected') { setPinging(false); return; }
-    // Свежий замер этого же сервера в этом же состоянии не повторяем: главный экран монтируется заново при каждом
-    // возврате из другого раздела.
-    const recent = recentHomePing(node.id, isConnected);
-    if (recent !== undefined) { setPingMs(recent); setPinging(false); return; }
-    let cancelled = false;
-    setPinging(true);
-    // Дебаунс: быстрые свайпы отменяют предыдущий замер, ядро не плодим. Сразу после отключения (и при запуске
-    // приложения) ждём дольше: авто-подключение, авто-переключение и быстрое переключение поднимают туннель заново
-    // через полсекунды — замер тогда отменяется, не успев запустить временное ядро.
-    const t = setTimeout(() => {
-      nativePingNode(node, 'proxy', isConnected, true)
-        .then((ms) => { rememberHomePing(node.id, isConnected, ms); if (!cancelled) setPingMs(ms); })
-        .catch(() => { if (!cancelled) setPingMs(-1); })
-        .finally(() => { if (!cancelled) setPinging(false); });
-    }, !isConnected && !sameState ? 1500 : 250);
-    return () => { cancelled = true; clearTimeout(t); };
-  }, [selectedNode?.id, connectionState]);
+  // Пинг выбранного сервера: берём кэш из раздела «Серверы» (node.ping), живой замер на главном
+  // не запускаем — он поднимал лишнее ядро и мешал работе VPN.
+  const pingMs = selectedNode?.ping;
 
   // Смена сервера свайпом: листаем по кругу список allNodes относительно текущего.
   const changeServer = (delta: number) => {
@@ -204,7 +158,7 @@ export default function HomeScreen({
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2.5">
-                <Tile icon={<Globe size={12} />} label="Ваш адрес" value={publicIp.ip ?? (publicIp.failed ? 'не определён' : 'определяю…')} sub={publicIp.country} />
+                <Tile icon={<Globe size={12} />} label="Ваш адрес" labelOverride={publicIp.country} value={publicIp.ip ?? (publicIp.failed ? 'не определён' : 'определяю…')} />
                 <Tile icon={<Clock size={12} />} label="В сети" value={formatTime(connectedTime)} mono color="#00e08a" />
               </div>
               {/* Нет интернета */}
@@ -340,7 +294,7 @@ export default function HomeScreen({
               whileTap={{ scale: 0.98 }}
               onClick={onGoToServers}
               aria-label={`Сервер: ${selectedNode.name}. Открыть список серверов`}
-              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl glass-card w-full border transition-colors touch-pan-y cursor-grab active:cursor-grabbing"
+              className="flex items-center gap-5 px-4 py-3.5 rounded-2xl glass-card w-full border transition-colors touch-pan-y cursor-grab active:cursor-grabbing"
               style={{ borderColor: withAlpha(buttonColor, '55'), boxShadow: `0 8px 32px -4px ${withAlpha(buttonColor, '18')}` }}
             >
               <Flag flag={selectedNode.flag} name={selectedNode.name} size={34} className="shrink-0 pointer-events-none" />
@@ -361,8 +315,8 @@ export default function HomeScreen({
                       {!hideServerDetails && selectedNode.security && selectedNode.security !== 'none' ? ` · ${selectedNode.security.toUpperCase()}` : ''}
                     </span>
                   )}
-                  {(pinging || pingMs !== undefined) && (
-                    <span className={`shrink-0 ${selectedNode.description ? '' : 'ml-auto'}`}><PingPill ms={pingMs} pending={pinging} size="sm" /></span>
+                  {pingMs !== undefined && (
+                    <span className={`shrink-0 ${selectedNode.description ? '' : 'ml-auto'}`}><PingPill ms={pingMs} pending={false} size="sm" /></span>
                   )}
                 </div>
               </div>

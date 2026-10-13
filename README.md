@@ -9,9 +9,9 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.8.3-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.3/KvadratPetrovicha-v2.8.3.apk)
-[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.8.3-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.3/KvadratPetrovicha-Setup-2.8.3.exe)
-[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.8.3-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.3/KvadratPetrovicha-2.8.3-portable.exe)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-2.9.0-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.9.0/KvadratPetrovicha-v2.9.0.apk)
+[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-2.9.0-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.9.0/KvadratPetrovicha-Setup-2.9.0.exe)
+[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-2.9.0-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.9.0/KvadratPetrovicha-2.9.0-portable.exe)
 
 <br/>
 
@@ -116,12 +116,13 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 
 ---
 
-## Что нового в 2.8.3
+## Что нового в 2.9.0
 
-- **Светлая тема** — в приложении появился переключатель светлой и тёмной тем (кнопка на главном экране); обе темы стали глубже и плавнее.
-- **Авто-подбор сервера** — вместо кнопки «самый быстрый сервер» появилась плитка авто-переключения: Петрович сам выбирает подходящий сервер из подписки.
-- **Стабильность измерений** — исправлены пинги и проверки соединения: измерения идут через собственное ядро каждого сервера, не мешают подключению и повторяются до результата.
-- **Windows** — приложение называется «Петрович» в интерфейсе (имена файлов не изменились), пинг серверов вынесен в рендерер и не блокирует окно.
+- **Сезонные образы Петровича** — наряд по времени года: два варианта на каждый сезон (зима, весна, лето, осень), одинаковые на главном экране, в нижней навигации и на онбординге. Синий «мёрзлый» оттенок убран — снег и дрожь остались.
+- **Сезонные фразы** — облачко у Петровича меняет фразу по сезону при каждом заходе на главный экран.
+- **Обновления с двух источников** — приложение проверяет оба репозитория с релизами ([vpn_app](https://github.com/sim-proxy-online/vpn_app) и [petrovich](https://github.com/sim-proxy-online/petrovich)): релиз, выложенный в любом из них, подхватывается пользователями.
+- **Windows** — exe и портативная сборка теперь проверяют обновления прямо в приложении (плашка «Доступно обновление»); портативка раньше не обновлялась вовсе.
+- **Быстрее главный экран** — живые пинги не запускаются, показывается сохранённый пинг сервера.
 
 Полный список версий и файлы — на странице [Releases](https://github.com/sim-proxy-online/vpn_app/releases).
 
@@ -130,7 +131,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`KvadratPetrovicha-v2.8.3.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.3/KvadratPetrovicha-v2.8.3.apk)
+1. Скачайте [`KvadratPetrovicha-v2.9.0.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.9.0/KvadratPetrovicha-v2.9.0.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите на Петровича
 
@@ -139,8 +140,8 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ### Windows
 | Вариант | Ссылка | Описание |
 |---|---|---|
-| Установщик | [KvadratPetrovicha-Setup-2.8.3.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.3/KvadratPetrovicha-Setup-2.8.3.exe) | Устанавливает в профиль пользователя, без прав администратора |
-| Portable | [KvadratPetrovicha-2.8.3-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.8.3/KvadratPetrovicha-2.8.3-portable.exe) | Запускается без установки |
+| Установщик | [KvadratPetrovicha-Setup-2.9.0.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.9.0/KvadratPetrovicha-Setup-2.9.0.exe) | Устанавливает в профиль пользователя, без прав администратора |
+| Portable | [KvadratPetrovicha-2.9.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v2.9.0/KvadratPetrovicha-2.9.0-portable.exe) | Запускается без установки |
 
 > Требования: Windows 10+ x64
 

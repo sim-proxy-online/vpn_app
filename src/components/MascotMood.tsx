@@ -1,10 +1,13 @@
-import mascot from '../assets/mascot.png';
+import { sessionMascot } from '../utils/mascotSeason';
 import { withAlpha } from '../utils/color';
 import { MOOD_COLOR, type Mood } from '../utils/mood';
 
+// Сезонная картинка Петровича (осенью — один из двух осенних вариантов), один адрес на всю сессию.
+const mascot = sessionMascot();
+
 /**
  * Петрович с настроением. Картинка одна (маскот бренда), настроение даёт то, что нарисовано вокруг и поверх него:
- * иней и снег, мысль-облачко, искры радости, знак вопроса и капля пота. Ничего не перерисовывается, поэтому герой
+ * падающий снег, мысль-облачко, искры радости, знак вопроса и капля пота. Ничего не перерисовывается, поэтому герой
  * всегда узнаваем. Все движения отключаются при системной настройке «уменьшить движение» (см. index.css).
  *
  * MascotDisc лежит внутри круга-медальона (родитель обрезает по кругу и центрирует), MoodAccessories — снаружи
@@ -13,7 +16,7 @@ import { MOOD_COLOR, type Mood } from '../utils/mood';
 
 // Цвета примет (снег, облачко, искры) — переменные темы из index.css: на светлом медальоне они другие.
 const FILTER: Record<Mood, string> = {
-  cold: 'var(--cold-filter)',
+  cold: '',
   thinking: 'saturate(0.95) brightness(0.97)',
   happy: 'saturate(1.1)',
   confused: 'saturate(0.85) brightness(0.9)',
@@ -28,7 +31,6 @@ const MOTION: Record<Mood, string> = {
 
 // Тонировка только по силуэту Петровича: маска — сама картинка.
 const TINT: Partial<Record<Mood, string>> = {
-  cold: 'linear-gradient(180deg, rgba(150,208,255,0.55), rgba(80,140,235,0.32))',
   confused: 'linear-gradient(180deg, rgba(255,95,110,0.26), rgba(255,95,110,0.10))',
 };
 
@@ -40,28 +42,9 @@ const SNOW = [
   { left: 88, size: 5, dur: 4.7, delay: 2.4, drift: -9 }, { left: 95, size: 3, dur: 4.3, delay: 1.4, drift: 7 },
 ];
 
-/** Сосульки по верхнему краю медальона: холод виден сразу, даже когда снежинки не в кадре. */
-function Icicles() {
-  return (
-    <svg aria-hidden viewBox="0 0 100 20" preserveAspectRatio="none" className="absolute left-0 top-0 w-full pointer-events-none" style={{ height: '17%', filter: 'var(--snow-edge)' }}>
-      <defs>
-        <linearGradient id="sim-ice" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
-          <stop offset="1" stopColor="#9fd6ff" stopOpacity="0.15" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M0 0 H100 V3 L96.5 13 L93 3 L88 17 L82.5 3 L77 11 L71.5 3 L65 19 L59 3 L53 12 L47 3 L41 16 L35 3 L29 10 L23 3 L17 14 L11 3 L6 12 L2.5 3 L0 6 Z"
-        fill="url(#sim-ice)"
-      />
-    </svg>
-  );
-}
-
 function Snow() {
   return (
     <span aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
-      <Icicles />
       {SNOW.map((f, i) => (
         <span
           key={i}
@@ -193,8 +176,9 @@ function ConfusedMarks({ color }: { color: string }) {
   );
 }
 
-/** Приметы настроения снаружи круга: облачко мысли, вопрос с каплей, «брр» от холода. */
-export function MoodAccessories({ mood, color = MOOD_COLOR[mood] }: { mood: Mood; color?: string }) {
+/** Приметы настроения снаружи круга: облачко мысли, вопрос с каплей, «брр» от холода.
+ *  Фраза «холода» приходит снаружи (ConnectMedallion меняет её при каждом входе на главную). */
+export function MoodAccessories({ mood, color = MOOD_COLOR[mood], idleText = 'брр…' }: { mood: Mood; color?: string; idleText?: string }) {
   if (mood === 'thinking') return <ThoughtBubble color={color} />;
   if (mood === 'confused') return <ConfusedMarks color={color} />;
   if (mood === 'cold') {
@@ -204,7 +188,7 @@ export function MoodAccessories({ mood, color = MOOD_COLOR[mood] }: { mood: Mood
         className="absolute pointer-events-none sim-shiver text-[11px] font-bold italic px-2.5 py-1 rounded-full"
         style={{ top: '2%', left: '-6%', color: 'var(--bubble-text)', background: 'var(--bubble-soft)', border: `1px solid ${withAlpha(color, '77')}`, boxShadow: `var(--bubble-drop), 0 0 12px ${withAlpha(color, '33')}` }}
       >
-        брр…
+        {idleText}
       </span>
     );
   }

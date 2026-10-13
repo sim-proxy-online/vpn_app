@@ -3,7 +3,10 @@ import { Home, Globe, FolderOpen, Settings } from 'lucide-react';
 import { AppScreen } from '../types';
 import { useTheme } from '../ThemeContext';
 import { useI18n } from '../i18n';
-import mascot from '../assets/mascot.png';
+import { sessionMascot } from '../utils/mascotSeason';
+
+// Сезонная картинка Петровича — общий адрес на сессию (см. utils/mascotSeason).
+const mascot = sessionMascot();
 
 interface NavProps {
   activeScreen: AppScreen;
@@ -17,45 +20,43 @@ const navItems: { id: AppScreen; icon: any; tkey: string }[] = [
   { id: 'settings', icon: Settings, tkey: 'nav.settings' },
 ];
 
-/* Mobile bottom navigation */
+/* Mobile bottom navigation — сегмент-контрол в стиле приложения.
+   Раскладка внутри сегмента вертикальная (иконка сверху, подпись под ней на всю
+   ширину сегмента), чтобы длинные русские подписи не слипались в одну строку. */
 export function MobileNav({ activeScreen, onNavigate }: NavProps) {
-  const { isDark } = useTheme();
   const { t } = useI18n();
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
-      {/* Background with glassmorphism and subtle border */}
-      <div className={`absolute inset-0 backdrop-blur-2xl border-t bg-[#0a0a1a]/80 border-[var(--accent-a15)]`} />
-
-      {/* Glow effect for the active area */}
-      {isDark && (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-[var(--accent-a44)] to-transparent shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]" />
-      )}
-
-      <nav className="relative flex items-center justify-around px-2 py-2 pb-[calc(8px+env(safe-area-inset-bottom,0px))]">
-        {navItems.map((item) => {
-          const isActive = activeScreen === item.id;
-          const Icon = item.icon;
-          return (
-            <button key={item.id} onClick={() => onNavigate(item.id)}
-              className="relative flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl transition-all min-w-[56px] sm:min-w-[64px]">
-              {isActive && (
-                <motion.div className="absolute inset-0 rounded-xl"
-                  style={{ background: 'linear-gradient(135deg, var(--accent-a08), #b000ff08)', border: '1px solid var(--accent-a22)' }}
-                  layoutId="mobNavBg" transition={{ type: 'spring', damping: 25 }} />
-              )}
-              <Icon size={20}
-                className={`relative z-10 transition-colors ${isActive ? 'text-[var(--accent)]' : 'text-gray-400'}`}
-                style={isActive ? { filter: 'drop-shadow(0 0 6px var(--accent))' } : {}} />
-              <span className={`relative z-10 text-[11px] font-medium transition-colors ${isActive ? 'text-[var(--accent)]' : ('text-gray-300')}`}>
-                {t(item.tkey)}
-              </span>
-              {isActive && (
-                <motion.div className="absolute -top-px left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-[var(--accent)]"
-                  style={{ boxShadow: '0 0 8px var(--accent)' }} layoutId="mobNavIndicator" />
-              )}
-            </button>
-          );
-        })}
+      {/* Плавающая «дорожка»-карточка: полной подложки во всю ширину нет — на экранах
+          с другим фоном (Серверы: --bg-deep #07071a) она выступала светлой полосой. */}
+      <nav className="relative px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
+        {/* Дорожка на переменной --nav-track: в тёмной теме это #0d0d20 — на пару тонов
+            светлее --bg, чтобы панель читалась карточкой, но не светилась фоном; в светлой
+            теме — белая. Граница var(--line). Фон непрозрачный, сквозь панель ничего не видно. */}
+        <div className="relative flex rounded-2xl border p-1" style={{ background: 'var(--nav-track)', borderColor: 'var(--line)' }}>
+          {navItems.map((item) => {
+            const isActive = activeScreen === item.id;
+            const Icon = item.icon;
+            return (
+              <button key={item.id} onClick={() => onNavigate(item.id)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-2 rounded-[13px] transition-colors min-w-0 ${isActive ? 'text-[var(--accent)]' : 'text-gray-400'}`}>
+                {/* Скользящий knob — акцентная подложка только активного пункта */}
+                {isActive && (
+                  <motion.div
+                    className="absolute inset-0 rounded-[13px] border bg-[var(--accent)]/10 border-[var(--accent)]/30"
+                    layoutId="mobNavKnob"
+                    transition={{ type: 'spring', damping: 28, stiffness: 320 }} />
+                )}
+                <Icon size={18}
+                  className="relative z-10 shrink-0 transition-colors" />
+                <span className="relative z-10 w-full px-0.5 text-center text-[10px] font-semibold leading-none tracking-tight transition-colors">
+                  {t(item.tkey)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );

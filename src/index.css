@@ -33,6 +33,9 @@
        rgba(var(--ink-rgb), 0.05) вместо rgba(255,255,255,0.05);
      • яркие цвета из кода (статусы, протоколы) для текста и значков — через onTheme() из utils/color.ts. */
 :root {
+  /* Фон дорожки нижней панели: чуть светлее --bg, чтобы панель читалась карточкой,
+     но не отбивалась от фонов экранов (--bg #0a0a1a, --bg-deep #07071a). */
+  --nav-track: #0d0d20;
   --bg: #0a0a1a;
   --bg2: #050510;
   --surface: #12122a;
@@ -81,7 +84,6 @@
   --bad-line: rgba(255, 59, 92, 0.45);
   /* Медальон с Петровичем и приметы его настроения (ConnectMedallion, MascotMood, MascotScene). */
   --medal: radial-gradient(circle at 50% 35%, #1b2250 0%, #0c1030 70%);
-  --medal-cold: radial-gradient(circle at 50% 35%, #1b2250 0%, #0c1030 70%);
   --medal-drop: 0 14px 40px -10px #000000aa;
   --knob: #0a0a1a;
   --knob-drop: 0 6px 16px #000000aa;
@@ -90,14 +92,13 @@
   --bubble-drop: 0 4px 14px #000000aa;
   --bubble-text: #cfe8ff;
   --snow: #eaf6ff;
-  --snow-edge: none;
   --snow-glow: none;
   --twinkle: #fff1a8;
   --twinkle-glow: #ffe27a;
-  --cold-filter: grayscale(0.3) saturate(0.85) brightness(0.84) contrast(0.96);
   --sweep-blend: screen;
 }
 [data-theme="light"] {
+  --nav-track: #ffffff;
   --bg: #f2f4f8;
   --bg2: #e7ebf2;
   --surface: #ffffff;
@@ -136,9 +137,8 @@
   --toggle-on: var(--accent);
   --ok-line: rgb(0 150 90 / 0.28);
   --bad-line: rgb(224 0 40 / 0.32);
-  /* Медальон — светлая «монета»: белый круг с мягкой тенью; у замёрзшего Петровича круг льдисто-голубой. */
+  /* Медальон — светлая «монета»: белый круг с мягкой тенью. */
   --medal: radial-gradient(circle at 50% 26%, #ffffff 0%, #eff4fb 60%, #dde7f5 100%);
-  --medal-cold: radial-gradient(circle at 50% 26%, #f7fbff 0%, #deecfb 58%, #c7ddf6 100%);
   --medal-drop: 0 2px 4px rgb(15 23 42 / 0.08), 0 20px 38px -14px rgb(15 23 42 / 0.34);
   --knob-drop: 0 8px 16px -6px rgb(15 23 42 / 0.35);
   --bubble: #ffffff;
@@ -146,12 +146,10 @@
   --bubble-drop: 0 4px 12px -3px rgb(15 23 42 / 0.28);
   --bubble-text: #2563a8;
   --snow: #ffffff;
-  --snow-edge: drop-shadow(0 0 1.5px rgb(37 99 168 / 0.7));
   /* Снежинки движутся: фильтр на каждой — лишний слой отрисовки, тень даёт тот же контур дешевле. */
   --snow-glow: 0 0 2px rgb(37 99 168 / 0.75);
   --twinkle: #f5a800;
   --twinkle-glow: #ffcf40;
-  --cold-filter: grayscale(0.22) saturate(0.9) brightness(0.97);
   --sweep-blend: multiply;
   color-scheme: light;
 }

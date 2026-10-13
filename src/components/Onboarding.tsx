@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Globe, FolderPlus, Zap, ChevronRight, Check } from 'lucide-react';
 import { useI18n } from '../i18n';
-import mascot from '../assets/mascot.png';
+import { sessionMascot } from '../utils/mascotSeason';
 import { withAlpha, onTheme } from '../utils/color';
+
+// Сезонная картинка Петровича — общий адрес на сессию (см. utils/mascotSeason).
+const mascot = sessionMascot();
 
 interface Slide {
   icon: React.ReactNode;

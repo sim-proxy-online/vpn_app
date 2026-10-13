@@ -17,7 +17,7 @@ export function Portrait({ mood, size, accessories = true }: { mood: Mood; size:
       />
       <span
         className="absolute inset-[5px] rounded-full overflow-hidden flex items-center justify-center"
-        style={{ background: mood === 'cold' ? 'var(--medal-cold)' : 'var(--medal)', boxShadow: `inset 0 0 28px ${withAlpha(color, '30')}, var(--medal-drop)` }}
+        style={{ background: 'var(--medal)', boxShadow: `inset 0 0 28px ${withAlpha(color, '30')}, var(--medal-drop)` }}
       >
         <MascotDisc mood={mood} color={color} />
       </span>

@@ -3,6 +3,7 @@ import { Power, Check, Loader2 } from 'lucide-react';
 import { withAlpha, onTheme, GRAPHIC_CONTRAST } from '../utils/color';
 import { ConnectionState } from '../types';
 import { MOOD_COLOR, moodFor, type Mood } from '../utils/mood';
+import { pickIdlePhrase } from '../utils/idlePhrases';
 import { MascotDisc, MoodAccessories } from './MascotMood';
 
 interface ConnectMedallionProps {
@@ -50,6 +51,9 @@ const RING_MASK = 'radial-gradient(farthest-side, transparent calc(100% - 4px), 
  */
 export default function ConnectMedallion({ state, onToggle, hint, error = false }: ConnectMedallionProps) {
   const [clickDisabled, setClickDisabled] = useState(false);
+  // Одна из фраз для «не защищено» — зависит от сезона (utils/idlePhrases). Выбирается заново при каждом
+  // монтировании медальона, то есть при каждом переходе на главный экран.
+  const [idlePhrase] = useState(() => pickIdlePhrase());
   const isConnected = state === 'connected';
   const isProcessing = state === 'connecting' || state === 'verifying' || state === 'disconnecting' || state === 'reconnecting';
   const mood = moodFor(state, error);
@@ -106,17 +110,15 @@ export default function ConnectMedallion({ state, onToggle, hint, error = false 
           <span
             className="absolute inset-[9px] rounded-full overflow-hidden flex items-center justify-center"
             style={{
-              background: mood === 'cold' ? 'var(--medal-cold)' : 'var(--medal)',
-              boxShadow: mood === 'cold'
-                ? 'inset 0 0 42px rgba(140,200,255,0.30), var(--medal-drop)'
-                : `inset 0 0 36px ${withAlpha(color, isConnected || isConfused ? '40' : '18')}, var(--medal-drop)`,
+              background: 'var(--medal)',
+              boxShadow: `inset 0 0 36px ${withAlpha(color, isConnected || isConfused ? '40' : '18')}, var(--medal-drop)`,
             }}
           >
             <MascotDisc mood={mood} color={paint} />
           </span>
 
-          {/* Приметы настроения за пределами круга: облачко мысли, вопрос с каплей, «брр» */}
-          <MoodAccessories mood={mood} color={mood === 'thinking' ? paint : MOOD_COLOR[mood]} />
+          {/* Приметы настроения за пределами круга: облачко мысли, вопрос с каплей, сезонная фраза при холоде */}
+          <MoodAccessories mood={mood} color={mood === 'thinking' ? paint : MOOD_COLOR[mood]} idleText={idlePhrase} />
 
           {/* Кнопка-значок на нижнем крае кольца (цвета — .medal-knob в index.css) */}
           <span

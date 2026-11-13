@@ -9,7 +9,7 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-3.0.0-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.0/KvadratPetrovicha-v3.0.0.apk)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-3.0.3-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.3/KvadratPetrovicha-v3.0.3.apk)
 [![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-3.0.0-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.0/KvadratPetrovicha-Setup-3.0.0.exe)
 [![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-3.0.0-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.0/KvadratPetrovicha-3.0.0-portable.exe)
 
@@ -116,12 +116,11 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 
 ---
 
-## Что нового в 3.0.0
+## Что нового в 3.0.3
 
-- **Пинги серверов починены** — замер через временное ядро больше не выдаёт «-1»: узлы выбираются сразу (roundrobin без ожидания обсерватории), недоступные пропускаются, список сортируется по реальному пингу.
-- **DNS на белых списках** — системный DNS оператора подставляется первым и в боевом туннеле, и в замере пинга: ТСПУ больше не подменяет 8.8.8.8/1.1.1.1, резолвятся узлы с доменными адресами и трафик приложений.
-- **Серверы «для домашнего интернета»** на мобильной сети корректно показывают «нет ответа» — они доступны только по Wi-Fi.
-- **Сцена на главном экране по времени суток** — небо, светило и облака; фон меню — ровная база без цветных отливов; исправлено отображение текста в разделе «Профили».
+- **Исправлены geo-теги в Xray-конфигах** — убраны `geosite:`/`geoip:` из стратегий маршрутизации (`bypass-ru`, `only-blocked`), приватных диапазонов и правил блокировки рекламы (только явные домены и inline CIDR).
+- **Исправлен замер пинга** — дубликаты outbound-тегов теперь отбрасываются, ошибка запуска PingCore логгируется в logcat.
+- Внутренняя версия APK: `versionCode 75`, `versionName 3.0.1` (релиз-тег `v3.0.3`). Windows-сборок в этом релизе нет, актуальные установщики — в v3.0.0.
 
 Полный список версий и файлы — на странице [Releases](https://github.com/sim-proxy-online/vpn_app/releases).
 
@@ -130,7 +129,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`KvadratPetrovicha-v3.0.0.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.0/KvadratPetrovicha-v3.0.0.apk)
+1. Скачайте [`KvadratPetrovicha-v3.0.3.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.3/KvadratPetrovicha-v3.0.3.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите на Петровича
 

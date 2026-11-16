@@ -9,9 +9,9 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-3.0.3-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.3/KvadratPetrovicha-v3.0.3.apk)
-[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-3.0.0-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.0/KvadratPetrovicha-Setup-3.0.0.exe)
-[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-3.0.0-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.0/KvadratPetrovicha-3.0.0-portable.exe)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-3.0.4-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-v3.0.4.apk)
+[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-3.0.4-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-Setup-3.0.4.exe)
+[![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-3.0.4-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-3.0.4-portable.exe)
 
 <br/>
 
@@ -70,7 +70,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 - автоподключение к нужному серверу, обновление и пинг при открытии, предупреждения об окончании подписки;
 - раздельное туннелирование по приложениям, исключение маршрутов, свой User-Agent, скрытие настроек.
 
-Параметры применяются только для проверенных провайдеров, пробного профиля и подписок, которые вы подтвердили сами. Небезопасные параметры (свои туннельные конфиги, учётные данные прокси) не применяются никогда.
+Параметры применяются только для проверенных провайдеров и подписок, которые вы подтвердили сами. Небезопасные параметры (свои туннельные конфиги, учётные данные прокси) не применяются никогда.
 
 ### Обход блокировок
 - **Автоподбор обхода** — приложение само пробует режимы обхода, пока не найдёт рабочий
@@ -116,11 +116,26 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 
 ---
 
-## Что нового в 3.0.3
+## Что нового в 3.0.4
 
-- **Исправлены geo-теги в Xray-конфигах** — убраны `geosite:`/`geoip:` из стратегий маршрутизации (`bypass-ru`, `only-blocked`), приватных диапазонов и правил блокировки рекламы (только явные домены и inline CIDR).
-- **Исправлен замер пинга** — дубликаты outbound-тегов теперь отбрасываются, ошибка запуска PingCore логгируется в logcat.
-- Внутренняя версия APK: `versionCode 75`, `versionName 3.0.1` (релиз-тег `v3.0.3`). Windows-сборок в этом релизе нет, актуальные установщики — в v3.0.0.
+- **Не падает при отключении VPN** — в 2.9.0 и 2.9.1 Android мог закрыть приложение при остановке туннеля.
+- **Меньше расход батареи** — главный экран с включённым VPN больше не перерисовывается непрерывно; анимации «Защищено» отыгрывают и замирают.
+- **Выбор сервера при включённом VPN переключает туннель** — раньше менялась только отметка, а трафик шёл через прежний сервер.
+- **Компактный список серверов** — на экране 9–10 серверов вместо пяти; порядок не прыгает во время замера скорости.
+- **Заголовки разделов закреплены** — прокручивается только содержимое.
+- **Интерфейс видит VPN, который ещё поднимается**, и не показывает ложные «VPN завис» и «утечка DNS».
+- **Предупреждение о подписке по http** — ключи серверов по http идут открытым текстом.
+
+## Что нового в 2.9.1
+
+- **Kill Switch действительно блокирует трафик** — пока VPN поднят, обходной путь закрыт; добавлено файловое логирование.
+- **Подписки обновляются в фоне** — даже когда приложение закрыто, конфигурации остаются свежими.
+- **Петрович в кибер-броне** — новый образ маскота, пока VPN включён; белый фон у иконки лаунчера.
+- **Полностью переведённый английский интерфейс** — ещё ~250 строк ушли в словарь.
+- **Общая проверенная гео-база** — одинаковый geoip/geosite на всех платформах.
+- **Исправления утечек и падений** — утечка реального IP и логов в logcat, ложное срабатывание DNS leak-теста, падение процесса при сбое прогона, аварийный выход на Android 7–12, OOM в release-сборке.
+- **Безопасность Windows** — contextIsolation включён, ужесточена навигация, надёжнее повтор обновлений.
+- **Исправлена portable-версия Windows** — сборка из `%TEMP%` (короткие 8.3-пути) не могла обратиться к мосту: пинги, подключение и обновление отвечали «forbidden», UI показывал «[object Object]». Установленная версия багом не была затронута.
 
 Полный список версий и файлы — на странице [Releases](https://github.com/sim-proxy-online/vpn_app/releases).
 
@@ -129,7 +144,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`KvadratPetrovicha-v3.0.3.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.3/KvadratPetrovicha-v3.0.3.apk)
+1. Скачайте [`KvadratPetrovicha-v3.0.4.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-v3.0.4.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите на Петровича
 
@@ -138,8 +153,8 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ### Windows
 | Вариант | Ссылка | Описание |
 |---|---|---|
-| Установщик | [KvadratPetrovicha-Setup-3.0.0.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.0/KvadratPetrovicha-Setup-3.0.0.exe) | Устанавливает в профиль пользователя, без прав администратора |
-| Portable | [KvadratPetrovicha-3.0.0-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.0/KvadratPetrovicha-3.0.0-portable.exe) | Запускается без установки |
+| Установщик | [KvadratPetrovicha-Setup-3.0.4.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-Setup-3.0.4.exe) | Устанавливает в профиль пользователя, без прав администратора |
+| Portable | [KvadratPetrovicha-3.0.4-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-3.0.4-portable.exe) | Запускается без установки |
 
 > Требования: Windows 10+ x64
 
@@ -154,6 +169,42 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 
 ---
 
+## Проверка подлинности
+
+Скачанные файлы можно проверить — это защищает от подмены на стороне CDN/зеркала.
+
+**1. Хеши SHA-256.** К каждому релизу прикреплён файл `SHA256SUMS.txt`:
+
+```bash
+sha256sum -c SHA256SUMS.txt          # Linux / macOS
+Get-FileHash .\SimProxy-v2.7.1.apk -Algorithm SHA256   # Windows PowerShell
+```
+
+**2. Подпись APK.** APK подписан ключом проекта; отпечаток сертификата публикуется здесь:
+
+```bash
+apksigner verify --print-certs SimProxy-v2.7.1.apk
+```
+
+| Поле | Значение |
+|---|---|
+| Signer DN | `CN=Sim Proxy, OU=Development, O=SimProxy, C=RU` |
+| **SHA-256 сертификата** | `c20f51e2f97fd01ddcb68a906b3bdcd3bd02b3ab83aeff23b1684238eeb704d1` |
+
+Отпечаток в порядке (без пробелов и двоеточий, в нижнем регистре) — файл от нас. APK с любым другим отпечатком **не обновится поверх** установленного: Android сам отклонит такую установку — это штатная защита.
+
+> Если отпечаток вдруг изменится (смена keystore), это будет объявлено отдельно в релизе.
+
+**3. Подпись Windows-сборки.** Portable-`.exe` подписывается через SignPath (см. [SIGNPATH_SETUP.md](SIGNPATH_SETUP.md)):
+
+```powershell
+Get-AuthenticodeSignature .\SimProxy-2.7.1-portable.exe | Format-List Status, SignerCertificate
+```
+
+Статус `Valid` — подпись доверенная. Подпись набирает репутацию SmartScreen по числу загрузок, поэтому у свежего издателя Windows всё равно может показать предупреждение.
+
+---
+
 ## Deep links
 
 Открываются прямо из браузера (схемы `sim://` и `happ://`):
@@ -165,6 +216,26 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 | `sim://routing/add/<base64>` | импорт профиля маршрутизации |
 
 Протокольные ссылки `vless://` `vmess://` `trojan://` `ss://` `hysteria2://` `tuic://` `wireguard://` — вставляются из буфера обмена.
+
+---
+
+## Нижняя навигация: эталонный вид
+
+Согласованный вид нижней зоны. Меняется только осознанно — иначе ломается то, что уже принято.
+
+| Элемент | Как должно быть |
+|---|---|
+| Контейнер меню | Полностью прозрачный: никакой заливки во всю ширину и **никакого затемняющего градиента у нижнего края** (шлейф убирали специально). |
+| Карточка меню | Плавающая скруглённая дорожка на `--nav-track`: в тёмной теме `#1a1a32` (тело пилюли сервера на «Главной»), в светлой `#ffffff`. Ровная заливка без отливов и переливов (бирюзовый/индиго-градиенты на короткой карточке читались цветными полосами и ушли), плюс светлая кромка сверху (`inset 0 1px 0 rgba(255,255,255,0.07)`). |
+| Обводка | Лёгкая кромка 1dp на `--nav-outline`: тёмная тема `rgba(255,255,255,0.12)`, светлая `rgb(15 23 42 / 0.14)`. |
+| Активный пункт | Акцентная «ручка»: `bg accent/10` + `border accent/30`, скользит анимацией `layoutId="mobNavKnob"`. |
+
+Нижняя зона страниц (`App.tsx`, `page-wash`):
+
+- **«Главная»** — как было: лист обрезается на 72px над меню, ниже ровный фон страницы.
+- **Серверы / Профили / Настройки** — контент доходит до низа и уходит под меню, **без затемнения у края**. Списки имеют собственный нижний отступ (`pb-28`), чтобы последний элемент прокручивался выше меню.
+
+Реализация: `src/components/BottomNav.tsx` (`MobileNav`), переменные в `src/index.css` (раздел `:root` / `[data-theme="light"]`), нижние отступы в `src/App.tsx` и в списках экранов.
 
 ---
 

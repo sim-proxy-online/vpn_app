@@ -9,8 +9,8 @@
 
 <br/>
 
-[![Android](https://img.shields.io/badge/▼%20Android%20APK-3.0.4-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-v3.0.4.apk)
-[![Windows Setup](https://img.shields.io/badge/▼%20Windows%20Setup-3.0.4-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-Setup-3.0.4.exe)
+[![Android](https://img.shields.io/badge/▼%20Android%20APK-3.0.24-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.70/Petrovich-3.0.24-106.apk)
+[![Windows TUN](https://img.shields.io/badge/▼%20Windows%20TUN-3.0.70-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.70/KvadratPetrovicha-TUN-Setup-3.0.70.exe)
 [![Windows Portable](https://img.shields.io/badge/▼%20Portable%20EXE-3.0.4-6c6c6c?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-3.0.4-portable.exe)
 
 <br/>
@@ -116,6 +116,13 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 
 ---
 
+## Что изменилось после v3.0.4
+
+- **Android 3.0.24, сборка 106** — новая главная и управление VPN из шторки, улучшения переподключения.
+- **Windows TUN 3.0.70** — служба Wintun, режимы подключения, Kill Switch и новая панель серверов на главной.
+
+[Полный список изменений](https://github.com/sim-proxy-online/vpn_app/releases/tag/v3.0.70).
+
 ## Что нового в 3.0.4
 
 - **Не падает при отключении VPN** — в 2.9.0 и 2.9.1 Android мог закрыть приложение при остановке туннеля.
@@ -144,7 +151,7 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ## Установка
 
 ### Android
-1. Скачайте [`KvadratPetrovicha-v3.0.4.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-v3.0.4.apk)
+1. Скачайте [`Petrovich-3.0.24-106.apk`](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.70/Petrovich-3.0.24-106.apk)
 2. Откройте файл на устройстве → разрешите установку из неизвестных источников
 3. Добавьте подписку (ссылка / QR / буфер обмена) и нажмите на Петровича
 
@@ -153,8 +160,8 @@ VLESS · VMess · Trojan · Shadowsocks · Hysteria2 · TUIC · WireGuard · REA
 ### Windows
 | Вариант | Ссылка | Описание |
 |---|---|---|
-| Установщик | [KvadratPetrovicha-Setup-3.0.4.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-Setup-3.0.4.exe) | Устанавливает в профиль пользователя, без прав администратора |
-| Portable | [KvadratPetrovicha-3.0.4-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-3.0.4-portable.exe) | Запускается без установки |
+| Установщик | [KvadratPetrovicha-TUN-Setup-3.0.70.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.70/KvadratPetrovicha-TUN-Setup-3.0.70.exe) | Для установки службы TUN нужны права администратора |
+| Portable (архив) | [KvadratPetrovicha-3.0.4-portable.exe](https://github.com/sim-proxy-online/vpn_app/releases/download/v3.0.4/KvadratPetrovicha-3.0.4-portable.exe) | Запускается без установки |
 
 > Требования: Windows 10+ x64
 
